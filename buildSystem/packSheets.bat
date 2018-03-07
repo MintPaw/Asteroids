@@ -7,4 +7,5 @@ mkdir bin\assets
 cd rawArt
 %packer% --powerOf2 --format pixijs sprites ../bin/assets
 
-exit 0
+cd ..
+exit /b 0
