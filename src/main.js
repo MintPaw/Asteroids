@@ -31,8 +31,10 @@ var game = {
 	keyUp: null,
 	keyDown: null,
 	keyLeft: null,
-	keyRight: null
+	keyRight: null,
 
+	mouseX: 0,
+	mouseY: 0
 };
 
 var scene = null;
@@ -64,6 +66,10 @@ function create() {
 	game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
 	game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 
+	scene.input.on('pointermove', function (pointer) {
+		game.mouseX = pointer.x;
+		game.mouseY = pointer.y;
+	}, this);
 }
 
 function update() {
@@ -82,6 +88,10 @@ function update() {
 	if (right) game.player.body.acceleration.x += speed;
 	if (up) game.player.body.acceleration.y -= speed;
 	if (down) game.player.body.acceleration.y += speed;
+
+	var angle = Math.atan2(game.mouseY - game.player.y, game.mouseX - game.player.x);
+	angle = angle * (180/Math.PI);
+	game.player.angle = angle + 90;
 
 	{ /// Update sceeen looping
 		var loopingSprites = game.asteroids.concat();
