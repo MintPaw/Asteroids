@@ -3,9 +3,9 @@ var config = {
 	width: 800,
 	height: 600,
 	physics: {
-		default: 'arcade',
+		default: "arcade",
 		arcade: {
-			gravity: { y: 200 }
+			gravity: { y: 0 }
 		}
 	},
 	scene: {
@@ -22,26 +22,22 @@ var phaser = new Phaser.Game(config);
 
 var game = {
 	playerSprite: null,
-	playerVelo: new Point(),
-	playerAccel: new Point(),
-	playerMaxVelo: new Point(),
-	playerDrag: 0.01,
-
 	asteroids: []
 };
 
 var scene = null;
 
 function preload() {
+	scene = this;
+
+	scene.load.atlas("assets", "assets/sprites.png", "assets/sprites.json");
 }
 
 function create() {
-	scene = this;
-
 	{ /// Create Player
-		var spr = scene.add.graphics(0, 0);
-		spr.fillStyle(0x0000FF, 1);
-		spr.fillCircle(0, 0, 30);
+		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
+		spr.setDrag(5, 5);
+		spr.setMaxVelocity(300, 300);
 
 		game.playerSprite = spr;
 		game.playerMaxVelo = new Point(5, 5);
@@ -70,39 +66,16 @@ function update() {
 	if (keyA.isDown || keyLeft.isDown) left = true;
 	if (keyD.isDown || keyRight.isDown) right = true;
 
-	game.playerAccel.x = 0;
-	game.playerAccel.y = 0;
-
-	var speed = 0.05;
-	if (left) game.playerAccel.x -= speed;
-	if (right) game.playerAccel.x += speed;
-	if (up) game.playerAccel.y -= speed;
-	if (down) game.playerAccel.y += speed;
-
-	game.playerVelo.x += game.playerAccel.x;
-	game.playerVelo.y += game.playerAccel.y;
-
-	game.playerVelo.x *= 1 - game.playerDrag;
-	game.playerVelo.y *= 1 - game.playerDrag;
-
-	if (game.playerVelo.x > game.playerMaxVelo.x) game.playerVelo.x = game.playerMaxVelo.x;
-	if (game.playerVelo.x < -game.playerMaxVelo.x) game.playerVelo.x = -game.playerMaxVelo.x;
-	if (game.playerVelo.y > game.playerMaxVelo.y) game.playerVelo.y = game.playerMaxVelo.y;
-	if (game.playerVelo.y < -game.playerMaxVelo.y) game.playerVelo.y = -game.playerMaxVelo.y;
-
-	game.playerSprite.x += game.playerVelo.x;
-	game.playerSprite.y += game.playerVelo.y;
+	var speed = 100;
+	game.playerSprite.setAcceleration(0, 0);
+	if (left) game.playerSprite.body.acceleration.x -= speed;
+	if (right) game.playerSprite.body.acceleration.x += speed;
+	if (up) game.playerSprite.body.acceleration.y -= speed;
+	if (down) game.playerSprite.body.acceleration.y += speed;
 
 	{ /// Update sceeen looping
-		var loopingSprites = [];
+		var loopingSprites = game.asteroids.concat();
 		loopingSprites.push(game.playerSprite);
-
-		for (asteroid of game.asteroids) {
-			asteroid.sprite.x += asteroid.velo.x;
-			asteroid.sprite.y += asteroid.velo.y;
-
-			loopingSprites.push(asteroid.sprite);
-		}
 
 		for (spr of loopingSprites) {
 			if (spr.x < 0) spr.x = phaser.canvas.width;
@@ -118,17 +91,11 @@ function rnd(min, max) {
 }
 
 function createAsteroid(x, y) {
-	var spr = scene.add.graphics(0, 0);
-	spr.fillStyle(0xFFFFFF, 0.8);
-	spr.fillCircle(0, 0, 30);
+	var spr = scene.physics.add.image(0, 0, "assets", "sprites/asteroids/asteroid1");
+	spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 	spr.x = x;
 	spr.y = y;
 
-	var asteroid = {
-		sprite: spr,
-		velo: new Point(rnd(-1, 1), rnd(-1, 1))
-	};
-
-	game.asteroids.push(asteroid);
-	return asteroid;
+	game.asteroids.push(spr);
+	return spr;
 }

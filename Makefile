@@ -3,6 +3,7 @@ all:
 	$(MAKE) r
 
 b:
+	cmd /c "call buildSystem/packSheets.bat"
 	cmd /c "call buildSystem/build.bat"
 
 r:
