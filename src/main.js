@@ -24,6 +24,7 @@ var game = {
 	player: null,
 	asteroids: [],
 	bullets: [],
+	bulletsGroup: null,
 
 	timeTillNextShot: 0,
 
@@ -66,17 +67,6 @@ function create() {
 		};
 	}
 
-	{ /// Create Player
-		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
-		spr.setDrag(5, 5);
-		spr.setMaxVelocity(300, 300);
-
-		game.player = spr;
-	}
-
-	createAsteroid(300, 400);
-	createAsteroid(500, 400);
-
 	game.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 	game.keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 	game.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -91,6 +81,21 @@ function create() {
 		game.mouseX = pointer.x;
 		game.mouseY = pointer.y;
 	}, this);
+
+	{ /// Create Player
+		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
+		spr.setDrag(5, 5);
+		spr.setMaxVelocity(300, 300);
+
+		game.player = spr;
+	}
+
+	game.bulletsGroup = scene.physics.add.group();
+	game.asteroidGroup = scene.physics.add.group();
+	createAsteroid(300, 400);
+	createAsteroid(500, 400);
+
+	scene.physics.world.addOverlap(game.bulletsGroup, game.asteroidGroup, bulletVAsteroid);
 }
 
 function update(delta) {
@@ -117,7 +122,7 @@ function update(delta) {
 	if (shoot && game.timeTillNextShot <= 0) {
 		game.timeTillNextShot = 1;
 
-		var spr = scene.physics.add.image(0, 0, "assets", "sprites/bullets/bullet1");
+		var spr = game.bulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
 		var angle = (game.player.angle-90) * Math.PI/180;
 
 		spr.x = game.player.x + Math.cos(angle) * (game.player.width/2);
@@ -157,12 +162,23 @@ function update(delta) {
 
 }
 
+function bulletVAsteroid(bullet, asteroid) {
+	bullet.destroy();
+
+	if (asteroid.scaleX <= 0.1) {
+		asteroid.destroy();
+	} else {
+		asteroid.scaleX -= 0.3;
+		asteroid.scaleY -= 0.3;
+	}
+}
+
 function rnd(min, max) {
 	return Math.random() * (max - min) + min;
 }
 
 function createAsteroid(x, y) {
-	var spr = scene.physics.add.image(0, 0, "assets", "sprites/asteroids/asteroid1");
+	var spr = game.asteroidGroup.create(0, 0, "assets", "sprites/asteroids/asteroid1");
 	spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 	spr.x = x;
 	spr.y = y;
