@@ -39,7 +39,10 @@ var game = {
 	keySpace: null,
 
 	mouseX: 0,
-	mouseY: 0
+	mouseY: 0,
+	mouseDown: false,
+	mouseJustDown: false,
+	mouseJustUp: false
 };
 
 var scene = null;
@@ -77,9 +80,19 @@ function create() {
 	game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 	game.keySpace = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-	scene.input.on('pointermove', function (pointer) {
+	scene.input.on("pointermove", function (pointer) {
 		game.mouseX = pointer.x;
 		game.mouseY = pointer.y;
+	}, this);
+
+	scene.input.on("pointerdown", function (e) {
+		game.mouseDown = true;
+		game.mouseJustDown = true;
+	}, this);
+
+	scene.input.on("pointerup", function (e) {
+		game.mouseDown = false;
+		game.mouseJustUp = true;
 	}, this);
 
 	{ /// Create Player
@@ -108,7 +121,7 @@ function update(delta) {
 	if (game.keyS.isDown || game.keyDown.isDown) down = true;
 	if (game.keyA.isDown || game.keyLeft.isDown) left = true;
 	if (game.keyD.isDown || game.keyRight.isDown) right = true;
-	if (game.keySpace.isDown) shoot = true;
+	if (game.keySpace.isDown || game.mouseDown) shoot = true;
 
 	var speed = 100;
 	game.player.setAcceleration(0, 0);
@@ -160,6 +173,10 @@ function update(delta) {
 		}
 	}
 
+	{ /// Reset inputs
+		game.mouseJustDown = false;
+		game.mouseJustUp = false;
+	}
 }
 
 function bulletVAsteroid(bullet, asteroid) {
