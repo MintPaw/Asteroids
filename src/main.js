@@ -25,16 +25,20 @@ var game = {
 	playerVelo: new Point(),
 	playerAccel: new Point(),
 	playerMaxVelo: new Point(),
-	playerDrag: 0.01
+	playerDrag: 0.01,
+
+	asteroids: []
 };
+
+var scene = null;
 
 function preload() {
 }
 
 function create() {
-	var scene = this;
+	scene = this;
 
-	{ /// Section: Player
+	{ /// Create Player
 		var spr = scene.add.graphics(0, 0);
 		spr.fillStyle(0x0000FF, 1);
 		spr.fillCircle(0, 0, 30);
@@ -42,11 +46,12 @@ function create() {
 		game.playerSprite = spr;
 		game.playerMaxVelo = new Point(5, 5);
 	}
+
+	createAsteroid(300, 400);
+	createAsteroid(500, 400);
 }
 
 function update() {
-	var scene = this;
-
 	var keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
 	var keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 	var keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -88,6 +93,27 @@ function update() {
 	game.playerSprite.x += game.playerVelo.x;
 	game.playerSprite.y += game.playerVelo.y;
 
-	log(game.playerVelo);
+	{ /// Update Asteroids
+		for (asteroid of game.asteroids) {
+			asteroid.sprite.x += asteroid.velo.x;
+			asteroid.sprite.y += asteroid.velo.y;
+		}
+	}
+}
 
+function createAsteroid(x, y) {
+	var spr = scene.add.graphics(0, 0);
+	spr.fillStyle(0xFFFFFF, 0.8);
+	spr.fillCircle(0, 0, 30);
+	spr.x = x;
+	spr.y = y;
+
+	var asteroid = {
+		phase: 3,
+		sprite: spr,
+		velo: new Point(Math.random(), Math.random())
+	};
+
+	game.asteroids.push(asteroid);
+	return asteroid;
 }
