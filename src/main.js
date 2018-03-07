@@ -21,7 +21,7 @@ var log = console.log;
 var phaser = new Phaser.Game(config);
 
 var game = {
-	playerSprite: null,
+	player: null,
 	asteroids: [],
 
 	keyW: null,
@@ -49,8 +49,7 @@ function create() {
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(300, 300);
 
-		game.playerSprite = spr;
-		game.playerMaxVelo = new Point(5, 5);
+		game.player = spr;
 	}
 
 	createAsteroid(300, 400);
@@ -78,15 +77,15 @@ function update() {
 	if (game.keyD.isDown || game.keyRight.isDown) right = true;
 
 	var speed = 100;
-	game.playerSprite.setAcceleration(0, 0);
-	if (left) game.playerSprite.body.acceleration.x -= speed;
-	if (right) game.playerSprite.body.acceleration.x += speed;
-	if (up) game.playerSprite.body.acceleration.y -= speed;
-	if (down) game.playerSprite.body.acceleration.y += speed;
+	game.player.setAcceleration(0, 0);
+	if (left) game.player.body.acceleration.x -= speed;
+	if (right) game.player.body.acceleration.x += speed;
+	if (up) game.player.body.acceleration.y -= speed;
+	if (down) game.player.body.acceleration.y += speed;
 
 	{ /// Update sceeen looping
 		var loopingSprites = game.asteroids.concat();
-		loopingSprites.push(game.playerSprite);
+		loopingSprites.push(game.player);
 
 		for (spr of loopingSprites) {
 			if (spr.x < 0) spr.x = phaser.canvas.width;
