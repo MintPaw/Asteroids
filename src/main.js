@@ -22,7 +22,17 @@ var phaser = new Phaser.Game(config);
 
 var game = {
 	playerSprite: null,
-	asteroids: []
+	asteroids: [],
+
+	keyW: null,
+	keyS: null,
+	keyA: null,
+	keyD: null,
+	keyUp: null,
+	keyDown: null,
+	keyLeft: null,
+	keyRight: null
+
 };
 
 var scene = null;
@@ -45,26 +55,27 @@ function create() {
 
 	createAsteroid(300, 400);
 	createAsteroid(500, 400);
+
+	game.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+	game.keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+	game.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+	game.keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+	game.keyUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+	game.keyDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+	game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+	game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+
 }
 
 function update() {
-	var keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-	var keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-	var keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-	var keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-	var keyUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-	var keyDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-	var keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-	var keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-
 	var left = false;
 	var right = false;
 	var up = false;
 	var down = false;
-	if (keyW.isDown || keyUp.isDown) up = true;
-	if (keyS.isDown || keyDown.isDown) down = true;
-	if (keyA.isDown || keyLeft.isDown) left = true;
-	if (keyD.isDown || keyRight.isDown) right = true;
+	if (game.keyW.isDown || game.keyUp.isDown) up = true;
+	if (game.keyS.isDown || game.keyDown.isDown) down = true;
+	if (game.keyA.isDown || game.keyLeft.isDown) left = true;
+	if (game.keyD.isDown || game.keyRight.isDown) right = true;
 
 	var speed = 100;
 	game.playerSprite.setAcceleration(0, 0);
