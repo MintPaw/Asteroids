@@ -23,6 +23,9 @@ var phaser = new Phaser.Game(config);
 var game = {
 	player: null,
 	asteroids: [],
+	bullets: [],
+
+	timeTillNextShot: 0,
 
 	keyW: null,
 	keyS: null,
@@ -32,6 +35,7 @@ var game = {
 	keyDown: null,
 	keyLeft: null,
 	keyRight: null,
+	keySpace: null,
 
 	mouseX: 0,
 	mouseY: 0
@@ -46,6 +50,22 @@ function preload() {
 }
 
 function create() {
+	{ /// Add remove to array
+		Array.prototype.remove = function(val, all) {
+			var i, removedItems = [];
+			if (all) {
+				for(i = this.length; i--;){
+					if (this[i] === val) removedItems.push(this.splice(i, 1));
+				}
+			}
+			else {  //same as before...
+				i = this.indexOf(val);
+				if(i>-1) removedItems = this.splice(i, 1);
+			}
+			return removedItems;
+		};
+	}
+
 	{ /// Create Player
 		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
 		spr.setDrag(5, 5);
@@ -65,6 +85,7 @@ function create() {
 	game.keyDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
 	game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
 	game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+	game.keySpace = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
 	scene.input.on('pointermove', function (pointer) {
 		game.mouseX = pointer.x;
@@ -72,15 +93,17 @@ function create() {
 	}, this);
 }
 
-function update() {
+function update(delta) {
 	var left = false;
 	var right = false;
 	var up = false;
 	var down = false;
+	var shoot = false;
 	if (game.keyW.isDown || game.keyUp.isDown) up = true;
 	if (game.keyS.isDown || game.keyDown.isDown) down = true;
 	if (game.keyA.isDown || game.keyLeft.isDown) left = true;
 	if (game.keyD.isDown || game.keyRight.isDown) right = true;
+	if (game.keySpace.isDown) shoot = true;
 
 	var speed = 100;
 	game.player.setAcceleration(0, 0);
@@ -89,12 +112,30 @@ function update() {
 	if (up) game.player.body.acceleration.y -= speed;
 	if (down) game.player.body.acceleration.y += speed;
 
+	if (game.timeTillNextShot > 0) game.timeTillNextShot -= 1/60;
+
+	if (shoot && game.timeTillNextShot <= 0) {
+		game.timeTillNextShot = 1;
+
+		var spr = scene.physics.add.image(0, 0, "assets", "sprites/bullets/bullet1");
+		var angle = (game.player.angle-90) * Math.PI/180;
+
+		spr.x = game.player.x + Math.cos(angle) * (game.player.width/2);
+		spr.y = game.player.y + Math.sin(angle) * (game.player.height/2);
+
+		var speed = 200;
+		spr.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+		game.bullets.push(spr);
+	}
+
 	var angle = Math.atan2(game.mouseY - game.player.y, game.mouseX - game.player.x);
 	angle = angle * (180/Math.PI);
 	game.player.angle = angle + 90;
 
 	{ /// Update sceeen looping
-		var loopingSprites = game.asteroids.concat();
+		var loopingSprites = []
+		loopingSprites.push(...game.asteroids);
+		loopingSprites.push(...game.bullets);
 		loopingSprites.push(game.player);
 
 		for (spr of loopingSprites) {
@@ -104,6 +145,16 @@ function update() {
 			if (spr.y > phaser.canvas.height) spr.y = 0;
 		}
 	}
+
+	/// Update bullets
+	for (spr of game.bullets) {
+		spr.alpha -= 0.005;
+		if (spr.alpha <= 0) {
+			game.bullets.remove(spr);
+			spr.destroy();
+		}
+	}
+
 }
 
 function rnd(min, max) {
