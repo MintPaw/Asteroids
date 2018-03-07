@@ -113,6 +113,10 @@ function update() {
 	}
 }
 
+function rnd(min, max) {
+	return Math.random() * (max - min) + min;
+}
+
 function createAsteroid(x, y) {
 	var spr = scene.add.graphics(0, 0);
 	spr.fillStyle(0xFFFFFF, 0.8);
@@ -122,7 +126,7 @@ function createAsteroid(x, y) {
 
 	var asteroid = {
 		sprite: spr,
-		velo: new Point(Math.random(), Math.random())
+		velo: new Point(rnd(-1, 1), rnd(-1, 1))
 	};
 
 	game.asteroids.push(asteroid);
