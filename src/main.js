@@ -93,10 +93,22 @@ function update() {
 	game.playerSprite.x += game.playerVelo.x;
 	game.playerSprite.y += game.playerVelo.y;
 
-	{ /// Update Asteroids
+	{ /// Update sceeen looping
+		var loopingSprites = [];
+		loopingSprites.push(game.playerSprite);
+
 		for (asteroid of game.asteroids) {
 			asteroid.sprite.x += asteroid.velo.x;
 			asteroid.sprite.y += asteroid.velo.y;
+
+			loopingSprites.push(asteroid.sprite);
+		}
+
+		for (spr of loopingSprites) {
+			if (spr.x < 0) spr.x = phaser.canvas.width;
+			if (spr.y < 0) spr.y = phaser.canvas.height;
+			if (spr.x > phaser.canvas.width) spr.x = 0;
+			if (spr.y > phaser.canvas.height) spr.y = 0;
 		}
 	}
 }
@@ -109,7 +121,6 @@ function createAsteroid(x, y) {
 	spr.y = y;
 
 	var asteroid = {
-		phase: 3,
 		sprite: spr,
 		velo: new Point(Math.random(), Math.random())
 	};
