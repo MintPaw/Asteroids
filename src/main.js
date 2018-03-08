@@ -128,6 +128,8 @@ function create() {
 
 	{ /// Create Player
 		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
+		spr.x = phaser.canvas.width/2 - spr.width/2;
+		spr.y = phaser.canvas.height * 0.25;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(300, 300);
 
@@ -258,6 +260,16 @@ function switchLevel(newLevel) {
 	game.level = newLevel;
 	phaser.scene.stop("game");
 	phaser.scene.start("game");
+
+	var text = scene.add.text(0, 0, "Level "+game.level, {font: "64px Arial"});
+	text.x = phaser.canvas.width/2 - text.width/2;
+	text.y = -text.height;
+
+	scene.tweens.add({
+		targets: text,
+		y: { value: 10, duration: 500, ease: "Power1" },
+		alpha: { value: 0, duration: 500, ease: "Power1", delay: 3000 }
+	});
 }
 
 function bulletVAsteroid(bullet, asteroid) {
