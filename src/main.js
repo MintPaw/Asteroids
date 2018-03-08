@@ -42,7 +42,10 @@ var game = {
 	mouseY: 0,
 	mouseDown: false,
 	mouseJustDown: false,
-	mouseJustUp: false
+	mouseJustUp: false,
+
+	level: 0,
+	inGame: false
 };
 
 var scene = null;
@@ -54,6 +57,14 @@ function preload() {
 }
 
 function create() {
+	{ /// Level reloader
+		if (game.level == 0) {
+			startLevel(1);
+			phaser.scene.start("default");
+			return;
+		}
+	}
+
 	{ /// Add remove to array
 		Array.prototype.remove = function(val, all) {
 			var i, removedItems = [];
@@ -109,9 +120,17 @@ function create() {
 	createAsteroid(500, 400);
 
 	scene.physics.world.addOverlap(game.bulletsGroup, game.asteroidGroup, bulletVAsteroid);
+
+	game.inGame = true;
+}
+
+function startLevel(level) {
+	game.level = level;
+	// scene.scene.start(
 }
 
 function update(delta) {
+	if (!game.inGame) return;
 	var left = false;
 	var right = false;
 	var up = false;
