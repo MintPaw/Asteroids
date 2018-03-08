@@ -1,3 +1,16 @@
+var MenuScene = {
+	key: "menu",
+	create: menuCreate,
+	update: menuUpdate
+};
+
+var GameScene = {
+	key: "game",
+	preload: preload,
+	create: create,
+	update: update
+};
+
 var config = {
 	type: Phaser.AUTO,
 	width: 800,
@@ -8,11 +21,7 @@ var config = {
 			gravity: { y: 0 }
 		}
 	},
-	scene: {
-		preload: preload,
-		create: create,
-		update: update
-	}
+	scene: [ GameScene, MenuScene ]
 };
 
 var abs = Math.abs;
@@ -37,6 +46,11 @@ var game = {
 	keyLeft: null,
 	keyRight: null,
 	keySpace: null,
+	key1: null,
+	key2: null,
+	key3: null,
+	key4: null,
+	key5: null,
 
 	mouseX: 0,
 	mouseY: 0,
@@ -59,8 +73,7 @@ function preload() {
 function create() {
 	{ /// Level reloader
 		if (game.level == 0) {
-			startLevel(1);
-			phaser.scene.start("default");
+			switchLevel(1);
 			return;
 		}
 	}
@@ -90,6 +103,11 @@ function create() {
 	game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
 	game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 	game.keySpace = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+	game.key1 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+	game.key2 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+	game.key3 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+	game.key4 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+	game.key5 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
 
 	scene.input.on("pointermove", function (pointer) {
 		game.mouseX = pointer.x;
@@ -116,17 +134,35 @@ function create() {
 
 	game.bulletsGroup = scene.physics.add.group();
 	game.asteroidGroup = scene.physics.add.group();
-	createAsteroid(300, 400);
-	createAsteroid(500, 400);
-
 	scene.physics.world.addOverlap(game.bulletsGroup, game.asteroidGroup, bulletVAsteroid);
 
-	game.inGame = true;
-}
+	{ /// Setup Level
+		var level = game.level;
 
-function startLevel(level) {
-	game.level = level;
-	// scene.scene.start(
+		if (level == 1) {
+			createAsteroid(300, 400);
+		} else if (level == 2) {
+			createAsteroid(300, 400);
+			createAsteroid(500, 400);
+		} else if (level == 3) {
+			createAsteroid(300, 400);
+			createAsteroid(400, 400);
+			createAsteroid(500, 400);
+		} else if (level == 4) {
+			createAsteroid(200, 400);
+			createAsteroid(300, 400);
+			createAsteroid(400, 400);
+			createAsteroid(500, 400);
+		} else if (level == 5) {
+			createAsteroid(100, 400);
+			createAsteroid(200, 400);
+			createAsteroid(300, 400);
+			createAsteroid(400, 400);
+			createAsteroid(500, 400);
+		}
+	}
+
+	game.inGame = true;
 }
 
 function update(delta) {
@@ -136,11 +172,27 @@ function update(delta) {
 	var up = false;
 	var down = false;
 	var shoot = false;
-	if (game.keyW.isDown || game.keyUp.isDown) up = true;
-	if (game.keyS.isDown || game.keyDown.isDown) down = true;
-	if (game.keyA.isDown || game.keyLeft.isDown) left = true;
-	if (game.keyD.isDown || game.keyRight.isDown) right = true;
-	if (game.keySpace.isDown || game.mouseDown) shoot = true;
+	var levelToSwitchTo = 0;
+
+	{ /// Update inputs
+		if (game.keyW.isDown || game.keyUp.isDown) up = true;
+		if (game.keyS.isDown || game.keyDown.isDown) down = true;
+		if (game.keyA.isDown || game.keyLeft.isDown) left = true;
+		if (game.keyD.isDown || game.keyRight.isDown) right = true;
+		if (game.keySpace.isDown || game.mouseDown) shoot = true;
+		if (game.key1.isDown) levelToSwitchTo = 1;
+		if (game.key2.isDown) levelToSwitchTo = 2;
+		if (game.key3.isDown) levelToSwitchTo = 3;
+		if (game.key4.isDown) levelToSwitchTo = 4;
+		if (game.key5.isDown) levelToSwitchTo = 5;
+	}
+
+	{ /// Might need to switch levels
+		if (levelToSwitchTo != 0) {
+			switchLevel(levelToSwitchTo);
+			return;
+		}
+	}
 
 	var speed = 100;
 	game.player.setAcceleration(0, 0);
@@ -196,6 +248,12 @@ function update(delta) {
 		game.mouseJustDown = false;
 		game.mouseJustUp = false;
 	}
+}
+
+function switchLevel(newLevel) {
+	game.level = newLevel;
+	phaser.scene.stop("game");
+	phaser.scene.start("game");
 }
 
 function bulletVAsteroid(bullet, asteroid) {
