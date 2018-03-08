@@ -94,35 +94,37 @@ function create() {
 		};
 	}
 
-	game.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-	game.keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-	game.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-	game.keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-	game.keyUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-	game.keyDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-	game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-	game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-	game.keySpace = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-	game.key1 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
-	game.key2 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
-	game.key3 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
-	game.key4 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
-	game.key5 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
+	{ /// Setup inputs
+		game.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+		game.keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+		game.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+		game.keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+		game.keyUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+		game.keyDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+		game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+		game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+		game.keySpace = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+		game.key1 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+		game.key2 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+		game.key3 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+		game.key4 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+		game.key5 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
 
-	scene.input.on("pointermove", function (pointer) {
-		game.mouseX = pointer.x;
-		game.mouseY = pointer.y;
-	}, this);
+		scene.input.on("pointermove", function (pointer) {
+			game.mouseX = pointer.x;
+			game.mouseY = pointer.y;
+		}, this);
 
-	scene.input.on("pointerdown", function (e) {
-		game.mouseDown = true;
-		game.mouseJustDown = true;
-	}, this);
+		scene.input.on("pointerdown", function (e) {
+			game.mouseDown = true;
+			game.mouseJustDown = true;
+		}, this);
 
-	scene.input.on("pointerup", function (e) {
-		game.mouseDown = false;
-		game.mouseJustUp = true;
-	}, this);
+		scene.input.on("pointerup", function (e) {
+			game.mouseDown = false;
+			game.mouseJustUp = true;
+		}, this);
+	}
 
 	{ /// Create Player
 		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
@@ -132,9 +134,11 @@ function create() {
 		game.player = spr;
 	}
 
-	game.bulletsGroup = scene.physics.add.group();
-	game.asteroidGroup = scene.physics.add.group();
-	scene.physics.world.addOverlap(game.bulletsGroup, game.asteroidGroup, bulletVAsteroid);
+	{ /// Setup groups and collision
+		game.bulletsGroup = scene.physics.add.group();
+		game.asteroidGroup = scene.physics.add.group();
+		scene.physics.world.addOverlap(game.bulletsGroup, game.asteroidGroup, bulletVAsteroid);
+	}
 
 	{ /// Setup Level
 		var level = game.level;
