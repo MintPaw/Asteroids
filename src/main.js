@@ -29,6 +29,9 @@ var Point = Phaser.Geom.Point;
 var log = console.log;
 var phaser = new Phaser.Game(config);
 
+var ENEMY_ASTEROID = "asteroid";
+var ENEMY_BASIC_SHIP = "basicShip";
+
 var game = {
 	player: null,
 	enemies: [],
@@ -146,21 +149,21 @@ function create() {
 		var level = game.level;
 
 		if (level == 1) {
-			createAsteroid(300, 400);
+			createBasicShip(300, 400);
 		} else if (level == 2) {
-			createAsteroid(300, 400);
+			createBasicShip(300, 400);
 			createAsteroid(500, 400);
 		} else if (level == 3) {
-			createAsteroid(300, 400);
+			createBasicShip(300, 400);
 			createAsteroid(400, 400);
 			createAsteroid(500, 400);
 		} else if (level == 4) {
-			createAsteroid(200, 400);
+			createBasicShip(300, 400);
 			createAsteroid(300, 400);
 			createAsteroid(400, 400);
 			createAsteroid(500, 400);
 		} else if (level == 5) {
-			createAsteroid(100, 400);
+			createBasicShip(300, 400);
 			createAsteroid(200, 400);
 			createAsteroid(300, 400);
 			createAsteroid(400, 400);
@@ -223,9 +226,7 @@ function update(delta) {
 		game.bullets.push(spr);
 	}
 
-	var angle = Math.atan2(game.mouseY - game.player.y, game.mouseX - game.player.x);
-	angle = angle * (180/Math.PI);
-	game.player.angle = angle + 90;
+	game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
 
 	{ /// Update sceeen looping
 		var loopingSprites = []
@@ -238,6 +239,14 @@ function update(delta) {
 			if (spr.y < 0) spr.y = phaser.canvas.height;
 			if (spr.x > phaser.canvas.width) spr.x = 0;
 			if (spr.y > phaser.canvas.height) spr.y = 0;
+		}
+	}
+
+	/// Update enemies
+	for (spr of game.enemies) {
+		if (spr.userdata.type == ENEMY_ASTEROID) {
+		} else if (spr.userdata.type == ENEMY_BASIC_SHIP) {
+			spr.angle = getAngleBetween(spr.x, spr.y, game.player.x, game.player.y) + 90;
 		}
 	}
 
@@ -273,15 +282,14 @@ function switchLevel(newLevel) {
 }
 
 function bulletVEnemy(bullet, enemy) {
-	if (enemy.userdata.type == "asteroid") {
-		var asteroid = enemy;
+	if (enemy.userdata.type == ENEMY_ASTEROID) {
 		bullet.destroy();
 
-		if (asteroid.scaleX <= 0.1) {
-			asteroid.destroy();
+		if (enemy.scaleX <= 0.1) {
+			enemy.destroy();
 		} else {
-			asteroid.scaleX -= 0.3;
-			asteroid.scaleY -= 0.3;
+			enemy.scaleX -= 0.3;
+			enemy.scaleY -= 0.3;
 		}
 	}
 }
@@ -290,10 +298,29 @@ function rnd(min, max) {
 	return Math.random() * (max - min) + min;
 }
 
-function createAsteroid(x, y) {
-	var spr = game.enemyGroup.create(0, 0, "assets", "sprites/asteroids/asteroid1");
+function getAngleBetween(x1, y1, x2, y2) {
+	var angle = Math.atan2(y2 - y1, x2 - x1);
+	angle = angle * (180/Math.PI);
+	return angle;
+}
+
+function createBasicShip(x, y) {
+	var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/basicShip");
 	spr.userdata = {};
-	spr.userdata.type = "asteroid";
+	spr.userdata.type = ENEMY_BASIC_SHIP;
+	spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
+	spr.tint = 0xFF0000;
+	spr.x = x;
+	spr.y = y;
+
+	game.enemies.push(spr);
+	return spr;
+}
+
+function createAsteroid(x, y) {
+	var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/asteroid");
+	spr.userdata = {};
+	spr.userdata.type = ENEMY_ASTEROID;
 	spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 	spr.x = x;
 	spr.y = y;
