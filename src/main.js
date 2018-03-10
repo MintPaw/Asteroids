@@ -31,7 +31,7 @@ var phaser = new Phaser.Game(config);
 
 var game = {
 	player: null,
-	asteroids: [],
+	enemies: [],
 	bullets: [],
 	bulletsGroup: null,
 
@@ -138,8 +138,8 @@ function create() {
 
 	{ /// Setup groups and collision
 		game.bulletsGroup = scene.physics.add.group();
-		game.asteroidGroup = scene.physics.add.group();
-		scene.physics.world.addOverlap(game.bulletsGroup, game.asteroidGroup, bulletVAsteroid);
+		game.enemyGroup = scene.physics.add.group();
+		scene.physics.world.addOverlap(game.bulletsGroup, game.enemyGroup, bulletVEnemy);
 	}
 
 	{ /// Setup Level
@@ -229,7 +229,7 @@ function update(delta) {
 
 	{ /// Update sceeen looping
 		var loopingSprites = []
-		loopingSprites.push(...game.asteroids);
+		loopingSprites.push(...game.enemies);
 		loopingSprites.push(...game.bullets);
 		loopingSprites.push(game.player);
 
@@ -272,14 +272,17 @@ function switchLevel(newLevel) {
 	});
 }
 
-function bulletVAsteroid(bullet, asteroid) {
-	bullet.destroy();
+function bulletVEnemy(bullet, enemy) {
+	if (enemy.userdata.type == "asteroid") {
+		var asteroid = enemy;
+		bullet.destroy();
 
-	if (asteroid.scaleX <= 0.1) {
-		asteroid.destroy();
-	} else {
-		asteroid.scaleX -= 0.3;
-		asteroid.scaleY -= 0.3;
+		if (asteroid.scaleX <= 0.1) {
+			asteroid.destroy();
+		} else {
+			asteroid.scaleX -= 0.3;
+			asteroid.scaleY -= 0.3;
+		}
 	}
 }
 
@@ -288,11 +291,13 @@ function rnd(min, max) {
 }
 
 function createAsteroid(x, y) {
-	var spr = game.asteroidGroup.create(0, 0, "assets", "sprites/asteroids/asteroid1");
+	var spr = game.enemyGroup.create(0, 0, "assets", "sprites/asteroids/asteroid1");
+	spr.userdata = {};
+	spr.userdata.type = "asteroid";
 	spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 	spr.x = x;
 	spr.y = y;
 
-	game.asteroids.push(spr);
+	game.enemies.push(spr);
 	return spr;
 }
