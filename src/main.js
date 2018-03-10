@@ -147,6 +147,8 @@ function create() {
 
 		scene.physics.world.addOverlap(game.bulletsGroup, game.enemyGroup, bulletVEnemy);
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
+		scene.physics.world.addOverlap(game.enemyGroup, game.player, enemyVPlayer);
+		scene.physics.world.addCollider(game.enemyGroup, game.player);
 	}
 
 	{ /// Setup Level
@@ -339,6 +341,20 @@ function bulletVPlayer(s1, s2) {
 	bullet.alpha = 0;
 }
 
+function enemyVPlayer(s1, s2) {
+	var player = s1 == game.player ? s1 : s2;
+	var enemy = player == s1 ? s2 : s1;
+
+	/// This pushes players away, but we can just use phaser collision for now
+	// var playerAngle = getAngleBetween(player.x, player.y, enemy.x, enemy.y);
+
+	// var force = 10;
+	// enemy.body.velocity.x += Math.cos(playerAngle) * force;
+	// enemy.body.velocity.y += Math.sin(playerAngle) * force;
+
+	// player.body.velocity.x += Math.cos(playerAngle-180) * force;
+	// player.body.velocity.y += Math.sin(playerAngle-180) * force;
+}
 
 function rnd(min, max) {
 	return Math.random() * (max - min) + min;
