@@ -207,22 +207,27 @@ function update(delta) {
 		}
 	}
 
-	game.player.setAcceleration(0, 0);
+	/// Update Player
+	{
+		if (game.player.active) {
+			game.player.setAcceleration(0, 0);
 
-	var speed = 100;
-	if (left) game.player.body.acceleration.x -= speed;
-	if (right) game.player.body.acceleration.x += speed;
-	if (up) game.player.body.acceleration.y -= speed;
-	if (down) game.player.body.acceleration.y += speed;
+			var speed = 100;
+			if (left) game.player.body.acceleration.x -= speed;
+			if (right) game.player.body.acceleration.x += speed;
+			if (up) game.player.body.acceleration.y -= speed;
+			if (down) game.player.body.acceleration.y += speed;
 
-	game.timeTillNextShot -= 1/60;
+			game.timeTillNextShot -= 1/60;
 
-	if (shoot && game.timeTillNextShot <= 0) {
-		game.timeTillNextShot = 1;
-		shootBullet(game.player, game.player.angle - 90, 200, true);
+			if (shoot && game.timeTillNextShot <= 0) {
+				game.timeTillNextShot = 1;
+				shootBullet(game.player, game.player.angle - 90, 200, true);
+			}
+
+			game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
+		}
 	}
-
-	game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
 
 	{ /// Update sceeen looping
 		var loopingSprites = []
@@ -266,6 +271,25 @@ function update(delta) {
 	}
 }
 
+function switchLevel(newLevel) {
+	game.bullets = [];
+	game.enemies = [];
+
+	game.level = newLevel;
+	phaser.scene.stop("game");
+	phaser.scene.start("game");
+
+	var text = scene.add.text(0, 0, "Level "+game.level, {font: "64px Arial"});
+	text.x = phaser.canvas.width/2 - text.width/2;
+	text.y = -text.height;
+
+	scene.tweens.add({
+		targets: text,
+		y: { value: 10, duration: 500, ease: "Power1" },
+		alpha: { value: 0, duration: 500, ease: "Power1", delay: 3000 }
+	});
+}
+
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	var spr = null;
 
@@ -283,22 +307,6 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	game.bullets.push(spr);
 
 	return spr;
-}
-
-function switchLevel(newLevel) {
-	game.level = newLevel;
-	phaser.scene.stop("game");
-	phaser.scene.start("game");
-
-	var text = scene.add.text(0, 0, "Level "+game.level, {font: "64px Arial"});
-	text.x = phaser.canvas.width/2 - text.width/2;
-	text.y = -text.height;
-
-	scene.tweens.add({
-		targets: text,
-		y: { value: 10, duration: 500, ease: "Power1" },
-		alpha: { value: 0, duration: 500, ease: "Power1", delay: 3000 }
-	});
 }
 
 function bulletVEnemy(s1, s2) {
