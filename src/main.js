@@ -314,7 +314,7 @@ function bulletVEnemy(s1, s2) {
 	var enemy = bullet == s1 ? s2 : s1;
 
 	if (enemy.userdata.type == ENEMY_ASTEROID) {
-		bullet.destroy();
+		bullet.alpha = 0;
 
 		if (enemy.scaleX <= 0.1) {
 			enemy.destroy();
@@ -323,13 +323,20 @@ function bulletVEnemy(s1, s2) {
 			enemy.scaleY -= 0.3;
 		}
 	}
+
+	if (enemy.userdata.type == ENEMY_BASIC_SHIP) {
+		bullet.alpha = 0;
+
+		enemy.destroy();
+		game.enemies.remove(enemy);
+	}
 }
 
 function bulletVPlayer(s1, s2) {
 	var player = s1 == game.player ? s1 : s2;
 	var bullet = player == s1 ? s2 : s1;
 	player.destroy();
-	bullet.destroy();
+	bullet.alpha = 0;
 }
 
 
