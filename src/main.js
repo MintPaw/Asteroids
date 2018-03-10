@@ -37,6 +37,7 @@ var game = {
 	enemies: [],
 	bullets: [],
 	bulletsGroup: null,
+	enemyBulletsGroup: null,
 
 	timeTillNextShot: 0,
 
@@ -141,6 +142,7 @@ function create() {
 
 	{ /// Setup groups and collision
 		game.bulletsGroup = scene.physics.add.group();
+		game.enemyBulletsGroup = scene.physics.add.group();
 		game.enemyGroup = scene.physics.add.group();
 		scene.physics.world.addOverlap(game.bulletsGroup, game.enemyGroup, bulletVEnemy);
 	}
@@ -203,27 +205,19 @@ function update(delta) {
 		}
 	}
 
-	var speed = 100;
 	game.player.setAcceleration(0, 0);
+
+	var speed = 100;
 	if (left) game.player.body.acceleration.x -= speed;
 	if (right) game.player.body.acceleration.x += speed;
 	if (up) game.player.body.acceleration.y -= speed;
 	if (down) game.player.body.acceleration.y += speed;
 
-	if (game.timeTillNextShot > 0) game.timeTillNextShot -= 1/60;
+	game.timeTillNextShot -= 1/60;
 
 	if (shoot && game.timeTillNextShot <= 0) {
 		game.timeTillNextShot = 1;
-
-		var spr = game.bulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
-		var angle = (game.player.angle-90) * Math.PI/180;
-
-		spr.x = game.player.x + Math.cos(angle) * (game.player.width/2);
-		spr.y = game.player.y + Math.sin(angle) * (game.player.height/2);
-
-		var speed = 200;
-		spr.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-		game.bullets.push(spr);
+		shootBullet(game.player, game.player.angle - 90, 200, true);
 	}
 
 	game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
@@ -247,6 +241,11 @@ function update(delta) {
 		if (spr.userdata.type == ENEMY_ASTEROID) {
 		} else if (spr.userdata.type == ENEMY_BASIC_SHIP) {
 			spr.angle = getAngleBetween(spr.x, spr.y, game.player.x, game.player.y) + 90;
+			spr.userdata.timeTillNextShot -= 1/60;
+			if (spr.userdata.timeTillNextShot <= 0) {
+				spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
+				shootBullet(spr, spr.angle - 90, 200, false);
+			}
 		}
 	}
 
@@ -263,6 +262,25 @@ function update(delta) {
 		game.mouseJustDown = false;
 		game.mouseJustUp = false;
 	}
+}
+
+function shootBullet(sourceSprite, angle, speed, isFriendly) {
+	var spr = null;
+
+	if (isFriendly) spr = game.bulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
+	else spr = game.enemyBulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
+
+	spr.userdata = {};
+
+	angle = angle * Math.PI/180;
+
+	spr.x = sourceSprite.x + Math.cos(angle) * (sourceSprite.width/2);
+	spr.y = sourceSprite.y + Math.sin(angle) * (sourceSprite.height/2);
+
+	spr.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+	game.bullets.push(spr);
+
+	return spr;
 }
 
 function switchLevel(newLevel) {
@@ -308,6 +326,9 @@ function createBasicShip(x, y) {
 	var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/basicShip");
 	spr.userdata = {};
 	spr.userdata.type = ENEMY_BASIC_SHIP;
+	spr.userdata.timePerShot = 3;
+	spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
+
 	spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 	spr.tint = 0xFF0000;
 	spr.x = x;
