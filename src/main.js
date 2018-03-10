@@ -144,7 +144,9 @@ function create() {
 		game.bulletsGroup = scene.physics.add.group();
 		game.enemyBulletsGroup = scene.physics.add.group();
 		game.enemyGroup = scene.physics.add.group();
+
 		scene.physics.world.addOverlap(game.bulletsGroup, game.enemyGroup, bulletVEnemy);
+		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
 	}
 
 	{ /// Setup Level
@@ -299,7 +301,10 @@ function switchLevel(newLevel) {
 	});
 }
 
-function bulletVEnemy(bullet, enemy) {
+function bulletVEnemy(s1, s2) {
+	var bullet = game.bullets.indexOf(s1) != -1 ? s1 : s2;
+	var enemy = bullet == s1 ? s2 : s1;
+
 	if (enemy.userdata.type == ENEMY_ASTEROID) {
 		bullet.destroy();
 
@@ -311,6 +316,14 @@ function bulletVEnemy(bullet, enemy) {
 		}
 	}
 }
+
+function bulletVPlayer(s1, s2) {
+	var player = s1 == game.player ? s1 : s2;
+	var bullet = player == s1 ? s2 : s1;
+	player.destroy();
+	bullet.destroy();
+}
+
 
 function rnd(min, max) {
 	return Math.random() * (max - min) + min;
