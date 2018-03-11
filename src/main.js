@@ -375,7 +375,10 @@ function warnEnemy(timeTill, type, x, y) {
 		targets: spr,
 		loop: loops,
 		y: { value: spr.y - 5, duration: timeTill/loops*1000, ease: "Power1" },
-		alpha: { value: 0, duration: timeTill/loops*1000, ease: "Power1" }
+		alpha: { value: 0, duration: timeTill/loops*1000, ease: "Power1" },
+		onComplete: function() {
+			spr.destroy();
+		}
 	});
 }
 
