@@ -261,6 +261,7 @@ function update(delta) {
 		spr.alpha -= 0.005;
 		if (spr.alpha <= 0) {
 			spr.destroy();
+			game.bulletGroup.remove(spr);
 		}
 	}
 
@@ -305,7 +306,7 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 }
 
 function bulletVEnemy(s1, s2) {
-	var bullet = game.bulletGroup.getChildren().indexOf(s1) != -1 ? s1 : s2;
+	var bullet = game.bulletGroup.contains(s1) ? s1 : s2;
 	var enemy = bullet == s1 ? s2 : s1;
 
 	if (enemy.userdata.type == ENEMY_ASTEROID) {
@@ -313,6 +314,7 @@ function bulletVEnemy(s1, s2) {
 
 		if (enemy.scaleX <= 0.1) {
 			enemy.destroy();
+			game.enemyGroup.remove(enemy);
 		} else {
 			enemy.scaleX -= 0.3;
 			enemy.scaleY -= 0.3;
@@ -323,6 +325,7 @@ function bulletVEnemy(s1, s2) {
 		bullet.alpha = 0;
 
 		enemy.destroy();
+		game.enemyGroup.remove(enemy);
 	}
 }
 
