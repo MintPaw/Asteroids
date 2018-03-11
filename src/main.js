@@ -32,7 +32,7 @@ var phaser = new Phaser.Game(config);
 var ENEMY_ASTEROID = "asteroid";
 var ENEMY_BASIC_SHIP = "basicShip";
 
-var WARNING_TIME = 5;
+var WARNING_TIME = 2;
 
 var game = {
 	player: null,
@@ -155,11 +155,16 @@ function create() {
 		var level = game.level;
 
 		if (level == 1) {
-			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-			timedCreateEnemy(3, ENEMY_ASTEROID, 500, 400);
+			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
+			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
+			timedCreateEnemy(2, ENEMY_ASTEROID, 500, 400);
+			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 400, 400);
 		} else if (level == 2) {
-			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-			createEnemy(ENEMY_ASTEROID, 500, 400);
+			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
+			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
+			timedCreateEnemy(2, ENEMY_ASTEROID, 500, 400);
+			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 300, 400);
+			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 500, 400);
 		} else if (level == 3) {
 			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
 			createEnemy(ENEMY_ASTEROID, 400, 400);
