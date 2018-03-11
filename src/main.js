@@ -50,6 +50,7 @@ var game = {
 	keyLeft: null,
 	keyRight: null,
 	keySpace: null,
+	keyCtrl: null,
 	key1: null,
 	key2: null,
 	key3: null,
@@ -63,7 +64,8 @@ var game = {
 	mouseJustUp: false,
 
 	level: 0,
-	inGame: false
+	inGame: false,
+	mouseMovement: true
 };
 
 var scene = null;
@@ -108,6 +110,7 @@ function create() {
 		game.keyLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
 		game.keyRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 		game.keySpace = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+		game.keyCtrl = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
 		game.key1 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
 		game.key2 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
 		game.key3 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
@@ -195,6 +198,7 @@ function update(delta) {
 	var down = false;
 	var shoot = false;
 	var levelToSwitchTo = 0;
+	var switchMovementMode = false;
 
 	{ /// Update inputs
 		if (game.keyW.isDown || game.keyUp.isDown) up = true;
@@ -207,6 +211,8 @@ function update(delta) {
 		if (game.key3.isDown) levelToSwitchTo = 3;
 		if (game.key4.isDown) levelToSwitchTo = 4;
 		if (game.key5.isDown) levelToSwitchTo = 5;
+		if (game.key5.isDown) levelToSwitchTo = 5;
+		if (Phaser.Input.Keyboard.JustDown(game.keyCtrl)) switchMovementMode = true;
 	}
 
 	{ /// Might need to switch levels
@@ -220,21 +226,29 @@ function update(delta) {
 	{
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
-
 			var speed = 100;
-			if (left) game.player.body.acceleration.x -= speed;
-			if (right) game.player.body.acceleration.x += speed;
-			if (up) game.player.body.acceleration.y -= speed;
-			if (down) game.player.body.acceleration.y += speed;
+
+			if (switchMovementMode) game.mouseMovement = !game.mouseMovement;
+
+			if (game.mouseMovement) {
+				if (left) game.player.body.acceleration.x -= speed;
+				if (right) game.player.body.acceleration.x += speed;
+				if (up) game.player.body.acceleration.y -= speed;
+				if (down) game.player.body.acceleration.y += speed;
+
+				game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
+			} else {
+				var turnSpeed = 3;
+				if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
+				if (left) game.player.angle -= turnSpeed;
+				if (right) game.player.angle += turnSpeed;
+			}
 
 			game.timeTillNextShot -= 1/60;
-
 			if (shoot && game.timeTillNextShot <= 0) {
 				game.timeTillNextShot = 1;
 				shootBullet(game.player, game.player.angle - 90, 200, true);
 			}
-
-			game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
 		}
 	}
 
