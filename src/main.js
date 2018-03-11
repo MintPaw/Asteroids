@@ -228,7 +228,10 @@ function update(delta) {
 			game.player.setAcceleration(0, 0);
 			var speed = 100;
 
-			if (switchMovementMode) game.mouseMovement = !game.mouseMovement;
+			if (switchMovementMode) {
+				msg("Changed movement mode");
+				game.mouseMovement = !game.mouseMovement;
+			}
 
 			if (game.mouseMovement) {
 				if (left) game.player.body.acceleration.x -= speed;
@@ -294,20 +297,27 @@ function update(delta) {
 	}
 }
 
-function switchLevel(newLevel) {
-	game.level = newLevel;
-	phaser.scene.stop("game");
-	phaser.scene.start("game");
-
-	var text = scene.add.text(0, 0, "Level "+game.level, {font: "64px Arial"});
+function msg(str) {
+	var text = scene.add.text(0, 0, str, {font: "64px Arial"});
 	text.x = phaser.canvas.width/2 - text.width/2;
 	text.y = -text.height;
 
 	scene.tweens.add({
 		targets: text,
 		y: { value: 10, duration: 500, ease: "Power1" },
-		alpha: { value: 0, duration: 500, ease: "Power1", delay: 3000 }
+		alpha: { value: 0, duration: 500, ease: "Power1", delay: 3000 },
+		onComplete: function() {
+			text.destroy();
+		}
 	});
+}
+
+function switchLevel(newLevel) {
+	game.level = newLevel;
+	phaser.scene.stop("game");
+	phaser.scene.start("game");
+
+	msg("Level "+game.level);
 }
 
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
