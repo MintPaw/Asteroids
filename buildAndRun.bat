@@ -1,4 +1,4 @@
-call buildSystem\packSheets.bat
-call buildSystem\build.bat
-call buildSystem\run.bat
+call buildSystem\packSheets.bat > buildLog.txt
+call buildSystem\build.bat >> buildLog.txt
+call buildSystem\run.bat >> buildLog.txt
 pause
