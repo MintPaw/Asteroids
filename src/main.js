@@ -132,7 +132,8 @@ function create() {
 
 	{ /// Create Player
 		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
-		spr.x = phaser.canvas.width/2 - spr.width/2;
+		scaleSpriteToSize(spr, 64, 64);
+		spr.x = phaser.canvas.width/2;
 		spr.y = phaser.canvas.height * 0.25;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(300, 300);
@@ -390,6 +391,7 @@ function warnEnemy(timeTill, type, x, y) {
 function createEnemy(type, x, y) {
 	if (type == ENEMY_ASTEROID) {
 		var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/asteroid");
+		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {};
 		spr.userdata.type = ENEMY_ASTEROID;
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
@@ -401,6 +403,7 @@ function createEnemy(type, x, y) {
 
 	if (type == ENEMY_BASIC_SHIP) {
 		var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/basicShip");
+		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {};
 		spr.userdata.type = ENEMY_BASIC_SHIP;
 		spr.userdata.timePerShot = 3;
