@@ -15,6 +15,9 @@ var config = {
 	type: Phaser.AUTO,
 	width: 800,
 	height: 600,
+	pixelArt: true,
+	disableContextMenu: true,
+	antialias: true,
 	physics: {
 		default: "arcade",
 		arcade: {
@@ -434,7 +437,6 @@ function createEnemy(type, x, y) {
 		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
-		spr.tint = 0xFF0000;
 		spr.x = x;
 		spr.y = y;
 
