@@ -32,6 +32,8 @@ var phaser = new Phaser.Game(config);
 var ENEMY_ASTEROID = "asteroid";
 var ENEMY_BASIC_SHIP = "basicShip";
 
+var WARNING_TIME = 5;
+
 var game = {
 	player: null,
 	bulletGroup: null,
@@ -362,8 +364,19 @@ function getAngleBetween(x1, y1, x2, y2) {
 	return angle;
 }
 
-function warnEnemy(type, x, y) {
-	log("Would of warned of "+type+" "+x+" "+y);
+function warnEnemy(timeTill, type, x, y) {
+	var spr = scene.add.image(0, 0, "assets", "sprites/exclam");
+	spr.x = x;
+	spr.y = y;
+
+	var loops = 5;
+
+	scene.tweens.add({
+		targets: spr,
+		loop: loops,
+		y: { value: spr.y - 5, duration: timeTill/loops*1000, ease: "Power1" },
+		alpha: { value: 0, duration: timeTill/loops*1000, ease: "Power1" }
+	});
 }
 
 function createEnemy(type, x, y) {
@@ -395,10 +408,9 @@ function createEnemy(type, x, y) {
 }
 
 function timedCreateEnemy(time, type, x, y) {
-	var warningTime = 2;
-	if (time < warningTime) warningTime = 0;
-	warningTime = time - warningTime;
+	var warningTime = time - WARNING_TIME;
+	if (warningTime < 0) warningTime = 0;
 
-	scene.time.delayedCall(warningTime * 1000, warnEnemy.bind(null, type, x, y));
+	scene.time.delayedCall(warningTime * 1000, warnEnemy.bind(null, time - warningTime, type, x, y));
 	scene.time.delayedCall(time * 1000, createEnemy.bind(null, type, x, y));
 }
