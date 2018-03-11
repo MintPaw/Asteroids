@@ -34,9 +34,7 @@ var ENEMY_BASIC_SHIP = "basicShip";
 
 var game = {
 	player: null,
-	enemies: [],
-	bullets: [],
-	bulletsGroup: null,
+	bulletGroup: null,
 	enemyBulletsGroup: null,
 
 	timeTillNextShot: 0,
@@ -141,11 +139,11 @@ function create() {
 	}
 
 	{ /// Setup groups and collision
-		game.bulletsGroup = scene.physics.add.group();
+		game.bulletGroup = scene.physics.add.group();
 		game.enemyBulletsGroup = scene.physics.add.group();
 		game.enemyGroup = scene.physics.add.group();
 
-		scene.physics.world.addOverlap(game.bulletsGroup, game.enemyGroup, bulletVEnemy);
+		scene.physics.world.addOverlap(game.bulletGroup, game.enemyGroup, bulletVEnemy);
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
 		scene.physics.world.addOverlap(game.enemyGroup, game.player, enemyVPlayer);
 		scene.physics.world.addCollider(game.enemyGroup, game.player);
@@ -233,8 +231,8 @@ function update(delta) {
 
 	{ /// Update sceeen looping
 		var loopingSprites = []
-		loopingSprites.push(...game.enemies);
-		loopingSprites.push(...game.bullets);
+		loopingSprites.push(...game.enemyGroup.getChildren());
+		loopingSprites.push(...game.bulletGroup.getChildren());
 		loopingSprites.push(game.player);
 
 		for (spr of loopingSprites) {
@@ -246,7 +244,7 @@ function update(delta) {
 	}
 
 	/// Update enemies
-	for (spr of game.enemies) {
+	for (spr of game.enemyGroup.getChildren()) {
 		if (spr.userdata.type == ENEMY_ASTEROID) {
 		} else if (spr.userdata.type == ENEMY_BASIC_SHIP) {
 			spr.angle = getAngleBetween(spr.x, spr.y, game.player.x, game.player.y) + 90;
@@ -259,10 +257,9 @@ function update(delta) {
 	}
 
 	/// Update bullets
-	for (spr of game.bullets) {
+	for (spr of game.bulletGroup.getChildren()) {
 		spr.alpha -= 0.005;
 		if (spr.alpha <= 0) {
-			game.bullets.remove(spr);
 			spr.destroy();
 		}
 	}
@@ -274,9 +271,6 @@ function update(delta) {
 }
 
 function switchLevel(newLevel) {
-	game.bullets = [];
-	game.enemies = [];
-
 	game.level = newLevel;
 	phaser.scene.stop("game");
 	phaser.scene.start("game");
@@ -295,7 +289,7 @@ function switchLevel(newLevel) {
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	var spr = null;
 
-	if (isFriendly) spr = game.bulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
+	if (isFriendly) spr = game.bulletGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
 	else spr = game.enemyBulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
 
 	spr.userdata = {};
@@ -306,13 +300,12 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	spr.y = sourceSprite.y + Math.sin(angle) * (sourceSprite.height/2);
 
 	spr.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-	game.bullets.push(spr);
 
 	return spr;
 }
 
 function bulletVEnemy(s1, s2) {
-	var bullet = game.bullets.indexOf(s1) != -1 ? s1 : s2;
+	var bullet = game.bulletGroup.getChildren().indexOf(s1) != -1 ? s1 : s2;
 	var enemy = bullet == s1 ? s2 : s1;
 
 	if (enemy.userdata.type == ENEMY_ASTEROID) {
@@ -330,7 +323,6 @@ function bulletVEnemy(s1, s2) {
 		bullet.alpha = 0;
 
 		enemy.destroy();
-		game.enemies.remove(enemy);
 	}
 }
 
@@ -378,7 +370,6 @@ function createBasicShip(x, y) {
 	spr.x = x;
 	spr.y = y;
 
-	game.enemies.push(spr);
 	return spr;
 }
 
@@ -390,6 +381,5 @@ function createAsteroid(x, y) {
 	spr.x = x;
 	spr.y = y;
 
-	game.enemies.push(spr);
 	return spr;
 }
