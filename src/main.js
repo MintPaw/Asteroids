@@ -83,7 +83,8 @@ var scene = null;
 function preload() {
 	scene = this;
 
-	scene.load.atlas("assets", "assets/sprites.png", "assets/sprites.json");
+	scene.load.atlas("sprites", "assets/sprites.png", "assets/sprites.json");
+	scene.load.atlas("minimap", "assets/minimap.png", "assets/minimap.json");
 	scene.load.image("tilesheet", "assets/tilesheet.png");
 	scene.load.tilemapTiledJSON("map1", "assets/maps/map1.json");
 }
@@ -160,18 +161,21 @@ function create() {
 		for (baseData of game.map.getObjectLayer("bases").objects) {
 			var base = {
 				name: baseData.name,
-				x: baseData.x,
-				y: baseData.y,
+				x: baseData.x + game.map.tileWidth/2,
+				y: baseData.y + game.map.tileHeight/2,
 				width: baseData.width,
-				height: baseData.height
+				height: baseData.height,
+				sprite: null
 			};
+
+			base.sprite = scene.add.image(base.x, base.y, "minimap", "minimap/base1");
 
 			game.bases.push(base);
 		}
 	}
 
 	{ /// Setup Player
-		var spr = scene.physics.add.image(0, 0, "assets", "sprites/player/player");
+		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.x = phaser.canvas.width/2;
 		spr.y = phaser.canvas.height * 0.25;
@@ -195,7 +199,8 @@ function create() {
 		game.minimap.scrollY = game.map.heightInPixels / 2 - game.minimap.height/2;
 		game.minimap.zoom = mapScale;
 		game.minimap.setBackgroundColor(0x002244);
-		// game.minimap.roundPixels = true;
+		game.minimap.ignore(game.mapLayers[0]);
+		game.minimap.roundPixels = true;
 	}
 
 	{ /// Setup groups and collision
@@ -389,8 +394,8 @@ function switchLevel(newLevel) {
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	var spr = null;
 
-	if (isFriendly) spr = game.bulletGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
-	else spr = game.enemyBulletsGroup.create(0, 0, "assets", "sprites/bullets/bullet1");
+	if (isFriendly) spr = game.bulletGroup.create(0, 0, "sprites", "sprites/bullets/bullet1");
+	else spr = game.enemyBulletsGroup.create(0, 0, "sprites", "sprites/bullets/bullet1");
 
 	spr.userdata = {};
 
@@ -461,7 +466,7 @@ function getAngleBetween(x1, y1, x2, y2) {
 }
 
 function warnEnemy(timeTill, type, x, y) {
-	var spr = scene.add.image(0, 0, "assets", "sprites/exclam");
+	var spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
 	spr.x = x;
 	spr.y = y;
 
@@ -480,7 +485,7 @@ function warnEnemy(timeTill, type, x, y) {
 
 function createEnemy(type, x, y) {
 	if (type == ENEMY_ASTEROID) {
-		var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/asteroid");
+		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/asteroid");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {};
 		spr.userdata.type = ENEMY_ASTEROID;
@@ -492,7 +497,7 @@ function createEnemy(type, x, y) {
 	}
 
 	if (type == ENEMY_BASIC_SHIP) {
-		var spr = game.enemyGroup.create(0, 0, "assets", "sprites/enemies/basicShip");
+		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/basicShip");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {};
 		spr.userdata.type = ENEMY_BASIC_SHIP;
