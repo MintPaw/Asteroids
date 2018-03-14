@@ -68,7 +68,11 @@ var game = {
 
 	level: 0,
 	inGame: false,
-	mouseMovement: true
+	mouseMovement: true,
+
+	map: null,
+	mapTiles: null,
+	mapLayers: []
 };
 
 var scene = null;
@@ -77,6 +81,8 @@ function preload() {
 	scene = this;
 
 	scene.load.atlas("assets", "assets/sprites.png", "assets/sprites.json");
+	scene.load.image("tilesheet", "assets/tilesheet.png");
+	scene.load.tilemapTiledJSON("map1", "assets/maps/map1.json");
 }
 
 function create() {
@@ -101,6 +107,10 @@ function create() {
 			}
 			return removedItems;
 		};
+	}
+
+	{ /// Setup game
+		game.mapLayers = [];
 	}
 
 	{ /// Setup inputs
@@ -134,6 +144,14 @@ function create() {
 			game.mouseDown = false;
 			game.mouseJustUp = true;
 		}, this);
+	}
+
+	{ /// Create map
+		game.map = scene.make.tilemap({ key: "map1" });
+		game.mapTiles = game.map.addTilesetImage("tilesheet", "tilesheet");
+		scene.cameras.main.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
+
+		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
 	}
 
 	{ /// Create Player
