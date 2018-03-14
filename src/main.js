@@ -169,6 +169,7 @@ function create() {
 			};
 
 			base.sprite = scene.add.image(base.x, base.y, "minimap", "minimap/base1");
+			scene.cameras.main.ignore(base.sprite);
 
 			game.bases.push(base);
 		}
