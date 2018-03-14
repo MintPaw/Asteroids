@@ -261,7 +261,7 @@ function update(delta) {
 				if (up) game.player.body.acceleration.y -= speed;
 				if (down) game.player.body.acceleration.y += speed;
 
-				game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX, game.mouseY) + 90;
+				game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX + scene.cameras.main.scrollX, game.mouseY + scene.cameras.main.scrollY) + 90;
 			} else {
 				var turnSpeed = 3;
 				if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
@@ -277,17 +277,29 @@ function update(delta) {
 		}
 	}
 
-	{ /// Update sceeen looping
-		var loopingSprites = []
-		loopingSprites.push(...game.enemyGroup.getChildren());
-		loopingSprites.push(...game.bulletGroup.getChildren());
-		loopingSprites.push(game.player);
+	{ /// Update sceeen edges
+		var edgeSprites = []
+		edgeSprites.push(...game.enemyGroup.getChildren());
+		edgeSprites.push(...game.bulletGroup.getChildren());
+		edgeSprites.push(game.player);
 
-		for (spr of loopingSprites) {
-			if (spr.x < 0) spr.x = phaser.canvas.width;
-			if (spr.y < 0) spr.y = phaser.canvas.height;
-			if (spr.x > phaser.canvas.width) spr.x = 0;
-			if (spr.y > phaser.canvas.height) spr.y = 0;
+		var edgeX = game.map.widthInPixels;
+		var edgeY = game.map.heightInPixels;
+
+		for (spr of edgeSprites) {
+			if (spr.x < 0) {
+				spr.x = 0;
+				spr.setVelocityX(0);
+			} else if (spr.y < 0) {
+				spr.y = 0;
+				spr.setVelocityY(0);
+			} else if (spr.x > edgeX) {
+				spr.x = edgeX;
+				spr.setVelocityX(0);
+			} else if (spr.y > edgeY) {
+				spr.y = edgeY;
+				spr.setVelocityY(0);
+			}
 		}
 	}
 
