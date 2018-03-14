@@ -72,7 +72,8 @@ var game = {
 
 	map: null,
 	mapTiles: null,
-	mapLayers: []
+	mapLayers: [],
+	bases: []
 };
 
 var scene = null;
@@ -111,6 +112,7 @@ function create() {
 
 	{ /// Setup game
 		game.mapLayers = [];
+		game.bases = [];
 	}
 
 	{ /// Setup inputs
@@ -152,6 +154,18 @@ function create() {
 		scene.cameras.main.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
 
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
+
+		for (baseData of game.map.getObjectLayer("bases").objects) {
+			var base = {
+				name: baseData.name,
+				x: baseData.x,
+				y: baseData.y,
+				width: baseData.width,
+				height: baseData.height
+			};
+
+			game.bases.push(base);
+		}
 	}
 
 	{ /// Setup Player
@@ -161,9 +175,13 @@ function create() {
 		spr.y = phaser.canvas.height * 0.25;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(300, 300);
-		scene.cameras.main.startFollow(spr);
 
 		game.player = spr;
+	}
+
+	{ /// Setup camera
+		scene.cameras.main.startFollow(game.player);
+		scene.cameras.main.roundPixels = true;
 	}
 
 	{ /// Setup groups and collision
