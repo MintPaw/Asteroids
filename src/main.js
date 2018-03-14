@@ -73,7 +73,9 @@ var game = {
 	map: null,
 	mapTiles: null,
 	mapLayers: [],
-	bases: []
+	bases: [],
+
+	minimap: null
 };
 
 var scene = null;
@@ -182,6 +184,18 @@ function create() {
 	{ /// Setup camera
 		scene.cameras.main.startFollow(game.player);
 		scene.cameras.main.roundPixels = true;
+	}
+
+	{ /// Setup minimap
+		var mapScale = 0.04;
+		game.minimap = scene.cameras.add(0, 0, game.map.widthInPixels * mapScale, game.map.heightInPixels * mapScale);
+		game.minimap.y = phaser.canvas.height - game.minimap.height;
+		game.minimap.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
+		game.minimap.scrollX = game.map.widthInPixels / 2 - game.minimap.width/2;
+		game.minimap.scrollY = game.map.heightInPixels / 2 - game.minimap.height/2;
+		game.minimap.zoom = mapScale;
+		game.minimap.setBackgroundColor(0x002244);
+		// game.minimap.roundPixels = true;
 	}
 
 	{ /// Setup groups and collision
