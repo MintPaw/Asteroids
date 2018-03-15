@@ -218,10 +218,9 @@ function create() {
 		var level = game.level;
 
 		if (level == 1) {
-			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
-			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
-			timedCreateEnemy(2, ENEMY_ASTEROID, 500, 400);
-			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 400, 400);
+			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
+			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 400, 400);
+			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
 		} else if (level == 2) {
 			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
 			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
@@ -327,12 +326,31 @@ function update(delta) {
 	{ /// Update enemies
 		for (spr of game.enemyGroup.getChildren()) {
 			if (spr.userdata.type == ENEMY_ASTEROID) {
-			} else if (spr.userdata.type == ENEMY_BASIC_SHIP) {
-				spr.angle = getAngleBetween(spr.x, spr.y, game.player.x, game.player.y) + 90;
-				spr.userdata.timeTillNextShot -= 1/60;
-				if (spr.userdata.timeTillNextShot <= 0) {
-					spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-					shootBullet(spr, spr.angle - 90, 200, false);
+				/// Ateroid stuff
+			}
+
+			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
+				if (spr.userdata.target == null) {
+					var targets = [];
+					targets.push(game.player);
+					for (base of game.bases) targets.push(base.sprite);
+					spr.userdata.target = getClosestSprite(spr, targets);
+				} else {
+					var target = spr.userdata.target;
+
+					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y) + 90;
+					spr.userdata.timeTillNextShot -= 1/60;
+
+					var dist = spr.getCenter().distance(target.getCenter());
+					spr.setAcceleration();
+					if (dist > 200) {
+						scene.physics.accelerateToObject(spr, target);
+					} else {
+						if (spr.userdata.timeTillNextShot <= 0) {
+							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
+							shootBullet(spr, spr.angle - 90, 200, false);
+						}
+					}
 				}
 			}
 		}
@@ -449,16 +467,6 @@ function enemyVPlayer(s1, s2) {
 	// player.body.velocity.y += Math.sin(playerAngle-180) * force;
 }
 
-function rnd(min, max) {
-	return Math.random() * (max - min) + min;
-}
-
-function getAngleBetween(x1, y1, x2, y2) {
-	var angle = Math.atan2(y2 - y1, x2 - x1);
-	angle = angle * (180/Math.PI);
-	return angle;
-}
-
 function warnEnemy(timeTill, type, x, y) {
 	var spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
 	spr.x = x;
@@ -497,8 +505,8 @@ function createEnemy(type, x, y) {
 		spr.userdata.type = ENEMY_BASIC_SHIP;
 		spr.userdata.timePerShot = 3;
 		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
+		spr.userdata.target = null;
 
-		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 		spr.x = x;
 		spr.y = y;
 
