@@ -44,6 +44,7 @@ var game = {
 	enemyBulletsGroup: null,
 	baseGroup: null,
 	enemyGroup: null,
+	minimapGroup: null,
 
 	timeTillNextShot: 0,
 
@@ -121,6 +122,7 @@ function create() {
 		game.enemyBulletsGroup = scene.physics.add.group();
 		game.baseGroup = scene.physics.add.group();
 		game.enemyGroup = scene.physics.add.group();
+		game.minimapGroup = scene.add.group();
 	}
 
 	{ /// Setup inputs
@@ -164,13 +166,15 @@ function create() {
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
 
 		for (baseData of game.map.getObjectLayer("bases").objects) {
-			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "minimap", "minimap/base1");
+			var minimapSpr = game.minimapGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "minimap", "minimap/base1");
+			scene.cameras.main.ignore(minimapSpr);
+
+			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "sprites", "sprites/bases/base1");
 			spr.userdata = {
+				minimapSpr: minimapSpr,
 				type: "base",
 				hp: 10
-			}
-
-			scene.cameras.main.ignore(spr);
+			};
 		}
 	}
 
@@ -323,7 +327,7 @@ function update(delta) {
 	{ /// Update enemies
 		for (spr of game.enemyGroup.getChildren()) {
 			if (spr.userdata.type == ENEMY_ASTEROID) {
-				/// Ateroid stuff
+				/// Asteroid stuff
 			}
 
 			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
