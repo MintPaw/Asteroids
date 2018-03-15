@@ -158,7 +158,7 @@ function create() {
 		}, this);
 	}
 
-	{ /// Setup Map
+	{ /// Setup map
 		game.map = scene.make.tilemap({ key: "map1" });
 		game.mapTiles = game.map.addTilesetImage("tilesheet", "tilesheet");
 		scene.cameras.main.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
@@ -178,7 +178,7 @@ function create() {
 		}
 	}
 
-	{ /// Setup Player
+	{ /// Setup player
 		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.x = phaser.canvas.width/2;
@@ -215,7 +215,7 @@ function create() {
 		scene.physics.world.addCollider(game.enemyGroup, game.player);
 	}
 
-	{ /// Setup Level
+	{ /// Setup level
 		var level = game.level;
 
 		if (level == 1) {
