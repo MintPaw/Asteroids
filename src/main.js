@@ -68,7 +68,6 @@ var game = {
 
 	level: 0,
 	inGame: false,
-	mouseMovement: true,
 
 	map: null,
 	mapTiles: null,
@@ -258,7 +257,6 @@ function update(delta) {
 	var down = false;
 	var shoot = false;
 	var levelToSwitchTo = 0;
-	var switchMovementMode = false;
 
 	{ /// Update inputs
 		if (game.keyW.isDown || game.keyUp.isDown) up = true;
@@ -272,7 +270,6 @@ function update(delta) {
 		if (game.key4.isDown) levelToSwitchTo = 4;
 		if (game.key5.isDown) levelToSwitchTo = 5;
 		if (game.key5.isDown) levelToSwitchTo = 5;
-		if (Phaser.Input.Keyboard.JustDown(game.keyCtrl)) switchMovementMode = true;
 	}
 
 	{ /// Might need to switch levels
@@ -288,24 +285,10 @@ function update(delta) {
 			game.player.setAcceleration(0, 0);
 			var speed = 100;
 
-			if (switchMovementMode) {
-				msg("Changed movement mode");
-				game.mouseMovement = !game.mouseMovement;
-			}
-
-			if (game.mouseMovement) {
-				if (left) game.player.body.acceleration.x -= speed;
-				if (right) game.player.body.acceleration.x += speed;
-				if (up) game.player.body.acceleration.y -= speed;
-				if (down) game.player.body.acceleration.y += speed;
-
-				game.player.angle = getAngleBetween(game.player.x, game.player.y, game.mouseX + scene.cameras.main.scrollX, game.mouseY + scene.cameras.main.scrollY) + 90;
-			} else {
-				var turnSpeed = 3;
-				if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
-				if (left) game.player.angle -= turnSpeed;
-				if (right) game.player.angle += turnSpeed;
-			}
+			var turnSpeed = 3;
+			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
+			if (left) game.player.angle -= turnSpeed;
+			if (right) game.player.angle += turnSpeed;
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
