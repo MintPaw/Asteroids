@@ -186,6 +186,10 @@ function create() {
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(300, 300);
 
+		spr.userdata = {
+			hp: 10
+		};
+
 		game.player = spr;
 	}
 
@@ -456,8 +460,10 @@ function bulletVEnemy(s1, s2) {
 function bulletVPlayer(s1, s2) {
 	var player = s1 == game.player ? s1 : s2;
 	var bullet = player == s1 ? s2 : s1;
-	player.destroy();
 	bullet.alpha = 0;
+
+	player.userdata.hp--;
+	if (player.userdata.hp <= 0) player.destroy();
 }
 
 function enemyVPlayer(s1, s2) {
@@ -486,6 +492,8 @@ function bulletVBase(s1, s2) {
 
 		game.baseGroup.remove(base);
 		base.destroy();
+
+		msg("Base destroyed, "+game.baseGroup.countActive()+" left");
 	}
 
 	bullet.alpha = 0;
