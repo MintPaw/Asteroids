@@ -181,8 +181,8 @@ function create() {
 	{ /// Setup player
 		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
-		spr.x = phaser.canvas.width/2;
-		spr.y = phaser.canvas.height * 0.25;
+		spr.x = game.map.widthInPixels / 2;
+		spr.y = game.map.heightInPixels / 2;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(300, 300);
 
@@ -219,9 +219,15 @@ function create() {
 		var level = game.level;
 
 		if (level == 1) {
+			timedMsg(1, "Wave incoming, top left!");
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 400, 400);
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
+
+			timedMsg(20, "Next wave incoming, bottom right!");
+			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 79 * game.map.tileWidth, 95 * game.map.tileHeight);
+			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
+			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
 		} else if (level == 2) {
 			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
 			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
@@ -302,7 +308,7 @@ function update(delta) {
 		var edgeSprites = []
 		edgeSprites.push(...game.enemyGroup.getChildren());
 		edgeSprites.push(...game.bulletGroup.getChildren());
-		edgeSprites.push(game.player);
+		if (game.player.active) edgeSprites.push(game.player);
 
 		var edgeX = game.map.widthInPixels;
 		var edgeY = game.map.heightInPixels;
@@ -385,6 +391,7 @@ function msg(str) {
 	var text = scene.add.text(0, 0, str, {font: "64px Arial"});
 	text.x = phaser.canvas.width/2 - text.width/2;
 	text.y = -text.height;
+	text.setScrollFactor(0, 0);
 
 	scene.tweens.add({
 		targets: text,
@@ -472,6 +479,15 @@ function bulletVBase(s1, s2) {
 	var bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
 	var base = bullet == s1 ? s2 : s1;
 
+	base.userdata.hp--;
+	if (base.userdata.hp <= 0) {
+		game.minimapGroup.remove(base.userdata.minimapSpr);
+		base.userdata.minimapSpr.destroy();
+
+		game.baseGroup.remove(base);
+		base.destroy();
+	}
+
 	bullet.alpha = 0;
 }
 
@@ -529,4 +545,8 @@ function timedCreateEnemy(time, type, x, y) {
 
 	scene.time.delayedCall(warningTime * 1000, warnEnemy.bind(null, time - warningTime, type, x, y));
 	scene.time.delayedCall(time * 1000, createEnemy.bind(null, type, x, y));
+}
+
+function timedMsg(time, str) {
+	scene.time.delayedCall(time * 1000, msg.bind(null, str));
 }
