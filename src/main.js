@@ -342,35 +342,35 @@ function update(delta) {
 	}
 
 	{ /// Update enemies
-	for (spr of game.enemyGroup.getChildren()) {
-		if (spr.userdata.type == ENEMY_ASTEROID) {
-		} else if (spr.userdata.type == ENEMY_BASIC_SHIP) {
-			spr.angle = getAngleBetween(spr.x, spr.y, game.player.x, game.player.y) + 90;
-			spr.userdata.timeTillNextShot -= 1/60;
-			if (spr.userdata.timeTillNextShot <= 0) {
-				spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-				shootBullet(spr, spr.angle - 90, 200, false);
+		for (spr of game.enemyGroup.getChildren()) {
+			if (spr.userdata.type == ENEMY_ASTEROID) {
+			} else if (spr.userdata.type == ENEMY_BASIC_SHIP) {
+				spr.angle = getAngleBetween(spr.x, spr.y, game.player.x, game.player.y) + 90;
+				spr.userdata.timeTillNextShot -= 1/60;
+				if (spr.userdata.timeTillNextShot <= 0) {
+					spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
+					shootBullet(spr, spr.angle - 90, 200, false);
+				}
 			}
 		}
 	}
-}
 
 	{ /// Update bullets
-	for (spr of game.bulletGroup.getChildren()) {
-		spr.alpha -= 0.005;
-		if (spr.alpha <= 0) {
-			spr.destroy();
-			game.bulletGroup.remove(spr);
+		for (spr of game.bulletGroup.getChildren()) {
+			spr.alpha -= 0.005;
+			if (spr.alpha <= 0) {
+				spr.destroy();
+				game.bulletGroup.remove(spr);
+			}
 		}
-	}
 
-	for (spr of game.enemyBulletsGroup.getChildren()) {
-		spr.alpha -= 0.005;
-		if (spr.alpha <= 0) {
-			spr.destroy();
-			game.enemyBulletsGroup.remove(spr);
+		for (spr of game.enemyBulletsGroup.getChildren()) {
+			spr.alpha -= 0.005;
+			if (spr.alpha <= 0) {
+				spr.destroy();
+				game.enemyBulletsGroup.remove(spr);
+			}
 		}
-	}
 	}
 
 	{ /// Reset inputs
