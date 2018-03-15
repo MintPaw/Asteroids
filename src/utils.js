@@ -19,7 +19,7 @@ function getClosestSprite(spr, others) {
 
 	var sprCenter = spr.getCenter();
 	for (other of others) {
-
+		if (!other.active) continue;
 		var otherDist = sprCenter.distance(other.getCenter());
 		if (otherDist < closestDist) {
 			closest = other;

@@ -330,19 +330,19 @@ function update(delta) {
 			}
 
 			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
-				if (spr.userdata.target == null) {
-					var targets = [];
-					targets.push(game.player);
-					for (base of game.bases) targets.push(base.sprite);
-					spr.userdata.target = getClosestSprite(spr, targets);
-				} else {
+				var targets = [];
+				targets.push(game.player);
+				for (base of game.bases) targets.push(base.sprite);
+				spr.userdata.target = getClosestSprite(spr, targets);
+
+				if (spr.userdata.target) {
 					var target = spr.userdata.target;
 
 					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y) + 90;
 					spr.userdata.timeTillNextShot -= 1/60;
+					spr.setAcceleration();
 
 					var dist = spr.getCenter().distance(target.getCenter());
-					spr.setAcceleration();
 					if (dist > 200) {
 						scene.physics.accelerateToObject(spr, target);
 					} else {
