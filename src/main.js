@@ -39,8 +39,11 @@ var WARNING_TIME = 2;
 
 var game = {
 	player: null,
+
 	bulletGroup: null,
 	enemyBulletsGroup: null,
+	baseGroup: null,
+	enemyGroup: null,
 
 	timeTillNextShot: 0,
 
@@ -72,7 +75,6 @@ var game = {
 	map: null,
 	mapTiles: null,
 	mapLayers: [],
-	bases: [],
 
 	minimap: null
 };
@@ -112,9 +114,13 @@ function create() {
 		};
 	}
 
-	{ /// Setup game
+	{ /// Setup game and groups
 		game.mapLayers = [];
-		game.bases = [];
+
+		game.bulletGroup = scene.physics.add.group();
+		game.enemyBulletsGroup = scene.physics.add.group();
+		game.baseGroup = scene.physics.add.group();
+		game.enemyGroup = scene.physics.add.group();
 	}
 
 	{ /// Setup inputs
@@ -158,19 +164,13 @@ function create() {
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
 
 		for (baseData of game.map.getObjectLayer("bases").objects) {
-			var base = {
-				name: baseData.name,
-				x: baseData.x + game.map.tileWidth/2,
-				y: baseData.y + game.map.tileHeight/2,
-				width: baseData.width,
-				height: baseData.height,
-				sprite: null
-			};
+			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "minimap", "minimap/base1");
+			spr.userdata = {
+				type: "base",
+				hp: 10
+			}
 
-			base.sprite = scene.add.image(base.x, base.y, "minimap", "minimap/base1");
-			scene.cameras.main.ignore(base.sprite);
-
-			game.bases.push(base);
+			scene.cameras.main.ignore(spr);
 		}
 	}
 
@@ -203,14 +203,11 @@ function create() {
 		game.minimap.roundPixels = true;
 	}
 
-	{ /// Setup groups and collision
-		game.bulletGroup = scene.physics.add.group();
-		game.enemyBulletsGroup = scene.physics.add.group();
-		game.enemyGroup = scene.physics.add.group();
-
+	{ /// Setup collision
 		scene.physics.world.addOverlap(game.bulletGroup, game.enemyGroup, bulletVEnemy);
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
 		scene.physics.world.addOverlap(game.enemyGroup, game.player, enemyVPlayer);
+		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.baseGroup, bulletVBase);
 		scene.physics.world.addCollider(game.enemyGroup, game.player);
 	}
 
@@ -332,7 +329,7 @@ function update(delta) {
 			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
 				var targets = [];
 				targets.push(game.player);
-				for (base of game.bases) targets.push(base.sprite);
+				targets.push(...game.baseGroup.getChildren());
 				spr.userdata.target = getClosestSprite(spr, targets);
 
 				if (spr.userdata.target) {
@@ -466,6 +463,14 @@ function enemyVPlayer(s1, s2) {
 	// player.body.velocity.x += Math.cos(playerAngle-180) * force;
 	// player.body.velocity.y += Math.sin(playerAngle-180) * force;
 }
+
+function bulletVBase(s1, s2) {
+	var bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
+	var base = bullet == s1 ? s2 : s1;
+
+	bullet.alpha = 0;
+}
+
 
 function warnEnemy(timeTill, type, x, y) {
 	var spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
