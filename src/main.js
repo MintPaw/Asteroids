@@ -452,8 +452,6 @@ function switchLevel(newLevel) {
 	game.level = newLevel;
 	phaser.scene.stop("game");
 	phaser.scene.start("game");
-
-	msg("Level "+game.level);
 }
 
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
