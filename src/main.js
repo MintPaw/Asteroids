@@ -79,7 +79,8 @@ var game = {
 	mapTiles: null,
 	mapLayers: [],
 
-	minimap: null
+	minimap: null,
+	minimapSprites: []
 };
 
 var scene = null;
@@ -105,13 +106,12 @@ function create() {
 		Array.prototype.remove = function(val, all) {
 			var i, removedItems = [];
 			if (all) {
-				for(i = this.length; i--;){
+				for (i = this.length; i--;) {
 					if (this[i] === val) removedItems.push(this.splice(i, 1));
 				}
-			}
-			else {  //same as before...
+			} else {
 				i = this.indexOf(val);
-				if(i>-1) removedItems = this.splice(i, 1);
+				if (i>-1) removedItems = this.splice(i, 1);
 			}
 			return removedItems;
 		};
@@ -168,15 +168,14 @@ function create() {
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
 
 		for (baseData of game.map.getObjectLayer("bases").objects) {
-			var minimapSpr = game.minimapGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "minimap", "minimap/base1");
-			scene.cameras.main.ignore(minimapSpr);
-
 			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "sprites", "sprites/bases/base1");
+
 			spr.userdata = {
-				minimapSpr: minimapSpr,
 				type: "base",
 				hp: 10
 			};
+
+			addMinimapSprite(spr, "minimap/base1");
 		}
 	}
 
@@ -201,13 +200,10 @@ function create() {
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(500, 500);
 
-		var minimapSpr = game.minimapGroup.create(0, 0, "minimap", "minimap/player");
-		scene.cameras.main.ignore(minimapSpr);
-		game.minimap.ignore(spr);
+		addMinimapSprite(spr, "minimap/player");
 
 		spr.userdata = {
-			hp: 10,
-			minimapSpr: minimapSpr
+			hp: 10
 		};
 
 		game.player = spr;
@@ -410,9 +406,23 @@ function update(delta) {
 	}
 
 	{ /// Update minimap
-		game.player.userdata.minimapSpr.x = game.player.x;
-		game.player.userdata.minimapSpr.y = game.player.y;
-		game.player.userdata.minimapSpr.rotation = game.player.rotation;
+		for (minimapSpr of game.minimapSprites) {
+			if (!minimapSpr.userdata.parentSprite.active) {
+				game.minimapSprites.remove(minimapSpr);
+				minimapSpr.destroy();
+				continue;
+			}
+
+			minimapSpr.cameraFilter = 0;
+			minimapSpr.userdata.parentSprite.cameraFilter = 0;
+
+			minimapSpr.x = minimapSpr.userdata.parentSprite.x;
+			minimapSpr.y = minimapSpr.userdata.parentSprite.y;
+			minimapSpr.rotation = minimapSpr.userdata.parentSprite.rotation;
+
+			scene.cameras.main.ignore(minimapSpr);
+			game.minimap.ignore(minimapSpr.userdata.parentSprite);
+		}
 	}
 
 	{ /// Reset inputs
@@ -525,9 +535,6 @@ function bulletVBase(s1, s2) {
 
 	base.userdata.hp -= bullet.userdata.damage;
 	if (base.userdata.hp <= 0) {
-		game.minimapGroup.remove(base.userdata.minimapSpr);
-		base.userdata.minimapSpr.destroy();
-
 		game.baseGroup.remove(base);
 		base.destroy();
 
@@ -622,7 +629,7 @@ function createEnemy(type, x, y) {
 		spr.y = y;
 	}
 
-	game.minimap.ignore(spr);
+	addMinimapSprite(spr, "minimap/enemy");
 
 	return spr;
 }
@@ -637,4 +644,14 @@ function timedCreateEnemy(time, type, x, y) {
 
 function timedMsg(time, str) {
 	scene.time.delayedCall(time * 1000, msg.bind(null, str));
+}
+
+function addMinimapSprite(parentSprite, minimapImage) {
+	var minimapSpr = game.minimapGroup.create(0, 0, "minimap", minimapImage);
+
+	minimapSpr.userdata = {
+		parentSprite: parentSprite
+	};
+
+	game.minimapSprites.push(minimapSpr);
 }
