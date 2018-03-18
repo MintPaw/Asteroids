@@ -184,7 +184,7 @@ function create() {
 		spr.x = game.map.widthInPixels / 2;
 		spr.y = game.map.heightInPixels / 2;
 		spr.setDrag(5, 5);
-		spr.setMaxVelocity(300, 300);
+		spr.setMaxVelocity(500, 500);
 
 		spr.userdata = {
 			hp: 10
@@ -293,9 +293,9 @@ function update(delta) {
 	{
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
-			var speed = 100;
+			var speed = 300;
 
-			var turnSpeed = 3;
+			var turnSpeed = 5;
 			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
@@ -303,8 +303,8 @@ function update(delta) {
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
-				game.timeTillNextShot = 1;
-				shootBullet(game.player, game.player.angle - 90, 200, true);
+				game.timeTillNextShot = 0.5;
+				shootBullet(game.player, game.player.angle - 90, 600, true);
 			}
 		}
 	}
