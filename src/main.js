@@ -180,26 +180,6 @@ function create() {
 		}
 	}
 
-	{ /// Setup player
-		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
-		scaleSpriteToSize(spr, 64, 64);
-		spr.x = game.map.widthInPixels / 2;
-		spr.y = game.map.heightInPixels / 2;
-		spr.setDrag(5, 5);
-		spr.setMaxVelocity(500, 500);
-
-		spr.userdata = {
-			hp: 10
-		};
-
-		game.player = spr;
-	}
-
-	{ /// Setup camera
-		scene.cameras.main.startFollow(game.player);
-		scene.cameras.main.roundPixels = true;
-	}
-
 	{ /// Setup minimap
 		var mapScale = 0.04;
 		game.minimap = scene.cameras.add(0, 0, game.map.widthInPixels * mapScale, game.map.heightInPixels * mapScale);
@@ -211,6 +191,31 @@ function create() {
 		game.minimap.setBackgroundColor(0x002244);
 		game.minimap.ignore(game.mapLayers[0]);
 		game.minimap.roundPixels = true;
+	}
+
+	{ /// Setup player
+		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
+		scaleSpriteToSize(spr, 64, 64);
+		spr.x = game.map.widthInPixels / 2;
+		spr.y = game.map.heightInPixels / 2;
+		spr.setDrag(5, 5);
+		spr.setMaxVelocity(500, 500);
+
+		var minimapSpr = game.minimapGroup.create(0, 0, "minimap", "minimap/player");
+		scene.cameras.main.ignore(minimapSpr);
+		game.minimap.ignore(spr);
+
+		spr.userdata = {
+			hp: 10,
+			minimapSpr: minimapSpr
+		};
+
+		game.player = spr;
+	}
+
+	{ /// Setup camera
+		scene.cameras.main.startFollow(game.player);
+		scene.cameras.main.roundPixels = true;
 	}
 
 	{ /// Setup collision
@@ -404,6 +409,12 @@ function update(delta) {
 		}
 	}
 
+	{ /// Update minimap
+		game.player.userdata.minimapSpr.x = game.player.x;
+		game.player.userdata.minimapSpr.y = game.player.y;
+		game.player.userdata.minimapSpr.rotation = game.player.rotation;
+	}
+
 	{ /// Reset inputs
 		game.mouseJustDown = false;
 		game.mouseJustUp = false;
@@ -415,6 +426,7 @@ function msg(str) {
 	text.x = phaser.canvas.width/2 - text.width/2;
 	text.y = -text.height;
 	text.setScrollFactor(0, 0);
+	if (game.minimap) game.minimap.ignore(text);
 
 	scene.tweens.add({
 		targets: text,
@@ -451,6 +463,7 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 
 	spr.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
 
+	game.minimap.ignore(spr);
 	return spr;
 }
 
@@ -544,8 +557,10 @@ function warnEnemy(timeTill, type, x, y) {
 }
 
 function createEnemy(type, x, y) {
+	var spr;
+
 	if (type == ENEMY_ASTEROID) {
-		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/asteroid");
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/asteroid");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {
 			type: ENEMY_ASTEROID,
@@ -554,12 +569,10 @@ function createEnemy(type, x, y) {
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 		spr.x = x;
 		spr.y = y;
-
-		return spr;
 	}
 
 	if (type == ENEMY_BASIC_SHIP) {
-		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/basicShip");
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/basicShip");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {
 			type: ENEMY_BASIC_SHIP,
@@ -573,12 +586,10 @@ function createEnemy(type, x, y) {
 
 		spr.x = x;
 		spr.y = y;
-
-		return spr;
 	}
 
 	if (type == ENEMY_SMALL_SHIP) {
-		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/smallShip");
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/smallShip");
 		scaleSpriteToSize(spr, 32, 32);
 		spr.userdata = {
 			type: ENEMY_SMALL_SHIP,
@@ -592,12 +603,10 @@ function createEnemy(type, x, y) {
 
 		spr.x = x;
 		spr.y = y;
-
-		return spr;
 	}
 
 	if (type == ENEMY_BIG_SHIP) {
-		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/bigShip");
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/bigShip");
 		scaleSpriteToSize(spr, 128, 128);
 		spr.userdata = {
 			type: ENEMY_BIG_SHIP,
@@ -611,9 +620,11 @@ function createEnemy(type, x, y) {
 
 		spr.x = x;
 		spr.y = y;
-
-		return spr;
 	}
+
+	game.minimap.ignore(spr);
+
+	return spr;
 }
 
 function timedCreateEnemy(time, type, x, y) {
