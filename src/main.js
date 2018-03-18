@@ -299,6 +299,7 @@ function update(delta) {
 			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
+			if (down) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * -speed, Math.sin((game.player.angle - 90) * Math.PI/180) * -speed);
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
