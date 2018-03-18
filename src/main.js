@@ -34,6 +34,8 @@ var phaser = new Phaser.Game(config);
 
 var ENEMY_ASTEROID = "asteroid";
 var ENEMY_BASIC_SHIP = "basicShip";
+var ENEMY_SMALL_SHIP = "smallShip";
+var ENEMY_BIG_SHIP = "bigShip";
 
 var WARNING_TIME = 2;
 
@@ -224,14 +226,14 @@ function create() {
 
 		if (level == 1) {
 			timedMsg(1, "Wave incoming, top left!");
-			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
+			timedCreateEnemy(2, ENEMY_SMALL_SHIP, 300, 400);
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 400, 400);
-			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
+			timedCreateEnemy(2, ENEMY_SMALL_SHIP, 500, 400);
 
 			timedMsg(20, "Next wave incoming, bottom right!");
 			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 79 * game.map.tileWidth, 95 * game.map.tileHeight);
-			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
-			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
+			timedCreateEnemy(20, ENEMY_BIG_SHIP, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
+			timedCreateEnemy(20, ENEMY_BIG_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
 		} else if (level == 2) {
 			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
 			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
@@ -341,7 +343,22 @@ function update(delta) {
 				/// Asteroid stuff
 			}
 
-			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
+			if (spr.userdata.type == ENEMY_BASIC_SHIP || spr.userdata.type == ENEMY_SMALL_SHIP || spr.userdata.type == ENEMY_BIG_SHIP) {
+
+				var enemySpeed;
+				var bulletDamage;
+
+				if (spr.userdata.type == ENEMY_BASIC_SHIP) {
+					enemySpeed = 60;
+					bulletDamage = 1;
+				} else if (spr.userdata.type == ENEMY_SMALL_SHIP) {
+					enemySpeed = 180;
+					bulletDamage = 0.33;
+				} else if (spr.userdata.type == ENEMY_BIG_SHIP) {
+					enemySpeed = 10;
+					bulletDamage = 3;
+				}
+
 				var targets = [];
 				targets.push(game.player);
 				targets.push(...game.baseGroup.getChildren());
@@ -356,11 +373,12 @@ function update(delta) {
 
 					var dist = spr.getCenter().distance(target.getCenter());
 					if (dist > 200) {
-						scene.physics.accelerateToObject(spr, target);
+						scene.physics.accelerateToObject(spr, target, enemySpeed);
 					} else {
 						if (spr.userdata.timeTillNextShot <= 0) {
 							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-							shootBullet(spr, spr.angle - 90, 200, false);
+							var bullet = shootBullet(spr, spr.angle - 90, 200, false);
+							bullet.userdata.damage = bulletDamage;
 						}
 					}
 				}
@@ -422,7 +440,9 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	if (isFriendly) spr = game.bulletGroup.create(0, 0, "sprites", "sprites/bullets/bullet1");
 	else spr = game.enemyBulletsGroup.create(0, 0, "sprites", "sprites/bullets/bullet1");
 
-	spr.userdata = {};
+	spr.userdata = {
+		damage: 1
+	};
 
 	angle = angle * Math.PI/180;
 
@@ -450,11 +470,15 @@ function bulletVEnemy(s1, s2) {
 		}
 	}
 
-	if (enemy.userdata.type == ENEMY_BASIC_SHIP) {
+	if (enemy.userdata.type == ENEMY_BASIC_SHIP || enemy.userdata.type == ENEMY_SMALL_SHIP || enemy.userdata.type == ENEMY_BIG_SHIP) {
 		bullet.alpha = 0;
 
-		enemy.destroy();
-		game.enemyGroup.remove(enemy);
+		enemy.userdata.hp -= bullet.userdata.damage;
+
+		if (enemy.userdata.hp <= 0) {
+			enemy.destroy();
+			game.enemyGroup.remove(enemy);
+		}
 	}
 }
 
@@ -463,7 +487,7 @@ function bulletVPlayer(s1, s2) {
 	var bullet = player == s1 ? s2 : s1;
 	bullet.alpha = 0;
 
-	player.userdata.hp--;
+	player.userdata.hp -= bullet.userdata.damage;
 	if (player.userdata.hp <= 0) player.destroy();
 }
 
@@ -486,7 +510,7 @@ function bulletVBase(s1, s2) {
 	var bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
 	var base = bullet == s1 ? s2 : s1;
 
-	base.userdata.hp--;
+	base.userdata.hp -= bullet.userdata.damage;
 	if (base.userdata.hp <= 0) {
 		game.minimapGroup.remove(base.userdata.minimapSpr);
 		base.userdata.minimapSpr.destroy();
@@ -523,8 +547,10 @@ function createEnemy(type, x, y) {
 	if (type == ENEMY_ASTEROID) {
 		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/asteroid");
 		scaleSpriteToSize(spr, 64, 64);
-		spr.userdata = {};
-		spr.userdata.type = ENEMY_ASTEROID;
+		spr.userdata = {
+			type: ENEMY_ASTEROID,
+			hp: 0
+		};
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 		spr.x = x;
 		spr.y = y;
@@ -535,11 +561,53 @@ function createEnemy(type, x, y) {
 	if (type == ENEMY_BASIC_SHIP) {
 		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/basicShip");
 		scaleSpriteToSize(spr, 64, 64);
-		spr.userdata = {};
-		spr.userdata.type = ENEMY_BASIC_SHIP;
-		spr.userdata.timePerShot = 3;
+		spr.userdata = {
+			type: ENEMY_BASIC_SHIP,
+			hp: 3,
+			timePerShot: 3,
+			timeTillNextShot: 0,
+			target: null
+		};
+
 		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-		spr.userdata.target = null;
+
+		spr.x = x;
+		spr.y = y;
+
+		return spr;
+	}
+
+	if (type == ENEMY_SMALL_SHIP) {
+		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/smallShip");
+		scaleSpriteToSize(spr, 32, 32);
+		spr.userdata = {
+			type: ENEMY_SMALL_SHIP,
+			hp: 1,
+			timePerShot: 1,
+			timeTillNextShot: 0,
+			target: null
+		};
+
+		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
+
+		spr.x = x;
+		spr.y = y;
+
+		return spr;
+	}
+
+	if (type == ENEMY_BIG_SHIP) {
+		var spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/bigShip");
+		scaleSpriteToSize(spr, 128, 128);
+		spr.userdata = {
+			type: ENEMY_BIG_SHIP,
+			hp: 9,
+			timePerShot: 6,
+			timeTillNextShot: 0,
+			target: null
+		};
+
+		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 
 		spr.x = x;
 		spr.y = y;
