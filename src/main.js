@@ -296,18 +296,19 @@ function update(delta) {
 	{
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
-			var speed = 300;
+			var speed = 900;
+			var dragPerc = 0.95;
 
 			var turnSpeed = 5;
 			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
-			if (down) game.player.setVelocity(game.player.body.velocity.x * 0.97, game.player.body.velocity.y * 0.97);
+			if (down) game.player.setVelocity(game.player.body.velocity.x * dragPerc, game.player.body.velocity.y * dragPerc);
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
 				game.timeTillNextShot = 0.5;
-				shootBullet(game.player, game.player.angle - 90, 600, true);
+				shootBullet(game.player, game.player.angle - 90, 1000, true);
 			}
 		}
 	}
