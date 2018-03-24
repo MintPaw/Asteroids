@@ -7,6 +7,7 @@ mkdir bin\assets
 cd raw
 %packer% --powerOf2 --format pixijs sprites ../bin/assets
 %packer% --powerOf2 --format pixijs minimap ../bin/assets
+%packer% --powerOf2 --format pixijs ui ../bin/assets
 
 copy tilesheet.png ..\bin\assets
 xcopy /s /y /i maps ..\bin\assets\maps

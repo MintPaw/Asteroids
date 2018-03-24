@@ -85,8 +85,10 @@ var game = {
 	minimap: null,
 	minimapSprites: [],
 
-	overBase:false, 
-	shopPrompt: null
+	overBase: false, 
+	inShop: false,
+	shopPrompt: null,
+	shopSprites: []
 };
 
 var scene = null;
@@ -96,6 +98,7 @@ function preload() {
 
 	scene.load.atlas("sprites", "assets/sprites.png", "assets/sprites.json");
 	scene.load.atlas("minimap", "assets/minimap.png", "assets/minimap.json");
+	scene.load.atlas("ui", "assets/ui.png", "assets/ui.json");
 	scene.load.image("tilesheet", "assets/tilesheet.png");
 	scene.load.tilemapTiledJSON("map1", "assets/maps/map1.json");
 }
@@ -170,6 +173,8 @@ function create() {
 			game.mouseDown = false;
 			game.mouseJustUp = true;
 		}, this);
+
+		scene.input.on("gameobjectdown", buttonPressed, this);
 	}
 
 	{ /// Setup map
@@ -236,11 +241,39 @@ function create() {
 	}
 
 	{ /// Setup shop
-		var spr = scene.add.text(0, 0, "Press E to shop", {font: "32px Arial"});
-		spr.setScrollFactor(0, 0);
-		game.minimap.ignore(spr);
+		{ /// Prompt
+			var spr = scene.add.text(0, 0, "Press E to shop", {font: "32px Arial"});
+			spr.setScrollFactor(0, 0);
+			game.minimap.ignore(spr);
 
-		game.shopPrompt = spr;
+			game.shopPrompt = spr;
+		}
+
+		{ /// Buttons
+			var cols = 3;
+			var rows = 3;
+			var pad = 10;
+
+			for (var y = 0; y < cols; y++) {
+				for (var x = 0; x < rows; x++) {
+					var spr = scene.add.image(0, 0, "ui", "ui/shopButton");
+
+					var totalW = (spr.width + pad) * cols;
+					var totalH = (spr.height + pad) * rows;
+
+					spr.x = x * (spr.width + pad) + (game.width/2 - totalW/2) + spr.width/2;
+					spr.y = y * (spr.height + pad) + (game.height/2 - totalH/2) + spr.height/2;
+					spr.setScrollFactor(0, 0);
+					spr.setInteractive();
+					game.shopSprites.push(spr);
+
+					var textPoint = spr.getTopLeft();
+					var tf = scene.add.text(textPoint.x, textPoint.y, "Item "+x+","+y, {font: "16px Arial"});
+					tf.setScrollFactor(0, 0);
+					game.shopSprites.push(tf);
+				}
+			}
+		}
 	}
 
 	{ /// Setup level
@@ -450,14 +483,18 @@ function update(delta) {
 	}
 
 	{ /// Update shop
-		var showShop = false;
 		if (game.overBase) {
 			game.shopPrompt.visible = true;
 			game.shopPrompt.x = game.width/2 - game.shopPrompt.width/2;
 			game.shopPrompt.y = game.height - game.shopPrompt.height - 10;
-			if (shop) showShop = true;
+			if (shop) game.inShop = true;
 		} else {
 			game.shopPrompt.visible = false;
+			game.inShop = false;
+		}
+
+		for (spr of game.shopSprites) {
+			spr.visible = game.inShop;
 		}
 	}
 
@@ -695,4 +732,8 @@ function addMinimapSprite(parentSprite, minimapImage) {
 	};
 
 	game.minimapSprites.push(minimapSpr);
+}
+
+function buttonPressed(pointer, gameObject) {
+	log("Name: "+gameObject.name);
 }
