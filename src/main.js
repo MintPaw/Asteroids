@@ -40,7 +40,7 @@ var ENEMY_BIG_SHIP = "bigShip";
 var WARNING_TIME = 2;
 
 var UPGRADES_NAMES = [
-	"Move speed", "Break power", "none",
+	"Damage", "Bullet Speed", "Fire Rate",
 	"none", "none", "none",
 	"none", "none", "none"
 ];
@@ -98,7 +98,7 @@ var game = {
 	shopButtonTexts: [],
 
 	upgrades: [],
-	money: 0,
+	money: 10000,
 	moneyText: null
 };
 
@@ -389,8 +389,8 @@ function update(delta) {
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
-				game.timeTillNextShot = 0.5;
-				shootBullet(game.player, game.player.angle - 90, 1000, true);
+				game.timeTillNextShot = getFireRate();
+				shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
 			}
 		}
 	}
@@ -525,7 +525,7 @@ function update(delta) {
 
 		for (var i = 0; i < game.shopButtonTexts.length; i++) {
 			var tf = game.shopButtonTexts[i];
-			tf.setText(UPGRADES_NAMES[i] + "\nLv " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+			tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
 		}
 	}
 
@@ -574,6 +574,8 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 		damage: 1
 	};
 
+	if (isFriendly) spr.userdata.damage = getDamage();
+
 	angle = angle * Math.PI/180;
 
 	spr.x = sourceSprite.x + Math.cos(angle) * (sourceSprite.width/2);
@@ -610,6 +612,10 @@ function bulletVEnemy(s1, s2) {
 			enemy.destroy();
 			game.enemyGroup.remove(enemy);
 		}
+	}
+
+	if (!enemy.active) {
+		game.money += 100;
 	}
 }
 
@@ -775,10 +781,28 @@ function getUpgradePrice(upgradeName) {
 	return upgradeLevel * 300;
 }
 
+function getDamage() {
+	return game.upgrades[UPGRADES_NAMES.indexOf("Damage")];
+}
+
+function getBulletSpeed() {
+	return game.upgrades[UPGRADES_NAMES.indexOf("Bullet Speed")] * 300;
+}
+
+function getFireRate() {
+	return 1/game.upgrades[UPGRADES_NAMES.indexOf("Fire Rate")];
+}
+
 function buttonPressed(pointer, gameObject) {
 	var name = gameObject.name;
-	if (name == "none") return;
 
-	var index = UPGRADES_NAMES.indexOf(name);
-	var price = getUpgradePrice(name);
+	if (UPGRADES_NAMES.indexOf(name) != -1) {
+		var index = UPGRADES_NAMES.indexOf(name);
+		var price = getUpgradePrice(name);
+
+		if (game.money < price) return;
+
+		game.money -= price;
+		game.upgrades[index]++;
+	}
 }
