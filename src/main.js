@@ -40,6 +40,8 @@ var ENEMY_BIG_SHIP = "bigShip";
 var WARNING_TIME = 2;
 
 var game = {
+	width: 0,
+	height: 0,
 	player: null,
 
 	bulletGroup: null,
@@ -65,6 +67,7 @@ var game = {
 	key3: null,
 	key4: null,
 	key5: null,
+	keyE: null,
 
 	mouseX: 0,
 	mouseY: 0,
@@ -80,7 +83,10 @@ var game = {
 	mapLayers: [],
 
 	minimap: null,
-	minimapSprites: []
+	minimapSprites: [],
+
+	overBase:false, 
+	shopPrompt: null
 };
 
 var scene = null;
@@ -117,6 +123,11 @@ function create() {
 		};
 	}
 
+	{ // Setup size
+		game.width = phaser.canvas.width;
+		game.height = phaser.canvas.height;
+	}
+
 	{ /// Setup game and groups
 		game.mapLayers = [];
 
@@ -143,6 +154,7 @@ function create() {
 		game.key3 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
 		game.key4 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
 		game.key5 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
+		game.keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
 		scene.input.on("pointermove", function (pointer) {
 			game.mouseX = pointer.x;
@@ -182,7 +194,7 @@ function create() {
 	{ /// Setup minimap
 		var mapScale = 0.04;
 		game.minimap = scene.cameras.add(0, 0, game.map.widthInPixels * mapScale, game.map.heightInPixels * mapScale);
-		game.minimap.y = phaser.canvas.height - game.minimap.height;
+		game.minimap.y = game.height - game.minimap.height;
 		game.minimap.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
 		game.minimap.scrollX = game.map.widthInPixels / 2 - game.minimap.width/2;
 		game.minimap.scrollY = game.map.heightInPixels / 2 - game.minimap.height/2;
@@ -219,7 +231,16 @@ function create() {
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
 		scene.physics.world.addOverlap(game.enemyGroup, game.player, enemyVPlayer);
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.baseGroup, bulletVBase);
+		scene.physics.world.addOverlap(game.player, game.baseGroup, playerVBase);
 		scene.physics.world.addCollider(game.enemyGroup, game.player);
+	}
+
+	{ /// Setup shop
+		var spr = scene.add.text(0, 0, "Press E to shop", {font: "32px Arial"});
+		spr.setScrollFactor(0, 0);
+		game.minimap.ignore(spr);
+
+		game.shopPrompt = spr;
 	}
 
 	{ /// Setup level
@@ -269,6 +290,7 @@ function update(delta) {
 	var up = false;
 	var down = false;
 	var shoot = false;
+	var shop = false;
 	var levelToSwitchTo = 0;
 
 	{ /// Update inputs
@@ -276,13 +298,14 @@ function update(delta) {
 		if (game.keyS.isDown || game.keyDown.isDown) down = true;
 		if (game.keyA.isDown || game.keyLeft.isDown) left = true;
 		if (game.keyD.isDown || game.keyRight.isDown) right = true;
-		if (game.keySpace.isDown || game.mouseDown) shoot = true;
+		if (game.keySpace.isDown) shoot = true;
 		if (game.key1.isDown) levelToSwitchTo = 1;
 		if (game.key2.isDown) levelToSwitchTo = 2;
 		if (game.key3.isDown) levelToSwitchTo = 3;
 		if (game.key4.isDown) levelToSwitchTo = 4;
 		if (game.key5.isDown) levelToSwitchTo = 5;
 		if (game.key5.isDown) levelToSwitchTo = 5;
+		if (game.keyE.isDown) shop = true;
 	}
 
 	{ /// Might need to switch levels
@@ -426,15 +449,29 @@ function update(delta) {
 		}
 	}
 
+	{ /// Update shop
+		var showShop = false;
+		if (game.overBase) {
+			game.shopPrompt.visible = true;
+			game.shopPrompt.x = game.width/2 - game.shopPrompt.width/2;
+			game.shopPrompt.y = game.height - game.shopPrompt.height - 10;
+			if (shop) showShop = true;
+		} else {
+			game.shopPrompt.visible = false;
+		}
+	}
+
 	{ /// Reset inputs
 		game.mouseJustDown = false;
 		game.mouseJustUp = false;
+
+		game.overBase = false;
 	}
 }
 
 function msg(str) {
 	var text = scene.add.text(0, 0, str, {font: "64px Arial"});
-	text.x = phaser.canvas.width/2 - text.width/2;
+	text.x = game.width/2 - text.width/2;
 	text.y = -text.height;
 	text.setScrollFactor(0, 0);
 	if (game.minimap) game.minimap.ignore(text);
@@ -543,6 +580,11 @@ function bulletVBase(s1, s2) {
 	bullet.alpha = 0;
 }
 
+function playerVBase(s1, s2) {
+	var player = s1 == game.player ? s1 : s2;
+	var base = player == s1 ? s2 : s1;
+	game.overBase = true;
+}
 
 function warnEnemy(timeTill, type, x, y) {
 	var spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
