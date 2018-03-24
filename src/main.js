@@ -41,7 +41,7 @@ var WARNING_TIME = 2;
 
 var UPGRADES_NAMES = [
 	"Damage", "Bullet Speed", "Fire Rate",
-	"none", "none", "none",
+	"Acceleration", "Brake Power", "none",
 	"none", "none", "none"
 ];
 
@@ -98,7 +98,7 @@ var game = {
 	shopButtonTexts: [],
 
 	upgrades: [],
-	money: 10000,
+	money: 0,
 	moneyText: null
 };
 
@@ -378,14 +378,15 @@ function update(delta) {
 	{
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
-			var speed = 900;
-			var dragPerc = 0.95;
+			var speed = getAcceleration();
+			var breakPerc = getBrakePower();
 
 			var turnSpeed = 5;
 			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
-			if (down) game.player.setVelocity(game.player.body.velocity.x * dragPerc, game.player.body.velocity.y * dragPerc);
+			if (down) game.player.setVelocity(game.player.body.velocity.x * breakPerc, game.player.body.velocity.y * breakPerc);
+			log(game.player.body.velocity.x+"|"+game.player.body.velocity.y);
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
@@ -791,6 +792,20 @@ function getBulletSpeed() {
 
 function getFireRate() {
 	return 1/game.upgrades[UPGRADES_NAMES.indexOf("Fire Rate")];
+}
+
+function getAcceleration() {
+	return game.upgrades[UPGRADES_NAMES.indexOf("Acceleration")] * 300;
+}
+
+function getBrakePower() {
+	var value = game.upgrades[UPGRADES_NAMES.indexOf("Brake Power")];
+	if (value == 1) return 0.98;
+	if (value == 2) return 0.97;
+	if (value == 3) return 0.96;
+	if (value == 4) return 0.95;
+	if (value == 5) return 0.94;
+	if (value > 5) return 0.93;
 }
 
 function buttonPressed(pointer, gameObject) {
