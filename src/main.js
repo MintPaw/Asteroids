@@ -39,6 +39,12 @@ var ENEMY_BIG_SHIP = "bigShip";
 
 var WARNING_TIME = 2;
 
+var UPGRADES_NAMES = [
+	"Move speed", "Break power", "none",
+	"none", "none", "none",
+	"none", "none", "none"
+];
+
 var game = {
 	width: 0,
 	height: 0,
@@ -88,7 +94,12 @@ var game = {
 	overBase: false, 
 	inShop: false,
 	shopPrompt: null,
-	shopSprites: []
+	shopSprites: [],
+	shopButtonTexts: [],
+
+	upgrades: [],
+	money: 0,
+	moneyText: null
 };
 
 var scene = null;
@@ -256,6 +267,7 @@ function create() {
 
 			for (var y = 0; y < cols; y++) {
 				for (var x = 0; x < rows; x++) {
+					var index = (x % cols) + (y * cols);
 					var spr = scene.add.image(0, 0, "ui", "ui/shopButton");
 
 					var totalW = (spr.width + pad) * cols;
@@ -266,14 +278,28 @@ function create() {
 					spr.setScrollFactor(0, 0);
 					spr.setInteractive();
 					game.shopSprites.push(spr);
+					spr.setName(UPGRADES_NAMES[index]);
 
 					var textPoint = spr.getTopLeft();
-					var tf = scene.add.text(textPoint.x, textPoint.y, "Item "+x+","+y, {font: "16px Arial"});
+					var tf = scene.add.text(textPoint.x, textPoint.y, "none", {font: "16px Arial", wordWrap: {width: spr.width}});
 					tf.setScrollFactor(0, 0);
 					game.shopSprites.push(tf);
+					game.shopButtonTexts.push(tf);
 				}
 			}
 		}
+	}
+
+	{ /// Setup upgrades
+		for (var i = 0; i < UPGRADES_NAMES.length; i++) game.upgrades.push(1);
+	}
+
+	{ /// Setup hud
+		var tf = scene.add.text(0, 0, "Money: ????", {font: "32px Arial"});
+		tf.setScrollFactor(0, 0);
+		game.minimap.ignore(tf);
+
+		game.moneyText = tf;
 	}
 
 	{ /// Setup level
@@ -496,6 +522,15 @@ function update(delta) {
 		for (spr of game.shopSprites) {
 			spr.visible = game.inShop;
 		}
+
+		for (var i = 0; i < game.shopButtonTexts.length; i++) {
+			var tf = game.shopButtonTexts[i];
+			tf.setText(UPGRADES_NAMES[i] + "\nLv " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+		}
+	}
+
+	{ /// Update hud
+		game.moneyText.setText("Money: "+game.money);
 	}
 
 	{ /// Reset inputs
@@ -515,7 +550,7 @@ function msg(str) {
 
 	scene.tweens.add({
 		targets: text,
-		y: { value: 10, duration: 500, ease: "Power1" },
+		y: { value: 30, duration: 500, ease: "Power1" },
 		alpha: { value: 0, duration: 500, ease: "Power1", delay: 3000 },
 		onComplete: function() {
 			text.destroy();
@@ -734,6 +769,16 @@ function addMinimapSprite(parentSprite, minimapImage) {
 	game.minimapSprites.push(minimapSpr);
 }
 
+function getUpgradePrice(upgradeName) {
+	var index = UPGRADES_NAMES.indexOf(upgradeName);
+	var upgradeLevel = game.upgrades[index];
+	return upgradeLevel * 300;
+}
+
 function buttonPressed(pointer, gameObject) {
-	log("Name: "+gameObject.name);
+	var name = gameObject.name;
+	if (name == "none") return;
+
+	var index = UPGRADES_NAMES.indexOf(name);
+	var price = getUpgradePrice(name);
 }
