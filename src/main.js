@@ -55,6 +55,7 @@ var game = {
 	baseGroup: null,
 	enemyGroup: null,
 	minimapGroup: null,
+	hpGroup: null,
 
 	timeTillNextShot: 0,
 
@@ -99,7 +100,7 @@ var game = {
 
 	upgrades: [],
 	money: 0,
-	moneyText: null
+	moneyText: null,
 };
 
 var scene = null;
@@ -149,7 +150,9 @@ function create() {
 		game.enemyBulletsGroup = scene.physics.add.group();
 		game.baseGroup = scene.physics.add.group();
 		game.enemyGroup = scene.physics.add.group();
+
 		game.minimapGroup = scene.add.group();
+		game.hpGroup = scene.add.group();
 	}
 
 	{ /// Setup inputs
@@ -194,17 +197,6 @@ function create() {
 		scene.cameras.main.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
 
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
-
-		for (baseData of game.map.getObjectLayer("bases").objects) {
-			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "sprites", "sprites/bases/base1");
-
-			spr.userdata = {
-				type: "base",
-				hp: 10
-			};
-
-			addMinimapSprite(spr, "minimap/base1");
-		}
 	}
 
 	{ /// Setup minimap
@@ -220,6 +212,21 @@ function create() {
 		game.minimap.roundPixels = true;
 	}
 
+	{ /// Setup bases
+		for (baseData of game.map.getObjectLayer("bases").objects) {
+			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "sprites", "sprites/bases/base1");
+
+			spr.userdata = {
+				type: "base",
+				maxHp: 10,
+				hp: 10
+			};
+
+			addMinimapSprite(spr, "minimap/base1");
+			addHpBar(spr);
+		}
+	}
+
 	{ /// Setup player
 		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
@@ -231,9 +238,11 @@ function create() {
 		addMinimapSprite(spr, "minimap/player");
 
 		spr.userdata = {
+			maxHp: 10,
 			hp: 10
 		};
 
+		addHpBar(spr);
 		game.player = spr;
 	}
 
@@ -386,7 +395,6 @@ function update(delta) {
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
 			if (down) game.player.setVelocity(game.player.body.velocity.x * breakPerc, game.player.body.velocity.y * breakPerc);
-			log(game.player.body.velocity.x+"|"+game.player.body.velocity.y);
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
@@ -532,6 +540,18 @@ function update(delta) {
 
 	{ /// Update hud
 		game.moneyText.setText("Money: "+game.money);
+
+		for (bar of game.hpGroup.getChildren()) {
+			var spr = bar.userdata.parentSprite;
+			if (!spr.active) {
+				bar.destroy();
+				game.hpGroup.remove(bar);
+				continue;
+			}
+			bar.x = spr.x;
+			bar.y = spr.y - spr.displayHeight/2 - bar.height - 5;
+			bar.scaleX = spr.userdata.hp / spr.userdata.maxHp;
+		}
 	}
 
 	{ /// Reset inputs
@@ -691,6 +711,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {
 			type: ENEMY_ASTEROID,
+			maxHp: 0,
 			hp: 0
 		};
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
@@ -703,6 +724,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {
 			type: ENEMY_BASIC_SHIP,
+			maxHp: 3,
 			hp: 3,
 			timePerShot: 3,
 			timeTillNextShot: 0,
@@ -720,6 +742,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 32, 32);
 		spr.userdata = {
 			type: ENEMY_SMALL_SHIP,
+			maxHp: 1,
 			hp: 1,
 			timePerShot: 1,
 			timeTillNextShot: 0,
@@ -737,6 +760,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 128, 128);
 		spr.userdata = {
 			type: ENEMY_BIG_SHIP,
+			maxHp: 9,
 			hp: 9,
 			timePerShot: 6,
 			timeTillNextShot: 0,
@@ -750,6 +774,7 @@ function createEnemy(type, x, y) {
 	}
 
 	addMinimapSprite(spr, "minimap/enemy");
+	addHpBar(spr);
 
 	return spr;
 }
@@ -820,4 +845,13 @@ function buttonPressed(pointer, gameObject) {
 		game.money -= price;
 		game.upgrades[index]++;
 	}
+}
+
+function addHpBar(parentSprite) {
+	var bar = game.hpGroup.create(0, 0, "sprites", "sprites/hpBar");
+	bar.userdata = {
+		parentSprite: parentSprite
+	};
+
+	game.minimap.ignore(bar);
 }
