@@ -48,6 +48,7 @@ var UPGRADES_NAMES = [
 var game = {
 	width: 0,
 	height: 0,
+	time: 0,
 	player: null,
 
 	bulletGroup: null,
@@ -223,7 +224,8 @@ function create() {
 			};
 
 			addMinimapSprite(spr, "minimap/base1");
-			addHpBar(spr);
+			var bar = addHpBar(spr);
+			bar.userdata.alwaysShow = true;
 		}
 	}
 
@@ -353,6 +355,9 @@ function create() {
 
 function update(delta) {
 	if (!game.inGame) return;
+
+	game.time = phaser.loop.time;
+
 	var left = false;
 	var right = false;
 	var up = false;
@@ -551,6 +556,17 @@ function update(delta) {
 			bar.x = spr.x;
 			bar.y = spr.y - spr.displayHeight/2 - bar.height - 5;
 			bar.scaleX = spr.userdata.hp / spr.userdata.maxHp;
+
+			if (bar.userdata.alwaysShow) {
+				bar.alpha = 1;
+			} else {
+				var timeSinceHit = game.time - bar.userdata.lastHitTime;
+				var barFadeTime = 3000;
+				var barMinFade = 0.1;
+				var perc = 1 - timeSinceHit/barFadeTime;
+				if (perc < barMinFade) perc = barMinFade;
+				bar.alpha = perc;
+			}
 		}
 	}
 
@@ -638,6 +654,8 @@ function bulletVEnemy(s1, s2) {
 	if (!enemy.active) {
 		game.money += 100;
 	}
+
+	showHpBar(enemy);
 }
 
 function bulletVPlayer(s1, s2) {
@@ -647,6 +665,8 @@ function bulletVPlayer(s1, s2) {
 
 	player.userdata.hp -= bullet.userdata.damage;
 	if (player.userdata.hp <= 0) player.destroy();
+
+	showHpBar(player);
 }
 
 function enemyVPlayer(s1, s2) {
@@ -850,8 +870,20 @@ function buttonPressed(pointer, gameObject) {
 function addHpBar(parentSprite) {
 	var bar = game.hpGroup.create(0, 0, "sprites", "sprites/hpBar");
 	bar.userdata = {
-		parentSprite: parentSprite
+		parentSprite: parentSprite,
+		alwaysShow: false,
+		lastHitTime: 0
 	};
 
+	parentSprite.userdata.hpBar = bar;
 	game.minimap.ignore(bar);
+
+	return bar;
+}
+
+function showHpBar(sprite) {
+	var bar = sprite.userdata.hpBar;
+	if (!bar) return;
+
+	bar.userdata.lastHitTime = game.time;
 }
