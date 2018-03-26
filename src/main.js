@@ -936,5 +936,11 @@ function hitPlayer(amount) {
 	game.lastPlayerHitTime = game.time;
 	showHpBar(game.player);
 
-	if (game.player.userdata.hp <= 0) game.player.destroy();
+	if (game.player.userdata.hp <= 0) {
+		game.player.x = game.map.widthInPixels / 2;
+		game.player.y = game.map.heightInPixels / 2;
+		game.lastPlayerHitTime = game.time + 2000;
+		game.player.userdata.hp = game.player.userdata.maxHp;
+		game.money -= 1000;
+	}
 }
