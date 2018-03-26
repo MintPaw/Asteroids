@@ -723,10 +723,14 @@ function createEnemy(type, x, y) {
 		type: type,
 		worth: 100,
 		maxHp: 5,
-		hp: 5,
+		hp: 0,
 		speed: 50,
+
+		timePerShot: 3,
+		timeTillNextShot: 0,
 		bulletDamage: 1,
 		penetrable: false,
+
 		target: null
 	};
 
@@ -735,10 +739,6 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 64, 64);
 
 		userdata.speed = 60;
-		userdata.timePerShot = userdata.timeTillNextShot = 3;
-		spr.userdata = userdata;
-
-		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 	}
 
 	if (type == ENEMY_VESSEL) {
@@ -747,7 +747,6 @@ function createEnemy(type, x, y) {
 		userdata.worth = 500;
 		userdata.maxHp = 10;
 		userdata.speed = 5;
-		spr.userdata = userdata;
 	}
 
 	if (type == ENEMY_VESSEL_LING) {
@@ -757,12 +756,13 @@ function createEnemy(type, x, y) {
 		userdata.maxHp = 1;
 		userdata.speed = 100;
 		userdata.penetrable = true;
-		spr.userdata = userdata;
 
 		spr.setVelocity(rnd(-100, 100), rnd(-100, 100));
 	}
 
-	spr.userdata.hp = spr.userdata.maxHp;
+	userdata.timeTillNextShot = userdata.timePerShot;
+	userdata.hp = userdata.maxHp;
+	spr.userdata = userdata;
 
 	spr.x = x;
 	spr.y = y;
