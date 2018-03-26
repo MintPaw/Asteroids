@@ -673,7 +673,7 @@ function bulletVEnemy(s1, s2) {
 	}
 
 	if (!enemy.active) {
-		game.money += 100;
+		game.money += enemy.userdata.worth;
 	}
 
 	showHpBar(enemy);
@@ -767,6 +767,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 64, 64);
 		spr.userdata = {
 			type: type,
+			worth: 100,
 			maxHp: 3,
 			hp: 3,
 			timePerShot: 3,
@@ -782,6 +783,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 32, 32);
 		spr.userdata = {
 			type: type,
+			worth: 30,
 			maxHp: 1,
 			hp: 1,
 			timePerShot: 1,
@@ -797,6 +799,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 128, 128);
 		spr.userdata = {
 			type: type,
+			worth: 300,
 			maxHp: 9,
 			hp: 9,
 			timePerShot: 6,
@@ -812,6 +815,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 128, 128);
 		spr.userdata = {
 			type: type,
+			worth: 500,
 			maxHp: 10,
 			hp: 10,
 			speed: 5
@@ -823,6 +827,7 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 32, 32);
 		spr.userdata = {
 			type: type,
+			worth: 5,
 			maxHp: 1,
 			hp: 1,
 			speed: 10
