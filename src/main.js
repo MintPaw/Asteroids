@@ -33,8 +33,6 @@ var log = console.log;
 var phaser = new Phaser.Game(config);
 
 var ENEMY_BASIC_SHIP = "basicShip";
-var ENEMY_SMALL_SHIP = "smallShip";
-var ENEMY_BIG_SHIP = "bigShip";
 var ENEMY_VESSEL = "vessel";
 var ENEMY_VESSEL_LING = "vesselLing";
 
@@ -327,10 +325,10 @@ function create() {
 			timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
 
-			timedMsg(20, "Next wave incoming, bottom right!");
+			timedMsg(20, "Wave incoming, bottom right!");
 			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 79 * game.map.tileWidth, 95 * game.map.tileHeight);
-			timedCreateEnemy(20, ENEMY_BIG_SHIP, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
-			timedCreateEnemy(20, ENEMY_BIG_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
+			timedCreateEnemy(20, ENEMY_VESSEL, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
+			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
 		} else if (level == 2) {
 			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 300, 400);
 			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 500, 400);
@@ -436,21 +434,7 @@ function update(delta) {
 
 	{ /// Update enemies
 		for (spr of game.enemyGroup.getChildren()) {
-			if (spr.userdata.type == ENEMY_BASIC_SHIP || spr.userdata.type == ENEMY_SMALL_SHIP || spr.userdata.type == ENEMY_BIG_SHIP) {
-
-				var enemySpeed;
-				var bulletDamage;
-
-				if (spr.userdata.type == ENEMY_BASIC_SHIP) {
-					enemySpeed = 60;
-					bulletDamage = 1;
-				} else if (spr.userdata.type == ENEMY_SMALL_SHIP) {
-					enemySpeed = 180;
-					bulletDamage = 0.33;
-				} else if (spr.userdata.type == ENEMY_BIG_SHIP) {
-					enemySpeed = 10;
-					bulletDamage = 3;
-				}
+			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
 
 				var targets = [];
 				targets.push(game.player);
@@ -466,12 +450,12 @@ function update(delta) {
 
 					var dist = spr.getCenter().distance(target.getCenter());
 					if (dist > 200) {
-						scene.physics.accelerateToObject(spr, target, enemySpeed);
+						scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
 					} else {
 						if (spr.userdata.timeTillNextShot <= 0) {
 							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 							var bullet = shootBullet(spr, spr.angle - 90, 200, false);
-							bullet.userdata.damage = bulletDamage;
+							bullet.userdata.damage = spr.userdata.bulletDamage;
 						}
 					}
 				}
@@ -633,7 +617,7 @@ function bulletVEnemy(s1, s2) {
 
 	enemy.userdata.hp -= bullet.userdata.damage;
 
-	if (enemy.userdata.type == ENEMY_BASIC_SHIP || enemy.userdata.type == ENEMY_SMALL_SHIP || enemy.userdata.type == ENEMY_BIG_SHIP) {
+	if (enemy.userdata.type == ENEMY_BASIC_SHIP) {
 		bullet.alpha = 0;
 	}
 
@@ -734,50 +718,23 @@ function warnEnemy(timeTill, type, x, y) {
 function createEnemy(type, x, y) {
 	var spr;
 
+	var userdata = {
+		type: type,
+		worth: 100,
+		maxHp: 5,
+		hp: 5,
+		speed: 50,
+		bulletDamage: 1,
+		target: null
+	};
+
 	if (type == ENEMY_BASIC_SHIP) {
 		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/basicShip");
 		scaleSpriteToSize(spr, 64, 64);
-		spr.userdata = {
-			type: type,
-			worth: 100,
-			maxHp: 3,
-			hp: 3,
-			timePerShot: 3,
-			timeTillNextShot: 0,
-			target: null
-		};
 
-		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-	}
-
-	if (type == ENEMY_SMALL_SHIP) {
-		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/smallShip");
-		scaleSpriteToSize(spr, 32, 32);
-		spr.userdata = {
-			type: type,
-			worth: 30,
-			maxHp: 1,
-			hp: 1,
-			timePerShot: 1,
-			timeTillNextShot: 0,
-			target: null
-		};
-
-		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-	}
-
-	if (type == ENEMY_BIG_SHIP) {
-		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/bigShip");
-		scaleSpriteToSize(spr, 128, 128);
-		spr.userdata = {
-			type: type,
-			worth: 300,
-			maxHp: 9,
-			hp: 9,
-			timePerShot: 6,
-			timeTillNextShot: 0,
-			target: null
-		};
+		userdata.speed = 60;
+		userdata.timePerShot = userdata.timeTillNextShot = 3;
+		spr.userdata = userdata;
 
 		spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 	}
@@ -785,28 +742,24 @@ function createEnemy(type, x, y) {
 	if (type == ENEMY_VESSEL) {
 		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/vessel");
 		scaleSpriteToSize(spr, 128, 128);
-		spr.userdata = {
-			type: type,
-			worth: 500,
-			maxHp: 10,
-			hp: 10,
-			speed: 5
-		};
+		userdata.worth = 500;
+		userdata.maxHp = 10;
+		userdata.speed = 5;
+		spr.userdata = userdata;
 	}
 
 	if (type == ENEMY_VESSEL_LING) {
 		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/vesselLing");
 		scaleSpriteToSize(spr, 32, 32);
-		spr.userdata = {
-			type: type,
-			worth: 5,
-			maxHp: 1,
-			hp: 1,
-			speed: 10
-		};
+		userdata.worth = 5;
+		userdata.maxHp = 1;
+		userdata.speed = 100;
+		spr.userdata = userdata;
 
 		spr.setVelocity(rnd(-100, 100), rnd(-100, 100));
 	}
+
+	spr.userdata.hp = spr.userdata.maxHp;
 
 	spr.x = x;
 	spr.y = y;
