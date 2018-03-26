@@ -32,7 +32,6 @@ var Point = Phaser.Geom.Point;
 var log = console.log;
 var phaser = new Phaser.Game(config);
 
-var ENEMY_ASTEROID = "asteroid";
 var ENEMY_BASIC_SHIP = "basicShip";
 var ENEMY_SMALL_SHIP = "smallShip";
 var ENEMY_BIG_SHIP = "bigShip";
@@ -333,26 +332,14 @@ function create() {
 			timedCreateEnemy(20, ENEMY_BIG_SHIP, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
 			timedCreateEnemy(20, ENEMY_BIG_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
 		} else if (level == 2) {
-			timedCreateEnemy(2, ENEMY_ASTEROID, 300, 400);
-			timedCreateEnemy(2, ENEMY_ASTEROID, 400, 400);
-			timedCreateEnemy(2, ENEMY_ASTEROID, 500, 400);
 			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 300, 400);
 			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 500, 400);
 		} else if (level == 3) {
 			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-			createEnemy(ENEMY_ASTEROID, 400, 400);
-			createEnemy(ENEMY_ASTEROID, 500, 400);
 		} else if (level == 4) {
 			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-			createEnemy(ENEMY_ASTEROID, 300, 400);
-			createEnemy(ENEMY_ASTEROID, 400, 400);
-			createEnemy(ENEMY_ASTEROID, 500, 400);
 		} else if (level == 5) {
 			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-			createEnemy(ENEMY_ASTEROID, 200, 400);
-			createEnemy(ENEMY_ASTEROID, 300, 400);
-			createEnemy(ENEMY_ASTEROID, 400, 400);
-			createEnemy(ENEMY_ASTEROID, 500, 400);
 		}
 	}
 
@@ -421,7 +408,7 @@ function update(delta) {
 		}
 	}
 
-	{ /// Update sceeen edges
+	{ /// Update sceen edges
 		var edgeSprites = []
 		edgeSprites.push(...game.enemyGroup.getChildren());
 		edgeSprites.push(...game.bulletGroup.getChildren());
@@ -449,10 +436,6 @@ function update(delta) {
 
 	{ /// Update enemies
 		for (spr of game.enemyGroup.getChildren()) {
-			if (spr.userdata.type == ENEMY_ASTEROID) {
-				/// Asteroid stuff
-			}
-
 			if (spr.userdata.type == ENEMY_BASIC_SHIP || spr.userdata.type == ENEMY_SMALL_SHIP || spr.userdata.type == ENEMY_BIG_SHIP) {
 
 				var enemySpeed;
@@ -750,17 +733,6 @@ function warnEnemy(timeTill, type, x, y) {
 
 function createEnemy(type, x, y) {
 	var spr;
-
-	if (type == ENEMY_ASTEROID) {
-		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/asteroid");
-		scaleSpriteToSize(spr, 64, 64);
-		spr.userdata = {
-			type: type,
-			maxHp: 0,
-			hp: 0
-		};
-		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
-	}
 
 	if (type == ENEMY_BASIC_SHIP) {
 		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/basicShip");
