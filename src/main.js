@@ -379,8 +379,7 @@ function update(delta) {
 		}
 	}
 
-	/// Update Player
-	{
+	{ /// Update Player
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
 			var speed = getAcceleration();
@@ -409,7 +408,6 @@ function update(delta) {
 	{ /// Update sceen edges
 		var edgeSprites = []
 		edgeSprites.push(...game.enemyGroup.getChildren());
-		edgeSprites.push(...game.bulletGroup.getChildren());
 		if (game.player.active) edgeSprites.push(game.player);
 
 		var edgeX = game.map.widthInPixels;
