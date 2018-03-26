@@ -617,12 +617,13 @@ function bulletVEnemy(s1, s2) {
 
 	enemy.userdata.hp -= bullet.userdata.damage;
 
+	if (!enemy.userdata.penetrable) bullet.alpha = 0;
+
 	if (enemy.userdata.type == ENEMY_BASIC_SHIP) {
-		bullet.alpha = 0;
+		// Nothing
 	}
 
 	if (enemy.userdata.type == ENEMY_VESSEL) {
-		bullet.alpha = 0;
 		for (var i = 0; i < bullet.userdata.damage; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
 
 		if (enemy.userdata.hp <= 0) {
@@ -725,6 +726,7 @@ function createEnemy(type, x, y) {
 		hp: 5,
 		speed: 50,
 		bulletDamage: 1,
+		penetrable: false,
 		target: null
 	};
 
@@ -754,6 +756,7 @@ function createEnemy(type, x, y) {
 		userdata.worth = 5;
 		userdata.maxHp = 1;
 		userdata.speed = 100;
+		userdata.penetrable = true;
 		spr.userdata = userdata;
 
 		spr.setVelocity(rnd(-100, 100), rnd(-100, 100));
