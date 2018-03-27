@@ -38,6 +38,7 @@ var ENEMY_VESSEL_LING = "vesselLing";
 
 var WARNING_TIME = 2;
 var PLAYER_INVINCIBILITY_TIME = 1;
+var MONEY_LIFETIME = 10;
 
 var UPGRADES_NAMES = [
 	"Damage", "Bullet Speed", "Fire Rate",
@@ -55,6 +56,7 @@ var game = {
 	enemyBulletsGroup: null,
 	baseGroup: null,
 	enemyGroup: null,
+	moneyGroup: null,
 	minimapGroup: null,
 	hpGroup: null,
 
@@ -104,9 +106,6 @@ var game = {
 	moneyText: null,
 
 	lastPlayerHitTime: 0,
-
-	moneyParticles: null,
-	moneyEmitter: null
 };
 
 var scene = null;
@@ -157,6 +156,7 @@ function create() {
 		game.enemyBulletsGroup = scene.physics.add.group();
 		game.baseGroup = scene.physics.add.group();
 		game.enemyGroup = scene.physics.add.group();
+		game.moneyGroup = scene.physics.add.group();
 
 		game.minimapGroup = scene.add.group();
 		game.hpGroup = scene.add.group();
@@ -259,24 +259,6 @@ function create() {
 		scene.cameras.main.roundPixels = true;
 	}
 
-	{ /// Setup emitter
-		game.moneyParticles = scene.add.particles("particles");
-
-		game.moneyEmitter = game.moneyParticles.createEmitter({
-			frame: "particles/money",
-			speedX: 50,
-			speedY: 50,
-			lifespan: 10000,
-			quantity: 1,
-			scale: { min: 0.1, max: 1 },
-			blendMode: "ADD",
-			on: false
-		});
-
-		game.moneyEmitter.radial = true;
-		game.minimap.ignore(game.moneyParticles);
-	}
-
 	{ /// Setup collision
 		scene.physics.world.addOverlap(game.bulletGroup, game.enemyGroup, bulletVEnemy);
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
@@ -284,7 +266,7 @@ function create() {
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.baseGroup, bulletVBase);
 		scene.physics.world.addOverlap(game.player, game.baseGroup, playerVBase);
 		scene.physics.world.addOverlap(game.player, game.enemyGroup, playerVEnemy);
-		scene.physics.world.addOverlap(game.player, game.moneyEmitter, playerVMoney);
+		scene.physics.world.addOverlap(game.player, game.moneyGroup, playerVMoney);
 		scene.physics.world.addCollider(game.enemyGroup, game.player);
 	}
 
@@ -391,7 +373,7 @@ function update(delta) {
 		if (game.key3.isDown) levelToSwitchTo = 3;
 		if (game.key4.isDown) levelToSwitchTo = 4;
 		if (game.key5.isDown) {
-			game.moneyEmitter.emitParticle(10, game.player.x, game.player.y);
+			emitMoney(10, game.player.x, game.player.y);
 		}
 		if (game.keyE.isDown) shop = true;
 	}
@@ -579,6 +561,19 @@ function update(delta) {
 		}
 	}
 
+	{ /// Update money particles
+		for (spr of game.moneyGroup.getChildren()) {
+			if (game.time - spr.userdata.creationTime > MONEY_LIFETIME * 1000) {
+				spr.alpha = 0;
+			}
+
+			if (spr.alpha == 0) {
+				spr.destroy();
+				game.moneyGroup.remove(spr);
+			}
+		}
+	}
+
 	{ /// Reset inputs
 		game.mouseJustDown = false;
 		game.mouseJustUp = false;
@@ -665,8 +660,7 @@ function bulletVEnemy(s1, s2) {
 	}
 
 	if (!enemy.active) {
-		game.money += enemy.userdata.worth;
-		game.moneyEmitter.emitParticle(enemy.userdata.worth, xpos, ypos);
+		emitMoney(enemy.userdata.worth, xpos, ypos);
 	}
 
 	showHpBar(enemy);
@@ -727,6 +721,8 @@ function playerVMoney(s1, s2) {
 	var player = s1 == game.player ? s1 : s2;
 	var money = player == s1 ? s2 : s1;
 
+	money.alpha = 0;
+	game.money++;
 }
 
 function warnEnemy(timeTill, type, x, y) {
@@ -906,5 +902,20 @@ function hitPlayer(amount) {
 		game.lastPlayerHitTime = game.time + 2000;
 		game.player.userdata.hp = game.player.userdata.maxHp;
 		game.money -= 1000;
+	}
+}
+
+function emitMoney(amount, x, y) {
+	for (var i = 0; i < amount; i++) {
+		var spr = game.moneyGroup.create(x, y, "particles", "particles/money");
+		spr.scaleX = spr.scaleY = rnd(0.1, 0.5);
+		spr.blendMode = "ADD";
+
+		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
+		spr.setDrag(5, 5);
+
+		spr.userdata = {
+			creationTime: game.time
+		}
 	}
 }
