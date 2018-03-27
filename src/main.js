@@ -563,11 +563,9 @@ function update(delta) {
 
 	{ /// Update money particles
 		for (spr of game.moneyGroup.getChildren()) {
-			if (game.time - spr.userdata.creationTime > MONEY_LIFETIME * 1000) {
-				spr.alpha = 0;
-			}
+			if (spr.alpha > 0) spr.alpha = 1 - ((game.time - spr.userdata.creationTime) / (MONEY_LIFETIME*1000));
 
-			if (spr.alpha == 0) {
+			if (spr.alpha <= 0) {
 				spr.destroy();
 				game.moneyGroup.remove(spr);
 			}
@@ -721,6 +719,7 @@ function playerVMoney(s1, s2) {
 	var player = s1 == game.player ? s1 : s2;
 	var money = player == s1 ? s2 : s1;
 
+	if (money.alpha <= 0) return;
 	money.alpha = 0;
 	game.money++;
 }
