@@ -103,7 +103,10 @@ var game = {
 	money: 0,
 	moneyText: null,
 
-	lastPlayerHitTime: 0
+	lastPlayerHitTime: 0,
+
+	moneyParticles: null,
+	moneyEmitter: null
 };
 
 var scene = null;
@@ -114,6 +117,7 @@ function preload() {
 	scene.load.atlas("sprites", "assets/sprites.png", "assets/sprites.json");
 	scene.load.atlas("minimap", "assets/minimap.png", "assets/minimap.json");
 	scene.load.atlas("ui", "assets/ui.png", "assets/ui.json");
+	scene.load.atlas("particles", "assets/particles.png", "assets/particles.json");
 	scene.load.image("tilesheet", "assets/tilesheet.png");
 	scene.load.tilemapTiledJSON("map1", "assets/maps/map1.json");
 }
@@ -255,6 +259,24 @@ function create() {
 		scene.cameras.main.roundPixels = true;
 	}
 
+	{ /// Setup emitter
+		game.moneyParticles = scene.add.particles("particles");
+
+		game.moneyEmitter = game.moneyParticles.createEmitter({
+			frame: "particles/money",
+			speedX: 50,
+			speedY: 50,
+			lifespan: 10000,
+			quantity: 1,
+			scale: { min: 0.1, max: 1 },
+			blendMode: "ADD",
+			on: false
+		});
+
+		game.moneyEmitter.radial = true;
+		game.minimap.ignore(game.moneyParticles);
+	}
+
 	{ /// Setup collision
 		scene.physics.world.addOverlap(game.bulletGroup, game.enemyGroup, bulletVEnemy);
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.player, bulletVPlayer);
@@ -262,6 +284,7 @@ function create() {
 		scene.physics.world.addOverlap(game.enemyBulletsGroup, game.baseGroup, bulletVBase);
 		scene.physics.world.addOverlap(game.player, game.baseGroup, playerVBase);
 		scene.physics.world.addOverlap(game.player, game.enemyGroup, playerVEnemy);
+		scene.physics.world.addOverlap(game.player, game.moneyEmitter, playerVMoney);
 		scene.physics.world.addCollider(game.enemyGroup, game.player);
 	}
 
@@ -367,8 +390,9 @@ function update(delta) {
 		if (game.key2.isDown) levelToSwitchTo = 2;
 		if (game.key3.isDown) levelToSwitchTo = 3;
 		if (game.key4.isDown) levelToSwitchTo = 4;
-		if (game.key5.isDown) levelToSwitchTo = 5;
-		if (game.key5.isDown) levelToSwitchTo = 5;
+		if (game.key5.isDown) {
+			game.moneyEmitter.emitParticle(10, game.player.x, game.player.y);
+		}
 		if (game.keyE.isDown) shop = true;
 	}
 
@@ -613,6 +637,8 @@ function bulletVEnemy(s1, s2) {
 	var bullet = game.bulletGroup.contains(s1) ? s1 : s2;
 	var enemy = bullet == s1 ? s2 : s1;
 
+	var xpos = enemy.x;
+	var ypos = enemy.y;
 	enemy.userdata.hp -= bullet.userdata.damage;
 
 	if (!enemy.userdata.penetrable) bullet.alpha = 0;
@@ -640,6 +666,7 @@ function bulletVEnemy(s1, s2) {
 
 	if (!enemy.active) {
 		game.money += enemy.userdata.worth;
+		game.moneyEmitter.emitParticle(enemy.userdata.worth, xpos, ypos);
 	}
 
 	showHpBar(enemy);
@@ -696,6 +723,12 @@ function playerVEnemy(s1, s2) {
 	hitPlayer(0.5);
 }
 
+function playerVMoney(s1, s2) {
+	var player = s1 == game.player ? s1 : s2;
+	var money = player == s1 ? s2 : s1;
+
+}
+
 function warnEnemy(timeTill, type, x, y) {
 	var spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
 	spr.x = x;
@@ -743,7 +776,7 @@ function createEnemy(type, x, y) {
 		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/vessel");
 		scaleSpriteToSize(spr, 128, 128);
 		userdata.worth = 500;
-		userdata.maxHp = 10;
+		userdata.maxHp = 5;
 		userdata.speed = 5;
 	}
 
