@@ -444,7 +444,7 @@ function update(delta) {
 				var targets = [];
 				targets.push(game.player);
 				targets.push(...game.baseGroup.getChildren());
-				spr.userdata.target = getClosestSprite(spr, targets);
+				spr.userdata.target = getClosestTarget(spr, targets);
 
 				if (spr.userdata.target) {
 					var target = spr.userdata.target;
@@ -932,4 +932,22 @@ function emitMoney(amount, x, y) {
 			creationTime: game.time
 		}
 	}
+}
+
+function getClosestTarget(spr, others) {
+	var closest = null;
+	var closestDist = 9999999;
+
+	var sprCenter = spr.getCenter();
+	for (other of others) {
+		if (!other.active) continue;
+		if (other.userdata.hp <= 0) continue;
+		var otherDist = sprCenter.distance(other.getCenter());
+		if (otherDist < closestDist) {
+			closest = other;
+			closestDist = otherDist;
+		}
+	}
+
+	return closest;
 }
