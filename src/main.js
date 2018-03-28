@@ -239,8 +239,8 @@ function create() {
 	{ /// Setup player
 		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
-		spr.x = game.map.widthInPixels / 2;
-		spr.y = game.map.heightInPixels / 2;
+		spr.x = 17 * game.map.tileWidth;
+		spr.y = 17 * game.map.tileHeight;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(500, 500);
 
