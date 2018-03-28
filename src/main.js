@@ -519,7 +519,10 @@ function update(delta) {
 			game.shopPrompt.visible = true;
 			game.shopPrompt.x = game.width/2 - game.shopPrompt.width/2;
 			game.shopPrompt.y = game.height - game.shopPrompt.height - 10;
-			if (shop) game.inShop = true;
+			if (shop) {
+				game.inShop = true;
+				game.player.setVelocity(0, 0);
+			}
 		} else {
 			game.shopPrompt.visible = false;
 			game.inShop = false;
