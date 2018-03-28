@@ -696,10 +696,11 @@ function bulletVBase(s1, s2) {
 
 	base.userdata.hp -= bullet.userdata.damage;
 	if (base.userdata.hp <= 0) {
-		game.baseGroup.remove(base);
-		base.destroy();
-
-		msg("Base destroyed, "+game.baseGroup.countActive()+" left");
+		var basesAlive = 0;
+		for (base of game.baseGroup.getChildren())
+			if (base.userdata.hp > 0)
+				basesAlive++;
+		msg("Base destroyed, "+basesAlive+" left");
 	}
 
 	bullet.alpha = 0;
