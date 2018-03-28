@@ -677,6 +677,8 @@ function bulletVBase(s1, s2) {
 	var bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
 	var base = bullet == s1 ? s2 : s1;
 
+	if (base.userdata.hp <= 0) return;
+
 	base.userdata.hp -= bullet.userdata.damage;
 	if (base.userdata.hp <= 0) {
 		var basesAlive = 0;
