@@ -42,7 +42,7 @@ var MONEY_LIFETIME = 10;
 
 var UPGRADES_NAMES = [
 	"Damage", "Bullet Speed", "Fire Rate",
-	"Acceleration", "Brake Power", "none",
+	"Acceleration", "Brake Power", "Repair Base",
 	"none", "none", "none"
 ];
 
@@ -95,7 +95,8 @@ var game = {
 	minimap: null,
 	minimapSprites: [],
 
-	overBase: false, 
+	baseOver: null, 
+	isOverBase: false,
 	inShop: false,
 	shopPrompt: null,
 	shopSprites: [],
@@ -225,8 +226,8 @@ function create() {
 
 			spr.userdata = {
 				type: "base",
-				maxHp: 10,
-				hp: 10
+				maxHp: 30,
+				hp: 30
 			};
 
 			addMinimapSprite(spr, "minimap/base1");
@@ -514,7 +515,7 @@ function update(delta) {
 	}
 
 	{ /// Update shop
-		if (game.overBase) {
+		if (game.isOverBase) {
 			game.shopPrompt.visible = true;
 			game.shopPrompt.x = game.width/2 - game.shopPrompt.width/2;
 			game.shopPrompt.y = game.height - game.shopPrompt.height - 10;
@@ -528,9 +529,11 @@ function update(delta) {
 			spr.visible = game.inShop;
 		}
 
-		for (var i = 0; i < game.shopButtonTexts.length; i++) {
-			var tf = game.shopButtonTexts[i];
-			tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+		if (game.inShop) {
+			for (var i = 0; i < game.shopButtonTexts.length; i++) {
+				var tf = game.shopButtonTexts[i];
+				tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+			}
 		}
 	}
 
@@ -576,7 +579,7 @@ function update(delta) {
 		game.mouseJustDown = false;
 		game.mouseJustUp = false;
 
-		game.overBase = false;
+		game.isOverBase = false;
 	}
 }
 
@@ -705,7 +708,8 @@ function bulletVBase(s1, s2) {
 function playerVBase(s1, s2) {
 	var player = s1 == game.player ? s1 : s2;
 	var base = player == s1 ? s2 : s1;
-	game.overBase = true;
+	game.baseOver = base;
+	game.isOverBase = true;
 }
 
 function playerVEnemy(s1, s2) {
@@ -822,6 +826,11 @@ function addMinimapSprite(parentSprite, minimapImage) {
 }
 
 function getUpgradePrice(upgradeName) {
+	if (upgradeName == "Repair Base") {
+		if (game.baseOver.userdata.hp <= 0) return 500;
+		else return 200;
+	}
+
 	var index = UPGRADES_NAMES.indexOf(upgradeName);
 	var upgradeLevel = game.upgrades[index];
 	return upgradeLevel * 300;
@@ -863,7 +872,12 @@ function buttonPressed(pointer, gameObject) {
 		if (game.money < price) return;
 
 		game.money -= price;
-		game.upgrades[index]++;
+
+		if (name == "Repair Base") {
+			game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
+		} else {
+			game.upgrades[index]++;
+		}
 	}
 }
 
