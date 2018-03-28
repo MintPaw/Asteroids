@@ -42,8 +42,8 @@ var MONEY_LIFETIME = 10;
 
 var UPGRADES_NAMES = [
 	"Damage", "Bullet Speed", "Fire Rate",
-	"Acceleration", "Brake Power", "Repair Base",
-	"none", "none", "none"
+	"Bullet Spread", "Acceleration", "Brake Power",
+	"none", "none", "Repair Base"
 ];
 
 var TILE_EDGES = [
@@ -65,6 +65,7 @@ var game = {
 	hpGroup: null,
 
 	timeTillNextShot: 0,
+	totalShots: 0,
 
 	keyW: null,
 	keyS: null,
@@ -372,7 +373,51 @@ function update(delta) {
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
 				game.timeTillNextShot = getFireRate();
-				shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+				game.totalShots++;
+
+				var spread = getBulletSpread();
+				if (game.totalShots % 2) {
+					if (spread == 1) {
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+					} else if (spread == 2) {
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+					} else if (spread == 3) {
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+					} else if (spread == 4) {
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+					} else if (spread == 5) {
+						shootBullet(game.player, game.player.angle - 90 - 20, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 20, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+					}
+				} else {
+					if (spread == 1) {
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+					} else if (spread == 2) {
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+					} else if (spread == 3) {
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+					} else if (spread == 4) {
+						shootBullet(game.player, game.player.angle - 90 - 20, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 20, getBulletSpeed(), true);
+					} else if (spread == 5) {
+						shootBullet(game.player, game.player.angle - 90 - 20, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 20, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+					}
+				}
 			}
 
 			if (game.time - game.lastPlayerHitTime < PLAYER_INVINCIBILITY_TIME * 1000) {
@@ -828,6 +873,10 @@ function getDamage() {
 
 function getBulletSpeed() {
 	return game.upgrades[UPGRADES_NAMES.indexOf("Bullet Speed")] * 300;
+}
+
+function getBulletSpread() {
+	return game.upgrades[UPGRADES_NAMES.indexOf("Bullet Spread")];
 }
 
 function getFireRate() {
