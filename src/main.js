@@ -46,6 +46,10 @@ var UPGRADES_NAMES = [
 	"none", "none", "none"
 ];
 
+var TILE_EDGES = [
+	{x: 0, y: 0, width: 30, height: 30}
+];
+
 var game = {
 	width: 0,
 	height: 0,
@@ -85,7 +89,6 @@ var game = {
 	mouseJustDown: false,
 	mouseJustUp: false,
 
-	level: 0,
 	inGame: false,
 
 	map: null,
@@ -107,6 +110,7 @@ var game = {
 	moneyText: null,
 
 	lastPlayerHitTime: 0,
+	level: 0,
 };
 
 var scene = null;
@@ -123,13 +127,6 @@ function preload() {
 }
 
 function create() {
-	{ /// Level reloader
-		if (game.level == 0) {
-			switchLevel(1);
-			return;
-		}
-	}
-
 	{ /// Add remove to array
 		Array.prototype.remove = function(val, all) {
 			var i, removedItems = [];
@@ -202,7 +199,6 @@ function create() {
 	{ /// Setup map
 		game.map = scene.make.tilemap({ key: "map1" });
 		game.mapTiles = game.map.addTilesetImage("tilesheet", "tilesheet");
-		scene.cameras.main.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
 
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
 	}
@@ -323,28 +319,15 @@ function create() {
 	}
 
 	{ /// Setup level
-		var level = game.level;
-
-		if (level == 1) {
 			timedMsg(1, "Wave incoming, top left!");
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
 			timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
 			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
 
-			timedMsg(20, "Wave incoming, bottom right!");
-			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 79 * game.map.tileWidth, 95 * game.map.tileHeight);
-			timedCreateEnemy(20, ENEMY_VESSEL, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
-			timedCreateEnemy(20, ENEMY_BASIC_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
-		} else if (level == 2) {
-			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 300, 400);
-			timedCreateEnemy(8, ENEMY_BASIC_SHIP, 500, 400);
-		} else if (level == 3) {
-			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-		} else if (level == 4) {
-			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-		} else if (level == 5) {
-			createEnemy(ENEMY_BASIC_SHIP, 300, 400);
-		}
+			// timedMsg(20, "Wave incoming, bottom right!");
+			// timedCreateEnemy(20, ENEMY_BASIC_SHIP, 79 * game.map.tileWidth, 95 * game.map.tileHeight);
+			// timedCreateEnemy(20, ENEMY_VESSEL, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
+			// timedCreateEnemy(20, ENEMY_BASIC_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
 	}
 
 	game.inGame = true;
@@ -361,7 +344,6 @@ function update(delta) {
 	var down = false;
 	var shoot = false;
 	var shop = false;
-	var levelToSwitchTo = 0;
 
 	{ /// Update inputs
 		if (game.keyW.isDown || game.keyUp.isDown) up = true;
@@ -369,21 +351,10 @@ function update(delta) {
 		if (game.keyA.isDown || game.keyLeft.isDown) left = true;
 		if (game.keyD.isDown || game.keyRight.isDown) right = true;
 		if (game.keySpace.isDown) shoot = true;
-		if (game.key1.isDown) levelToSwitchTo = 1;
-		if (game.key2.isDown) levelToSwitchTo = 2;
-		if (game.key3.isDown) levelToSwitchTo = 3;
-		if (game.key4.isDown) levelToSwitchTo = 4;
 		if (game.key5.isDown) {
 			emitMoney(10, game.player.x, game.player.y);
 		}
 		if (game.keyE.isDown) shop = true;
-	}
-
-	{ /// Might need to switch levels
-		if (levelToSwitchTo != 0) {
-			switchLevel(levelToSwitchTo);
-			return;
-		}
 	}
 
 	{ /// Update Player
@@ -417,20 +388,35 @@ function update(delta) {
 		edgeSprites.push(...game.enemyGroup.getChildren());
 		if (game.player.active) edgeSprites.push(game.player);
 
-		var edgeX = game.map.widthInPixels;
-		var edgeY = game.map.heightInPixels;
+		var minX = TILE_EDGES[game.level].x * game.map.tileWidth;
+		var minY = TILE_EDGES[game.level].y * game.map.tileHeight;
+		var edgeX = TILE_EDGES[game.level].width * game.map.tileWidth;
+		var edgeY = TILE_EDGES[game.level].height * game.map.tileHeight;
+
+		scene.cameras.main.setBounds(minX, minY, edgeX, edgeY);
+
+		if (game.level == 1) {
+			edgeX = 40 * game.map.tileWidth;
+			edgeY = 40 * game.map.tileHeight;
+		}
 
 		for (spr of edgeSprites) {
-			if (spr.x < 0) {
-				spr.x = 0;
+			if (spr.x < minX) {
+				spr.x = minX;
 				spr.setVelocityX(0);
-			} else if (spr.y < 0) {
-				spr.y = 0;
+			}
+
+			if (spr.y < minY) {
+				spr.y = minY;
 				spr.setVelocityY(0);
-			} else if (spr.x > edgeX) {
+			}
+
+			if (spr.x > edgeX) {
 				spr.x = edgeX;
 				spr.setVelocityX(0);
-			} else if (spr.y > edgeY) {
+			}
+
+			if (spr.y > edgeY) {
 				spr.y = edgeY;
 				spr.setVelocityY(0);
 			}
@@ -601,12 +587,6 @@ function msg(str) {
 			text.destroy();
 		}
 	});
-}
-
-function switchLevel(newLevel) {
-	game.level = newLevel;
-	phaser.scene.stop("game");
-	phaser.scene.start("game");
 }
 
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
