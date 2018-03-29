@@ -40,15 +40,21 @@ var WARNING_TIME = 2;
 var PLAYER_INVINCIBILITY_TIME = 1;
 var MONEY_LIFETIME = 10;
 
+var DAMAGE = "Damage";
+var BULLET_SPEED = "Bullet Speed";
+var FIRE_RATE = "Fire Rate";
+var BULLET_SPREAD = "Bullet Spread";
+var ACCELERATION = "Acceleration";
+var BRAKE_POWER = "Brake Power";
+var REPAIR_BASE = "Repair Base";
+var NONE = "none";
+
 var UPGRADES_NAMES = [
-	"Damage", "Bullet Speed", "Fire Rate",
-	"Bullet Spread", "Acceleration", "Brake Power",
-	"none", "none", "Repair Base"
+	DAMAGE, BULLET_SPEED, FIRE_RATE,
+	BULLET_SPREAD, ACCELERATION, BRAKE_POWER,
+	NONE, NONE, REPAIR_BASE
 ];
 
-var TILE_EDGES = [
-	{x: 0, y: 0, width: 30, height: 30}
-];
 
 var game = {
 	width: 0,
@@ -236,8 +242,8 @@ function create() {
 	{ /// Setup player
 		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
-		spr.x = 17 * game.map.tileWidth;
-		spr.y = 17 * game.map.tileHeight;
+		spr.x = game.map.widthInPixels/2;
+		spr.y = game.map.heightInPixels/2;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(500, 500);
 
@@ -294,6 +300,9 @@ function create() {
 					spr.y = y * (spr.height + pad) + (game.height/2 - totalH/2) + spr.height/2;
 					spr.setScrollFactor(0, 0);
 					spr.setInteractive();
+					spr.userdata = {
+						enabled: true
+					};
 					game.shopSprites.push(spr);
 					spr.setName(UPGRADES_NAMES[index]);
 
@@ -433,10 +442,10 @@ function update(delta) {
 		edgeSprites.push(...game.enemyGroup.getChildren());
 		if (game.player.active) edgeSprites.push(game.player);
 
-		var minX = TILE_EDGES[game.level].x * game.map.tileWidth;
-		var minY = TILE_EDGES[game.level].y * game.map.tileHeight;
-		var edgeX = TILE_EDGES[game.level].width * game.map.tileWidth;
-		var edgeY = TILE_EDGES[game.level].height * game.map.tileHeight;
+		var minX = 0;
+		var minY = 0;
+		var edgeX = game.map.widthInPixels;
+		var edgeY = game.map.heightInPixels;
 
 		scene.cameras.main.setBounds(minX, minY, edgeX, edgeY);
 
@@ -566,6 +575,8 @@ function update(delta) {
 		if (game.inShop) {
 			for (var i = 0; i < game.shopButtonTexts.length; i++) {
 				var tf = game.shopButtonTexts[i];
+
+				// if (UPGRADES_NAMES[i] == 
 				tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
 			}
 		}
@@ -868,27 +879,27 @@ function getUpgradePrice(upgradeName) {
 }
 
 function getDamage() {
-	return game.upgrades[UPGRADES_NAMES.indexOf("Damage")];
+	return game.upgrades[UPGRADES_NAMES.indexOf(DAMAGE)];
 }
 
 function getBulletSpeed() {
-	return game.upgrades[UPGRADES_NAMES.indexOf("Bullet Speed")] * 300;
+	return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPEED)] * 300;
 }
 
 function getBulletSpread() {
-	return game.upgrades[UPGRADES_NAMES.indexOf("Bullet Spread")];
+	return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPREAD)];
 }
 
 function getFireRate() {
-	return 1/game.upgrades[UPGRADES_NAMES.indexOf("Fire Rate")];
+	return 1/game.upgrades[UPGRADES_NAMES.indexOf(FIRE_RATE)];
 }
 
 function getAcceleration() {
-	return game.upgrades[UPGRADES_NAMES.indexOf("Acceleration")] * 300;
+	return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
 }
 
 function getBrakePower() {
-	var value = game.upgrades[UPGRADES_NAMES.indexOf("Brake Power")];
+	var value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
 	if (value == 1) return 0.98;
 	if (value == 2) return 0.97;
 	if (value == 3) return 0.96;
