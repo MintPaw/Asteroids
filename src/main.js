@@ -35,6 +35,7 @@ var phaser = new Phaser.Game(config);
 var ENEMY_BASIC_SHIP = "basicShip";
 var ENEMY_VESSEL = "vessel";
 var ENEMY_VESSEL_LING = "vesselLing";
+var ENEMY_SCANNER = "scanner";
 
 var WARNING_TIME = 2;
 var PLAYER_INVINCIBILITY_TIME = 1;
@@ -349,10 +350,15 @@ function startWave() {
 
 	if (game.wave == 1) {
 		enableBase(0);
-		timedMsg(1, "Wave incoming, top left!");
-		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
-		timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
-		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
+		// timedMsg(1, "Wave incoming, top left!");
+		// timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
+		// timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
+		// timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
+		timedMsg(1, "Scanners incoming");
+		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 58 * game.map.tileHeight);
 	}
 }
 
@@ -384,13 +390,13 @@ function update(delta) {
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
 			var speed = getAcceleration();
-			var breakPerc = getBrakePower();
+			var brakePerc = getBrakePower();
 
 			var turnSpeed = 5;
 			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
-			if (down) game.player.setVelocity(game.player.body.velocity.x * breakPerc, game.player.body.velocity.y * breakPerc);
+			if (down) game.player.setVelocity(game.player.body.velocity.x * brakePerc, game.player.body.velocity.y * brakePerc);
 
 			game.timeTillNextShot -= 1/60;
 			if (shoot && game.timeTillNextShot <= 0) {
@@ -463,24 +469,35 @@ function update(delta) {
 		scene.cameras.main.setBounds(minX, minY, edgeX, edgeY);
 
 		for (spr of edgeSprites) {
+			var hit = false;
+
 			if (spr.x < minX) {
+				hit = true;
 				spr.x = minX;
 				spr.setVelocityX(0);
 			}
 
 			if (spr.y < minY) {
+				hit = true;
 				spr.y = minY;
 				spr.setVelocityY(0);
 			}
 
 			if (spr.x > edgeX) {
+				hit = true;
 				spr.x = edgeX;
 				spr.setVelocityX(0);
 			}
 
 			if (spr.y > edgeY) {
+				hit = true;
 				spr.y = edgeY;
 				spr.setVelocityY(0);
+			}
+
+			if (hit && spr.userdata.type == ENEMY_SCANNER && spr.userdata.scanPerc >= 100) {
+				createEnemy(ENEMY_BASIC_SHIP, spr.x, spr.y);
+				destroyEnemy(spr);
 			}
 		}
 	}
@@ -505,8 +522,8 @@ function update(delta) {
 					if (dist > 200) {
 						scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
 					} else {
-						var basicShipBreakPerc = 0.99;
-						spr.setVelocity(spr.body.velocity.x * basicShipBreakPerc, spr.body.velocity.y * basicShipBreakPerc);
+						spr.setVelocity(spr.body.velocity.x * spr.userdata.brakePerc, spr.body.velocity.y * spr.userdata.brakePerc);
+
 						if (spr.userdata.timeTillNextShot <= 0) {
 							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 							var bullet = shootBullet(spr, spr.angle - 90, 200, false);
@@ -522,6 +539,41 @@ function update(delta) {
 
 			if (spr.userdata.type == ENEMY_VESSEL_LING) {
 				scene.physics.accelerateToObject(spr, game.player, spr.userdata.speed);
+			}
+
+			if (spr.userdata.type == ENEMY_SCANNER) {
+
+				if (spr.userdata.scanPerc >= 100) {
+					spr.userdata.scanningText.visible = true;
+					spr.userdata.scanningText.setText("Calling for backup");
+					var retreatAngle = Math.atan2(game.map.heightInPixels/2 - spr.y, game.map.widthInPixels/2 - spr.x);
+					spr.setAcceleration(-Math.cos(retreatAngle) * spr.userdata.speed, -Math.sin(retreatAngle) * spr.userdata.speed);
+				} else {
+					var newTarget = getClosestTarget(spr, game.baseGroup.getChildren(targets));
+					if (spr.userdata.target != newTarget) spr.userdata.scanPerc = 0;
+					spr.userdata.target = newTarget;
+
+					if (spr.userdata.target) {
+						var target = spr.userdata.target;
+
+						var dist = spr.getCenter().distance(target.getCenter());
+						if (dist > 200) {
+							scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
+							spr.userdata.scanningText.visible = false;
+						} else {
+							spr.userdata.scanningText.visible = true;
+							spr.userdata.scanningText.setText("Scanning "+Math.round(spr.userdata.scanPerc*10)/10+"%");
+							spr.userdata.scanPerc += 0.1;
+							spr.rotation += 0.1;
+							spr.setVelocity(spr.body.velocity.x * spr.userdata.brakePerc, spr.body.velocity.y * spr.userdata.brakePerc);
+						}
+					}
+				}
+
+				if (spr.userdata.scanningText.visible) {
+					spr.userdata.scanningText.x = spr.x - 100 / 2;
+					spr.userdata.scanningText.y = spr.y + spr.height;
+				}
 			}
 		}
 	}
@@ -686,39 +738,37 @@ function bulletVEnemy(s1, s2) {
 	var bullet = game.bulletGroup.contains(s1) ? s1 : s2;
 	var enemy = bullet == s1 ? s2 : s1;
 
-	var xpos = enemy.x;
-	var ypos = enemy.y;
 	enemy.userdata.hp -= bullet.userdata.damage;
 
 	if (!enemy.userdata.penetrable) bullet.alpha = 0;
 
-	if (enemy.userdata.type == ENEMY_BASIC_SHIP) {
-		// Nothing
-	}
-
 	if (enemy.userdata.type == ENEMY_VESSEL) {
 		for (var i = 0; i < bullet.userdata.damage; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
-
-		if (enemy.userdata.hp <= 0) {
-			for (var i = 0; i < 5; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
-		}
 	}
 
-	if (enemy.userdata.type == ENEMY_VESSEL_LING) {
-		// Nothing
-	}
-
-	if (enemy.userdata.hp <= 0) {
-		enemy.destroy();
-		game.enemyGroup.remove(enemy);
-	}
-
-	if (!enemy.active) {
-		emitMoney(enemy.userdata.worth, xpos, ypos);
-	}
+	if (enemy.userdata.hp <= 0) destroyEnemy(enemy);
 
 	showHpBar(enemy);
 }
+
+function destroyEnemy(enemy) {
+	var xpos = enemy.x;
+	var ypos = enemy.y;
+
+	enemy.destroy();
+	game.enemyGroup.remove(enemy);
+
+	if (enemy.userdata.type == ENEMY_VESSEL) {
+		for (var i = 0; i < 5; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
+	}
+
+	if (enemy.userdata.type == ENEMY_SCANNER) {
+		enemy.userdata.scanningText.destroy();
+	}
+
+	emitMoney(enemy.userdata.worth, xpos, ypos);
+}
+
 
 function bulletVPlayer(s1, s2) {
 	var player = s1 == game.player ? s1 : s2;
@@ -811,6 +861,7 @@ function createEnemy(type, x, y) {
 		maxHp: 5,
 		hp: 0,
 		speed: 50,
+		brakePerc: 0.99,
 
 		timePerShot: 3,
 		timeTillNextShot: 0,
@@ -844,6 +895,19 @@ function createEnemy(type, x, y) {
 		userdata.penetrable = true;
 
 		spr.setVelocity(rnd(-100, 100), rnd(-100, 100));
+	}
+
+	if (type == ENEMY_SCANNER) {
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/scanner");
+		scaleSpriteToSize(spr, 64, 64);
+		userdata.worth = 100;
+		userdata.maxHp = 3;
+		userdata.speed = 40;
+		userdata.brakePerc = 0.95;
+
+		userdata.scanPerc = 0;
+		userdata.scanningText = scene.add.text(0, 0, "Scanning...", {font: "16px Arial"});
+		game.minimap.ignore(userdata.scanningText);
 	}
 
 	userdata.timeTillNextShot = userdata.timePerShot;
