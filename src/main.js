@@ -110,6 +110,7 @@ var game = {
 	inShop: false,
 	shopPrompt: null,
 	shopSprites: [],
+	shopButtons: [],
 	shopButtonTexts: [],
 
 	upgrades: [],
@@ -303,8 +304,9 @@ function create() {
 					spr.userdata = {
 						enabled: true
 					};
-					game.shopSprites.push(spr);
 					spr.setName(UPGRADES_NAMES[index]);
+					game.shopSprites.push(spr);
+					game.shopButtons.push(spr);
 
 					var textPoint = spr.getTopLeft();
 					var tf = scene.add.text(textPoint.x, textPoint.y, "none", {font: "16px Arial", wordWrap: {width: spr.width}});
@@ -576,8 +578,12 @@ function update(delta) {
 			for (var i = 0; i < game.shopButtonTexts.length; i++) {
 				var tf = game.shopButtonTexts[i];
 
-				// if (UPGRADES_NAMES[i] == 
-				tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+				if (UPGRADES_NAMES[i] == REPAIR_BASE) {
+					tf.setText(UPGRADES_NAMES[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+					game.shopButtons[i].userdata.enabled = game.baseOver.userdata.hp != game.baseOver.userdata.maxHp;
+				} else {
+					tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+				}
 			}
 		}
 	}
@@ -910,6 +916,8 @@ function getBrakePower() {
 
 function buttonPressed(pointer, gameObject) {
 	var name = gameObject.name;
+
+	if (!gameObject.userdata.enabled) return;
 
 	if (UPGRADES_NAMES.indexOf(name) != -1) {
 		var index = UPGRADES_NAMES.indexOf(name);
