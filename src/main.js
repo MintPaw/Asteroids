@@ -118,7 +118,7 @@ var game = {
 	moneyText: null,
 
 	lastPlayerHitTime: 0,
-	level: 0,
+	wave: 0,
 };
 
 var scene = null;
@@ -230,6 +230,8 @@ function create() {
 
 			spr.userdata = {
 				type: "base",
+				num: parseInt(baseData.type),
+				enabled: false,
 				maxHp: 30,
 				hp: 30
 			};
@@ -331,18 +333,27 @@ function create() {
 	}
 
 	{ /// Setup level
-			timedMsg(1, "Wave incoming, top left!");
-			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
-			timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
-			timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
-
-			// timedMsg(20, "Wave incoming, bottom right!");
-			// timedCreateEnemy(20, ENEMY_BASIC_SHIP, 79 * game.map.tileWidth, 95 * game.map.tileHeight);
-			// timedCreateEnemy(20, ENEMY_VESSEL, 81 * game.map.tileWidth, 95 * game.map.tileHeight);
-			// timedCreateEnemy(20, ENEMY_BASIC_SHIP, 83 * game.map.tileWidth, 95 * game.map.tileHeight);
+		game.wave = 1;
+		startWave();
 	}
 
 	game.inGame = true;
+}
+
+function startWave() {
+	function enableBase(baseNum) {
+		for (base of game.baseGroup.getChildren())
+			if (base.userdata.num == baseNum)
+				base.userdata.enabled = true;
+	}
+
+	if (game.wave == 1) {
+		enableBase(0);
+		timedMsg(1, "Wave incoming, top left!");
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
+		timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
+	}
 }
 
 function update(delta) {
@@ -451,11 +462,6 @@ function update(delta) {
 
 		scene.cameras.main.setBounds(minX, minY, edgeX, edgeY);
 
-		if (game.level == 1) {
-			edgeX = 40 * game.map.tileWidth;
-			edgeY = 40 * game.map.tileHeight;
-		}
-
 		for (spr of edgeSprites) {
 			if (spr.x < minX) {
 				spr.x = minX;
@@ -499,6 +505,8 @@ function update(delta) {
 					if (dist > 200) {
 						scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
 					} else {
+						var basicShipBreakPerc = 0.99;
+						spr.setVelocity(spr.body.velocity.x * basicShipBreakPerc, spr.body.velocity.y * basicShipBreakPerc);
 						if (spr.userdata.timeTillNextShot <= 0) {
 							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
 							var bullet = shootBullet(spr, spr.angle - 90, 200, false);
@@ -995,6 +1003,7 @@ function getClosestTarget(spr, others) {
 	for (other of others) {
 		if (!other.active) continue;
 		if (other.userdata.hp <= 0) continue;
+		if (other.userdata.type == "base" && !other.userdata.enabled) continue;
 		var otherDist = sprCenter.distance(other.getCenter());
 		if (otherDist < closestDist) {
 			closest = other;
