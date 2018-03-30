@@ -119,7 +119,10 @@ var game = {
 	moneyText: null,
 
 	lastPlayerHitTime: 0,
+
 	wave: 0,
+	waveText: null,
+	waveTime: 0,
 };
 
 var scene = null;
@@ -326,16 +329,22 @@ function create() {
 	}
 
 	{ /// Setup hud
-		var tf = scene.add.text(0, 0, "Money: ????", {font: "32px Arial"});
-		tf.setScrollFactor(0, 0);
-		game.minimap.ignore(tf);
+		{ /// Money text
+			var tf = scene.add.text(0, 0, "Money: ????", {font: "32px Arial"});
+			tf.setScrollFactor(0, 0);
+			game.minimap.ignore(tf);
 
-		game.moneyText = tf;
-	}
+			game.moneyText = tf;
+		}
 
-	{ /// Setup level
-		game.wave = 1;
-		startWave();
+		{ /// Wave text
+			var tf = scene.add.text(0, 0, "Wave: ????\n00:00 till next wave", {font: "32px Arial"});
+			tf.y = game.height - game.minimap.height - tf.height;
+			tf.setScrollFactor(0, 0);
+			game.minimap.ignore(tf);
+
+			game.waveText = tf;
+		}
 	}
 
 	game.inGame = true;
@@ -350,15 +359,36 @@ function startWave() {
 
 	if (game.wave == 1) {
 		enableBase(0);
-		// timedMsg(1, "Wave incoming, top left!");
-		// timedCreateEnemy(2, ENEMY_BASIC_SHIP, 300, 400);
-		// timedCreateEnemy(2, ENEMY_VESSEL, 400, 400);
-		// timedCreateEnemy(2, ENEMY_BASIC_SHIP, 500, 400);
 		timedMsg(1, "Scanners incoming");
 		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 58 * game.map.tileHeight);
+
+		game.waveTime = 60;
+	}
+
+	if (game.wave == 2) {
+		timedMsg(1, "A bunch of stuff!");
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+
+		game.waveTime = 120;
+	}
+
+	if (game.wave == 3) {
+		timedMsg(1, "A copy of the previous wave!");
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+
+		game.waveTime = 120;
+	}
+
+	if (game.wave == 4) {
+		timedMsg(1, "No more waves");
+		game.waveTime = 999999;
 	}
 }
 
@@ -366,6 +396,7 @@ function update(delta) {
 	if (!game.inGame) return;
 
 	game.time = phaser.loop.time;
+	game.elapsed = phaser.loop.delta / 1000;
 
 	var left = false;
 	var right = false;
@@ -398,7 +429,7 @@ function update(delta) {
 			if (right) game.player.angle += turnSpeed;
 			if (down) game.player.setVelocity(game.player.body.velocity.x * brakePerc, game.player.body.velocity.y * brakePerc);
 
-			game.timeTillNextShot -= 1/60;
+			game.timeTillNextShot -= game.elapsed;
 			if (shoot && game.timeTillNextShot <= 0) {
 				game.timeTillNextShot = getFireRate();
 				game.totalShots++;
@@ -515,7 +546,7 @@ function update(delta) {
 					var target = spr.userdata.target;
 
 					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y) + 90;
-					spr.userdata.timeTillNextShot -= 1/60;
+					spr.userdata.timeTillNextShot -= game.elapsed;
 					spr.setAcceleration();
 
 					var dist = spr.getCenter().distance(target.getCenter());
@@ -650,6 +681,7 @@ function update(delta) {
 
 	{ /// Update hud
 		game.moneyText.setText("Money: "+game.money);
+		game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next");
 
 		for (bar of game.hpGroup.getChildren()) {
 			var spr = bar.userdata.parentSprite;
@@ -683,6 +715,14 @@ function update(delta) {
 				spr.destroy();
 				game.moneyGroup.remove(spr);
 			}
+		}
+	}
+
+	{ /// Update wave
+		game.waveTime -= game.elapsed;
+		if (game.waveTime <= 0) {
+			game.wave++;
+			startWave();
 		}
 	}
 
