@@ -123,6 +123,7 @@ var game = {
 	wave: 0,
 	waveText: null,
 	waveTime: 0,
+	speedUpTimer: false,
 };
 
 var scene = null;
@@ -205,7 +206,9 @@ function create() {
 			game.mouseJustUp = true;
 		}, this);
 
-		scene.input.on("gameobjectdown", buttonPressed, this);
+		scene.input.on("gameobjectdown", gameObjectDown, this);
+		scene.input.on("gameobjectup", gameObjectUp, this);
+		scene.input.on("gameobjectout", gameObjectOut, this);
 	}
 
 	{ /// Setup map
@@ -338,9 +341,11 @@ function create() {
 		}
 
 		{ /// Wave text
-			var tf = scene.add.text(0, 0, "Wave: ????\n00:00 till next wave", {font: "32px Arial"});
+			var tf = scene.add.text(0, 0, "Wave: ????\n00:00 till next wave\n(Click here to speed up)", {font: "32px Arial"});
 			tf.y = game.height - game.minimap.height - tf.height;
 			tf.setScrollFactor(0, 0);
+			tf.setInteractive();
+			tf.setName("Wave Text");
 			game.minimap.ignore(tf);
 
 			game.waveText = tf;
@@ -681,7 +686,7 @@ function update(delta) {
 
 	{ /// Update hud
 		game.moneyText.setText("Money: "+game.money);
-		game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next");
+		game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next\n(Click to speed up)");
 
 		for (bar of game.hpGroup.getChildren()) {
 			var spr = bar.userdata.parentSprite;
@@ -720,6 +725,7 @@ function update(delta) {
 
 	{ /// Update wave
 		game.waveTime -= game.elapsed;
+		if (game.waveText.isDown) game.waveTime -= game.elapsed * 9;
 		if (game.waveTime <= 0) {
 			game.wave++;
 			startWave();
@@ -731,6 +737,7 @@ function update(delta) {
 		game.mouseJustUp = false;
 
 		game.isOverBase = false;
+		game.speedUpTimer = false;
 	}
 }
 
@@ -1026,10 +1033,10 @@ function getBrakePower() {
 	if (value > 5) return 0.93;
 }
 
-function buttonPressed(pointer, gameObject) {
+function gameObjectDown(pointer, gameObject) {
 	var name = gameObject.name;
 
-	if (!gameObject.userdata.enabled) return;
+	if (gameObject.userdata && !gameObject.userdata.enabled) return;
 
 	if (UPGRADES_NAMES.indexOf(name) != -1) {
 		var index = UPGRADES_NAMES.indexOf(name);
@@ -1045,6 +1052,16 @@ function buttonPressed(pointer, gameObject) {
 			game.upgrades[index]++;
 		}
 	}
+
+	gameObject.isDown = true;
+}
+
+function gameObjectUp(pointer, gameObject) {
+	gameObject.isDown = false;
+}
+
+function gameObjectOut(pointer, gameObject) {
+	gameObject.isDown = false;
 }
 
 function addHpBar(parentSprite) {
