@@ -420,8 +420,8 @@ function update(delta) {
 	{ /// Update player
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
-			var speed = getAcceleration();
-			var brakePerc = getBrakePower();
+			var speed = getUpgradeValue(ACCELERATION);
+			var brakePerc = getUpgradeValue(BRAKE_POWER);
 
 			var turnSpeed = 5;
 			if (up) game.player.setAcceleration(Math.cos((game.player.angle - 90)  * Math.PI/180) * speed, Math.sin((game.player.angle - 90) * Math.PI/180) * speed);
@@ -431,50 +431,51 @@ function update(delta) {
 
 			game.timeTillNextShot -= game.elapsed;
 			if (shoot && game.timeTillNextShot <= 0) {
-				game.timeTillNextShot = getFireRate();
+				game.timeTillNextShot = getUpgradeValue(FIRE_RATE);
 				game.totalShots++;
 
-				var spread = getBulletSpread();
+				var spread = getUpgradeValue(BULLET_SPREAD);
+				var bulletSpeed = getUpgradeValue(BULLET_SPEED);
 				if (game.totalShots % 2) {
 					if (spread == 1) {
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
 					} else if (spread == 2) {
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
 					} else if (spread == 3) {
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
 					} else if (spread == 4) {
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
 					} else if (spread == 5) {
-						shootBullet(game.player, game.player.angle - 90 - 20, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 20, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
 					}
 				} else {
 					if (spread == 1) {
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
 					} else if (spread == 2) {
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
 					} else if (spread == 3) {
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
 					} else if (spread == 4) {
-						shootBullet(game.player, game.player.angle - 90 - 20, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 20, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 20, bulletSpeed, true);
 					} else if (spread == 5) {
-						shootBullet(game.player, game.player.angle - 90 - 20, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 - 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 10, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90 + 20, getBulletSpeed(), true);
-						shootBullet(game.player, game.player.angle - 90, getBulletSpeed(), true);
+						shootBullet(game.player, game.player.angle - 90 - 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90 + 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 90, bulletSpeed, true);
 					}
 				}
 			}
@@ -738,6 +739,7 @@ function update(delta) {
 
 	{ /// Update money particles
 		for (spr of game.moneyGroup.getChildren()) {
+			spr.setAcceleration(0, 0);
 			if (getDistanceBetween(spr.x, spr.y, game.player.x, game.player.y) < game.player.userdata.magnetRange) {
 				scene.physics.accelerateToObject(spr, game.player, game.player.userdata.magnetPower);
 			}
@@ -799,7 +801,7 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 		damage: 1
 	};
 
-	if (isFriendly) spr.userdata.damage = getDamage();
+	if (isFriendly) spr.userdata.damage = getUpgradeValue(DAMAGE);
 
 	angle = angle * Math.PI/180;
 

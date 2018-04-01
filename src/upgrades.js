@@ -36,33 +36,20 @@ function refreshUpgrades() {
 	game.player.userdata.magnetPower = (game.upgrades[UPGRADES_NAMES.indexOf(MAGNET_POWER)] - 1) * 100 + 100;
 }
 
-function getDamage() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(DAMAGE)];
-}
+function getUpgradeValue(type) {
+	if (type == DAMAGE) return game.upgrades[UPGRADES_NAMES.indexOf(DAMAGE)];
+	if (type == BULLET_SPEED) return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPEED)] * 300;
+	if (type == BULLET_SPREAD) return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPREAD)];
+	if (type == FIRE_RATE) return 1/game.upgrades[UPGRADES_NAMES.indexOf(FIRE_RATE)];
+	if (type == ACCELERATION) return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
 
-function getBulletSpeed() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPEED)] * 300;
+	if (type == BRAKE_POWER) {
+		var value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
+		if (value == 1) return 0.98;
+		if (value == 2) return 0.97;
+		if (value == 3) return 0.96;
+		if (value == 4) return 0.95;
+		if (value == 5) return 0.94;
+		if (value > 5) return 0.93;
+	}
 }
-
-function getBulletSpread() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPREAD)];
-}
-
-function getFireRate() {
-	return 1/game.upgrades[UPGRADES_NAMES.indexOf(FIRE_RATE)];
-}
-
-function getAcceleration() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
-}
-
-function getBrakePower() {
-	var value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
-	if (value == 1) return 0.98;
-	if (value == 2) return 0.97;
-	if (value == 3) return 0.96;
-	if (value == 4) return 0.95;
-	if (value == 5) return 0.94;
-	if (value > 5) return 0.93;
-}
-
