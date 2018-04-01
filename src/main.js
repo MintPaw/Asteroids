@@ -245,7 +245,8 @@ function create() {
 
 		spr.userdata = {
 			maxHp: 10,
-			hp: 10
+			hp: 10,
+			hpRegen: 1
 		};
 
 		addHpBar(spr);
@@ -279,19 +280,20 @@ function create() {
 
 		{ /// Buttons
 			var cols = 3;
-			var rows = 3;
+			var rows = 4;
 			var pad = 10;
 
-			for (var y = 0; y < cols; y++) {
-				for (var x = 0; x < rows; x++) {
+			for (var y = 0; y < rows; y++) {
+				for (var x = 0; x < cols; x++) {
 					var index = (x % cols) + (y * cols);
 					var spr = scene.add.image(0, 0, "ui", "ui/shopButton");
+					scaleSpriteToSize(spr, 128, 64);
 
-					var totalW = (spr.width + pad) * cols;
-					var totalH = (spr.height + pad) * rows;
+					var totalW = (spr.displayWidth + pad) * cols;
+					var totalH = (spr.displayHeight + pad) * rows;
 
-					spr.x = x * (spr.width + pad) + (game.width/2 - totalW/2) + spr.width/2;
-					spr.y = y * (spr.height + pad) + (game.height/2 - totalH/2) + spr.height/2;
+					spr.x = x * (spr.displayWidth + pad) + (game.width/2 - totalW/2) + spr.displayWidth/2;
+					spr.y = y * (spr.displayHeight + pad) + (game.height/2 - totalH/2) + spr.displayHeight/2;
 					spr.setScrollFactor(0, 0);
 					spr.setInteractive();
 					spr.userdata = {
@@ -406,7 +408,7 @@ function update(delta) {
 		if (game.keyE.isDown) shop = true;
 	}
 
-	{ /// Update Player
+	{ /// Update player
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
 			var speed = getAcceleration();
@@ -473,6 +475,8 @@ function update(delta) {
 			} else {
 				game.player.alpha = 1;
 			}
+
+			if (game.player.userdata.hp < game.player.userdata.maxHp) game.player.userdata.hp += game.player.userdata.hpRegen * 0.002;
 		}
 	}
 
@@ -682,6 +686,8 @@ function update(delta) {
 					} else {
 						game.upgrades[index]++;
 					}
+
+					refreshUpgrades();
 				}
 			}
 		}
@@ -689,7 +695,7 @@ function update(delta) {
 
 	{ /// Update hud
 		game.moneyText.setText("Money: "+game.money);
-		game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next\n(Click to speed up)");
+		game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next");
 
 		for (bar of game.hpGroup.getChildren()) {
 			var spr = bar.userdata.parentSprite;
@@ -728,7 +734,7 @@ function update(delta) {
 
 	{ /// Update wave
 		game.waveTime -= game.elapsed;
-		if (game.waveText.isDown) game.waveTime -= game.elapsed * 9;
+		// if (game.waveText.isDown) game.waveTime -= game.elapsed * 9;
 		if (game.waveTime <= 0) {
 			game.wave++;
 			startWave();
@@ -997,47 +1003,6 @@ function addMinimapSprite(parentSprite, minimapImage) {
 	};
 
 	game.minimapSprites.push(minimapSpr);
-}
-
-function getUpgradePrice(upgradeName) {
-	if (upgradeName == "Repair Base") {
-		if (game.baseOver.userdata.hp <= 0) return 500;
-		else return 200;
-	}
-
-	var index = UPGRADES_NAMES.indexOf(upgradeName);
-	var upgradeLevel = game.upgrades[index];
-	return upgradeLevel * 300;
-}
-
-function getDamage() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(DAMAGE)];
-}
-
-function getBulletSpeed() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPEED)] * 300;
-}
-
-function getBulletSpread() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPREAD)];
-}
-
-function getFireRate() {
-	return 1/game.upgrades[UPGRADES_NAMES.indexOf(FIRE_RATE)];
-}
-
-function getAcceleration() {
-	return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
-}
-
-function getBrakePower() {
-	var value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
-	if (value == 1) return 0.98;
-	if (value == 2) return 0.97;
-	if (value == 3) return 0.96;
-	if (value == 4) return 0.95;
-	if (value == 5) return 0.94;
-	if (value > 5) return 0.93;
 }
 
 function gameObjectDown(pointer, gameObject) {
