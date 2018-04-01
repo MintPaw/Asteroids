@@ -5,7 +5,7 @@ var BULLET_SPREAD = "Bullet Spread";
 var ACCELERATION = "Acceleration";
 var BRAKE_POWER = "Brake Power";
 var MAX_HP = "Max Hp";
-var HP_REGEN = "Hp regen";
+var HP_REGEN = "Hp Regen";
 var REPAIR_BASE = "Repair Base";
 var NONE = "none";
 

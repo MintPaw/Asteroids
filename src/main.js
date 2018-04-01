@@ -246,7 +246,9 @@ function create() {
 		spr.userdata = {
 			maxHp: 10,
 			hp: 10,
-			hpRegen: 1
+			hpRegen: 1,
+			magnetRange: 100,
+			magnetPower: 100
 		};
 
 		addHpBar(spr);
@@ -404,6 +406,9 @@ function update(delta) {
 		if (game.keySpace.isDown) shoot = true;
 		if (game.key5.isDown) {
 			emitMoney(10, game.player.x, game.player.y);
+		}
+		if (game.key4.isDown) {
+			emitMoney(10, game.player.x, game.player.y - 200);
 		}
 		if (game.keyE.isDown) shop = true;
 	}
@@ -723,6 +728,10 @@ function update(delta) {
 
 	{ /// Update money particles
 		for (spr of game.moneyGroup.getChildren()) {
+			if (getDistanceBetween(spr.x, spr.y, game.player.x, game.player.y) < game.player.userdata.magnetRange) {
+				scene.physics.accelerateToObject(spr, game.player, game.player.userdata.magnetPower);
+			}
+
 			if (spr.alpha > 0) spr.alpha = 1 - ((game.time - spr.userdata.creationTime) / (MONEY_LIFETIME*1000));
 
 			if (spr.alpha <= 0) {

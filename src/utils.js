@@ -12,3 +12,10 @@ function getAngleBetween(x1, y1, x2, y2) {
 	angle = angle * (180/Math.PI);
 	return angle;
 }
+
+function getDistanceBetween(x1, y1, x2, y2) {
+	var a = x1 - x2;
+	var b = y1 - y2;
+
+	return Math.sqrt(a*a + b*b);
+}
