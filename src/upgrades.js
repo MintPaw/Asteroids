@@ -7,13 +7,15 @@ var BRAKE_POWER = "Brake Power";
 var MAX_HP = "Max Hp";
 var HP_REGEN = "Hp Regen";
 var REPAIR_BASE = "Repair Base";
+var MAGNET_RANGE = "Magnet Range";
+var MAGNET_POWER = "Magnet Power";
 var NONE = "none";
 
 var UPGRADES_NAMES = [
 	DAMAGE, BULLET_SPEED, FIRE_RATE,
 	BULLET_SPREAD, ACCELERATION, BRAKE_POWER,
-	MAX_HP, HP_REGEN, NONE,
-	NONE, NONE, REPAIR_BASE
+	MAX_HP, HP_REGEN, MAGNET_RANGE,
+	MAGNET_POWER, NONE, REPAIR_BASE
 ];
 
 function getUpgradePrice(upgradeName) {
@@ -28,8 +30,10 @@ function getUpgradePrice(upgradeName) {
 }
 
 function refreshUpgrades() {
-	game.player.userdata.maxHp = game.upgrades[UPGRADES_NAMES.indexOf(MAX_HP)]*2 + 10;
+	game.player.userdata.maxHp = (game.upgrades[UPGRADES_NAMES.indexOf(MAX_HP)] - 1) * 2 + 10;
 	game.player.userdata.hpRegen = game.upgrades[UPGRADES_NAMES.indexOf(HP_REGEN)];
+	game.player.userdata.magnetRange = (game.upgrades[UPGRADES_NAMES.indexOf(MAGNET_RANGE)] - 1) * 50 + 100;
+	game.player.userdata.magnetPower = (game.upgrades[UPGRADES_NAMES.indexOf(MAGNET_POWER)] - 1) * 100 + 100;
 }
 
 function getDamage() {

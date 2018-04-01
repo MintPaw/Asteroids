@@ -332,7 +332,7 @@ function create() {
 			var tf = scene.add.text(0, 0, "Wave: ????\n00:00 till next wave\n(Click here to speed up)", {font: "32px Arial"});
 			tf.y = game.height - game.minimap.height - tf.height;
 			tf.setScrollFactor(0, 0);
-			tf.setInteractive();
+			// tf.setInteractive();
 			tf.setName("Wave Text");
 			game.minimap.ignore(tf);
 
