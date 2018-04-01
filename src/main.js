@@ -41,22 +41,6 @@ var WARNING_TIME = 2;
 var PLAYER_INVINCIBILITY_TIME = 1;
 var MONEY_LIFETIME = 10;
 
-var DAMAGE = "Damage";
-var BULLET_SPEED = "Bullet Speed";
-var FIRE_RATE = "Fire Rate";
-var BULLET_SPREAD = "Bullet Spread";
-var ACCELERATION = "Acceleration";
-var BRAKE_POWER = "Brake Power";
-var REPAIR_BASE = "Repair Base";
-var NONE = "none";
-
-var UPGRADES_NAMES = [
-	DAMAGE, BULLET_SPEED, FIRE_RATE,
-	BULLET_SPREAD, ACCELERATION, BRAKE_POWER,
-	NONE, NONE, REPAIR_BASE
-];
-
-
 var game = {
 	width: 0,
 	height: 0,
@@ -671,6 +655,7 @@ function update(delta) {
 		}
 
 		if (game.inShop) {
+
 			for (var i = 0; i < game.shopButtonTexts.length; i++) {
 				var tf = game.shopButtonTexts[i];
 
@@ -679,6 +664,24 @@ function update(delta) {
 					game.shopButtons[i].userdata.enabled = game.baseOver.userdata.hp != game.baseOver.userdata.maxHp;
 				} else {
 					tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
+				}
+			}
+
+			for (btn of game.shopButtons) {
+				btn.alpha = btn.isJustDown ? 0.5 : 1;
+				if (btn.isJustDown) {
+					if (!btn.userdata.enabled) continue;
+					var index = UPGRADES_NAMES.indexOf(btn.name);
+					var price = getUpgradePrice(btn.name);
+
+					if (game.money < price) continue;
+					game.money -= price;
+
+					if (name == "Repair Base") {
+						game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
+					} else {
+						game.upgrades[index]++;
+					}
 				}
 			}
 		}
@@ -738,6 +741,10 @@ function update(delta) {
 
 		game.isOverBase = false;
 		game.speedUpTimer = false;
+
+		for (spr of scene.children.list) {
+			spr.isJustDown = false;
+		}
 	}
 }
 
@@ -1034,26 +1041,8 @@ function getBrakePower() {
 }
 
 function gameObjectDown(pointer, gameObject) {
-	var name = gameObject.name;
-
-	if (gameObject.userdata && !gameObject.userdata.enabled) return;
-
-	if (UPGRADES_NAMES.indexOf(name) != -1) {
-		var index = UPGRADES_NAMES.indexOf(name);
-		var price = getUpgradePrice(name);
-
-		if (game.money < price) return;
-
-		game.money -= price;
-
-		if (name == "Repair Base") {
-			game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
-		} else {
-			game.upgrades[index]++;
-		}
-	}
-
 	gameObject.isDown = true;
+	gameObject.isJustDown = true;
 }
 
 function gameObjectUp(pointer, gameObject) {
