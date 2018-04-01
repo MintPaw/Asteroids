@@ -74,6 +74,7 @@ var game = {
 	key4: null,
 	key5: null,
 	keyE: null,
+	keyF: null,
 
 	mouseX: 0,
 	mouseY: 0,
@@ -174,6 +175,7 @@ function create() {
 		game.key4 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
 		game.key5 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
 		game.keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+		game.keyF = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
 		scene.input.on("pointermove", function (pointer) {
 			game.mouseX = pointer.x;
@@ -397,6 +399,7 @@ function update(delta) {
 	var down = false;
 	var shoot = false;
 	var shop = false;
+	var speedUpWave = false;
 
 	{ /// Update inputs
 		if (game.keyW.isDown || game.keyUp.isDown) up = true;
@@ -411,6 +414,7 @@ function update(delta) {
 			emitMoney(10, game.player.x, game.player.y - 200);
 		}
 		if (game.keyE.isDown) shop = true;
+		if (game.keyF.isDown) speedUpWave = true;
 	}
 
 	{ /// Update player
@@ -700,7 +704,13 @@ function update(delta) {
 
 	{ /// Update hud
 		game.moneyText.setText("Money: "+game.money);
-		game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next");
+
+		if (game.enemyGroup.countActive() > 0) {
+			game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next");
+		} else {
+			game.waveText.setText("Wave: "+game.wave+"\n"+Math.round(game.waveTime)+" till next\nHold F to speed up");
+			if (speedUpWave) game.waveTime -= game.elapsed * 9;
+		}
 
 		for (bar of game.hpGroup.getChildren()) {
 			var spr = bar.userdata.parentSprite;
@@ -743,7 +753,6 @@ function update(delta) {
 
 	{ /// Update wave
 		game.waveTime -= game.elapsed;
-		// if (game.waveText.isDown) game.waveTime -= game.elapsed * 9;
 		if (game.waveTime <= 0) {
 			game.wave++;
 			startWave();
