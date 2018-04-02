@@ -13,7 +13,7 @@ var REPAIR_BASE = "Repair Base";
 var NONE = "none";
 
 var UPGRADES_NAMES = [
-	DAMAGE, BULLET_SPEED, FIRE_RATE,
+	DAMAGE, NONE, FIRE_RATE,
 	BULLET_SPREAD, ACCELERATION, BRAKE_POWER,
 	MAX_HP, HP_REGEN, MAGNET_RANGE,
 	MAGNET_POWER, BUILD_TURRET, REPAIR_BASE
@@ -43,7 +43,8 @@ function refreshUpgrades() {
 
 function getUpgradeValue(type) {
 	if (type == DAMAGE) return game.upgrades[UPGRADES_NAMES.indexOf(DAMAGE)];
-	if (type == BULLET_SPEED) return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPEED)] * 300;
+	// if (type == BULLET_SPEED) return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPEED)] * 300 + 600;
+	if (type == BULLET_SPEED) return 1000;
 	if (type == BULLET_SPREAD) return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPREAD)];
 	if (type == FIRE_RATE) return 1/game.upgrades[UPGRADES_NAMES.indexOf(FIRE_RATE)];
 	if (type == ACCELERATION) return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
