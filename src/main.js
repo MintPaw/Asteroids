@@ -28,7 +28,6 @@ var config = {
 };
 
 var abs = Math.abs;
-var Point = Phaser.Geom.Point;
 var log = console.log;
 var phaser = new Phaser.Game(config);
 
@@ -225,7 +224,9 @@ function create() {
 				enabled: false,
 				maxHp: 30,
 				hp: 30,
-				turretSprite: null
+				turretSprite: null,
+				timePerShot: 3,
+				timeTillNextShot: 0
 			};
 
 			addMinimapSprite(spr, "minimap/base1");
@@ -239,7 +240,7 @@ function create() {
 		scaleSpriteToSize(spr, 64, 64);
 		spr.x = game.map.widthInPixels/2;
 		spr.y = game.map.heightInPixels/2;
-		spr.rotation -= Math.PI/2;
+		spr.angle -= 90;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(500, 500);
 
@@ -551,8 +552,7 @@ function update(delta) {
 					spr.userdata.timeTillNextShot -= game.elapsed;
 					spr.setAcceleration();
 
-					var dist = spr.getCenter().distance(target.getCenter());
-					if (dist > 200) {
+					if (getDistanceBetween(spr, target) > 200) {
 						scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
 					} else {
 						spr.setVelocity(spr.body.velocity.x * spr.userdata.brakePerc, spr.body.velocity.y * spr.userdata.brakePerc);
@@ -589,8 +589,7 @@ function update(delta) {
 					if (spr.userdata.target) {
 						var target = spr.userdata.target;
 
-						var dist = spr.getCenter().distance(target.getCenter());
-						if (dist > 200) {
+						if (getDistanceBetween(spr, target) > 200) {
 							scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
 							spr.userdata.scanningText.visible = false;
 						} else {
@@ -753,7 +752,7 @@ function update(delta) {
 	{ /// Update money particles
 		for (spr of game.moneyGroup.getChildren()) {
 			spr.setAcceleration(0, 0);
-			if (getDistanceBetween(spr.x, spr.y, game.player.x, game.player.y) < game.player.userdata.magnetRange) {
+			if (getDistanceBetween(spr, game.player) < game.player.userdata.magnetRange) {
 				scene.physics.accelerateToObject(spr, game.player, game.player.userdata.magnetPower);
 			}
 
@@ -781,7 +780,15 @@ function update(delta) {
 			var turret = base.userdata.turretSprite;
 			if (turret) {
 				var target = getClosestTarget(turret, game.enemyGroup.getChildren());
-				turret.angle = getAngleBetween(turret.x, turret.y, target.x, target.y);
+				if (target) {
+					turret.angle = getAngleBetween(turret.x, turret.y, target.x, target.y);
+
+					base.userdata.timeTillNextShot -= game.elapsed;
+					if (getDistanceBetween(turret, target) < 1000 && base.userdata.timeTillNextShot <= 0) {
+						base.userdata.timeTillNextShot = base.userdata.timePerShot;
+						shootBullet(turret, turret.angle, 500, true);
+					}
+				}
 			}
 		}
 	}
@@ -1140,12 +1147,11 @@ function getClosestTarget(spr, others) {
 	var closest = null;
 	var closestDist = 9999999;
 
-	var sprCenter = spr.getCenter();
 	for (other of others) {
 		if (!other.active) continue;
 		if (other.userdata.hp <= 0) continue;
 		if (other.userdata.type == "base" && !other.userdata.enabled) continue;
-		var otherDist = sprCenter.distance(other.getCenter());
+		var otherDist = getDistanceBetween(spr, other);
 		if (otherDist < closestDist) {
 			closest = other;
 			closestDist = otherDist;

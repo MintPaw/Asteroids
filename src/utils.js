@@ -1,3 +1,5 @@
+var Vector2 = Phaser.Math.Vector2;
+
 function scaleSpriteToSize(spr, newWidth, newHeight) {
 	spr.scaleX = newWidth/spr.width;
 	spr.scaleY = newHeight/spr.height;
@@ -13,9 +15,6 @@ function getAngleBetween(x1, y1, x2, y2) {
 	return angle;
 }
 
-function getDistanceBetween(x1, y1, x2, y2) {
-	var a = x1 - x2;
-	var b = y1 - y2;
-
-	return Math.sqrt(a*a + b*b);
+function getDistanceBetween(spr1, spr2) {
+	return spr1.getCenter().distance(spr2.getCenter());
 }
