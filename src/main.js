@@ -225,7 +225,6 @@ function create() {
 				enabled: false,
 				maxHp: 30,
 				hp: 30,
-				hasTurret: false,
 				turretSprite: null
 			};
 
@@ -548,7 +547,7 @@ function update(delta) {
 				if (spr.userdata.target) {
 					var target = spr.userdata.target;
 
-					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y) + 90;
+					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y);
 					spr.userdata.timeTillNextShot -= game.elapsed;
 					spr.setAcceleration();
 
@@ -682,7 +681,7 @@ function update(delta) {
 					if (game.baseOver.userdata.hp >= game.baseOver.userdata.maxHp) enabled = false;
 				} else if (upgradeName == BUILD_TURRET) {
 					tf.setText(upgradeName + "\nPrice: " + price);
-					if (game.baseOver.userdata.hasTurret) enabled = false;
+					if (game.baseOver.userdata.turretSprite) enabled = false;
 				} else {
 					tf.setText(upgradeName + "\nLevel: " + game.upgrades[index] + "\nPrice: " + price);
 				}
@@ -700,7 +699,6 @@ function update(delta) {
 					if (upgradeName == REPAIR_BASE) {
 						game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
 					} else if (upgradeName == BUILD_TURRET) {
-						game.baseOver.userdata.hasTurret = true;
 						var base = game.baseOver;
 						var spr = scene.add.image(0, 0, "sprites", "sprites/bases/turret");
 						scaleSpriteToSize(spr, 32, 32);
@@ -773,6 +771,18 @@ function update(delta) {
 		if (game.waveTime <= 0) {
 			game.wave++;
 			startWave();
+		}
+	}
+
+	{ /// Update bases
+		for (base of game.baseGroup.getChildren()) {
+			if (!base.active) continue;
+
+			var turret = base.userdata.turretSprite;
+			if (turret) {
+				var target = getClosestTarget(turret, game.enemyGroup.getChildren());
+				turret.angle = getAngleBetween(turret.x, turret.y, target.x, target.y);
+			}
 		}
 	}
 
