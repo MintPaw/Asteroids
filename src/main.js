@@ -434,53 +434,47 @@ function update(delta) {
 
 				var spread = getUpgradeValue(BULLET_SPREAD);
 				var bulletSpeed = getUpgradeValue(BULLET_SPEED);
-				var bullets = [];
 				if (game.totalShots % 2) {
 					if (spread == 1) {
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
 					} else if (spread == 2) {
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
 					} else if (spread == 3) {
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
 					} else if (spread == 4) {
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
 					} else if (spread == 5) {
-						bullets.push(shootBullet(game.player, game.player.angle - 20, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 20, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle - 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
 					}
 				} else {
 					if (spread == 1) {
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
 					} else if (spread == 2) {
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
 					} else if (spread == 3) {
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
 					} else if (spread == 4) {
-						bullets.push(shootBullet(game.player, game.player.angle - 20, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 20, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle - 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 20, bulletSpeed, true);
 					} else if (spread == 5) {
-						bullets.push(shootBullet(game.player, game.player.angle - 20, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle - 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 10, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle + 20, bulletSpeed, true));
-						bullets.push(shootBullet(game.player, game.player.angle, bulletSpeed, true));
+						shootBullet(game.player, game.player.angle - 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle - 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 10, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle + 20, bulletSpeed, true);
+						shootBullet(game.player, game.player.angle, bulletSpeed, true);
 					}
-				}
-
-				for (bullet of bullets) {
-					bullet.setVelocityX(bullet.body.velocity.x + game.player.body.velocity.x);
-					bullet.setVelocityY(bullet.body.velocity.y + game.player.body.velocity.y);
 				}
 			}
 
@@ -824,7 +818,14 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	spr.x = sourceSprite.x + Math.cos(angle) * (sourceSprite.width/2);
 	spr.y = sourceSprite.y + Math.sin(angle) * (sourceSprite.height/2);
 
-	spr.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+	var extraX = 0;
+	var extraY = 0;
+	if (sourceSprite.body) {
+		extraX = sourceSprite.body.velocity.x;
+		extraY = sourceSprite.body.velocity.y;
+	}
+
+	spr.setVelocity(Math.cos(angle) * speed + extraX, Math.sin(angle) * speed + extraY);
 
 	game.minimap.ignore(spr);
 	return spr;
