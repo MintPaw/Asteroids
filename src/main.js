@@ -95,9 +95,7 @@ var game = {
 	isOverBase: false,
 	inShop: false,
 	shopPrompt: null,
-	shopSprites: [],
 	shopButtons: [],
-	shopButtonTexts: [],
 
 	upgrades: [],
 	money: 0,
@@ -301,17 +299,17 @@ function create() {
 					spr.setScrollFactor(0, 0);
 					spr.setInteractive();
 					spr.userdata = {
-						enabled: true
+						enabled: true,
+						tf: null
 					};
 					spr.setName(UPGRADES_NAMES[index]);
-					game.shopSprites.push(spr);
 					game.shopButtons.push(spr);
 
 					var textPoint = spr.getTopLeft();
 					var tf = scene.add.text(textPoint.x, textPoint.y, "none", {font: "16px Arial", wordWrap: {width: spr.width}});
 					tf.setScrollFactor(0, 0);
-					game.shopSprites.push(tf);
-					game.shopButtonTexts.push(tf);
+
+					spr.userdata.tf = tf;
 				}
 			}
 		}
@@ -651,8 +649,9 @@ function update(delta) {
 	}
 
 	{ /// Update shop
+		game.shopPrompt.visible = game.isOverBase;
+
 		if (game.isOverBase) {
-			game.shopPrompt.visible = true;
 			game.shopPrompt.x = game.width/2 - game.shopPrompt.width/2;
 			game.shopPrompt.y = game.height - game.shopPrompt.height - 10;
 			if (shop) {
@@ -660,32 +659,29 @@ function update(delta) {
 				game.player.setVelocity(0, 0);
 			}
 		} else {
-			game.shopPrompt.visible = false;
 			game.inShop = false;
 		}
 
-		for (spr of game.shopSprites) {
+		for (spr of game.shopButtons) {
 			spr.visible = game.inShop;
+			spr.userdata.tf.visible = game.inShop;
 		}
 
 		if (game.inShop) {
-
-			for (var i = 0; i < game.shopButtonTexts.length; i++) {
-				var tf = game.shopButtonTexts[i];
-
-				if (UPGRADES_NAMES[i] == REPAIR_BASE) {
-					tf.setText(UPGRADES_NAMES[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
-					game.shopButtons[i].userdata.enabled = game.baseOver.userdata.hp != game.baseOver.userdata.maxHp;
-				} else {
-					tf.setText(UPGRADES_NAMES[i] + "\nLevel: " + game.upgrades[i] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[i]));
-				}
-			}
-
 			for (btn of game.shopButtons) {
+				var index = UPGRADES_NAMES.indexOf(btn.name);
+				var tf = btn.userdata.tf;
+
+				if (UPGRADES_NAMES[index] == REPAIR_BASE) {
+					tf.setText(UPGRADES_NAMES[index] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[index]));
+					game.shopButtons[index].userdata.enabled = game.baseOver.userdata.hp != game.baseOver.userdata.maxHp;
+				} else {
+					tf.setText(UPGRADES_NAMES[index] + "\nLevel: " + game.upgrades[index] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[index]));
+				}
+
 				btn.alpha = btn.isJustDown ? 0.5 : 1;
 				if (btn.isJustDown) {
 					if (!btn.userdata.enabled) continue;
-					var index = UPGRADES_NAMES.indexOf(btn.name);
 					var price = getUpgradePrice(btn.name);
 
 					if (game.money < price) continue;

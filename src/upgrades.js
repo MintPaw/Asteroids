@@ -6,22 +6,27 @@ var ACCELERATION = "Acceleration";
 var BRAKE_POWER = "Brake Power";
 var MAX_HP = "Max Hp";
 var HP_REGEN = "Hp Regen";
-var REPAIR_BASE = "Repair Base";
 var MAGNET_RANGE = "Magnet Range";
 var MAGNET_POWER = "Magnet Power";
+var BUILD_TURRET = "Build Turret";
+var REPAIR_BASE = "Repair Base";
 var NONE = "none";
 
 var UPGRADES_NAMES = [
 	DAMAGE, BULLET_SPEED, FIRE_RATE,
 	BULLET_SPREAD, ACCELERATION, BRAKE_POWER,
 	MAX_HP, HP_REGEN, MAGNET_RANGE,
-	MAGNET_POWER, NONE, REPAIR_BASE
+	MAGNET_POWER, BUILD_TURRET, REPAIR_BASE
 ];
 
 function getUpgradePrice(upgradeName) {
 	if (upgradeName == "Repair Base") {
 		if (game.baseOver.userdata.hp <= 0) return 500;
 		else return 200;
+	}
+
+	if (upgradeName == "Build Turret") {
+		return 500;
 	}
 
 	var index = UPGRADES_NAMES.indexOf(upgradeName);
