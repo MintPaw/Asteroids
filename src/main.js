@@ -240,6 +240,7 @@ function create() {
 		scaleSpriteToSize(spr, 64, 64);
 		spr.x = game.map.widthInPixels/2;
 		spr.y = game.map.heightInPixels/2;
+		spr.rotation -= Math.PI/2;
 		spr.setDrag(5, 5);
 		spr.setMaxVelocity(500, 500);
 
@@ -700,6 +701,13 @@ function update(delta) {
 						game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
 					} else if (upgradeName == BUILD_TURRET) {
 						game.baseOver.userdata.hasTurret = true;
+						var base = game.baseOver;
+						var spr = scene.add.image(0, 0, "sprites", "sprites/bases/turret");
+						scaleSpriteToSize(spr, 32, 32);
+						spr.tint = 0x333333;
+						spr.x = base.x;
+						spr.y = base.y;
+						base.userdata.turretSprite = spr;
 					} else {
 						game.upgrades[index]++;
 					}
