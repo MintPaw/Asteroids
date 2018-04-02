@@ -225,7 +225,7 @@ function create() {
 				maxHp: 30,
 				hp: 30,
 				turretSprite: null,
-				timePerShot: 3,
+				timePerShot: 7,
 				timeTillNextShot: 0
 			};
 
