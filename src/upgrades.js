@@ -1,18 +1,18 @@
-var DAMAGE = "Damage";
-var BULLET_SPEED = "Bullet Speed";
-var FIRE_RATE = "Fire Rate";
-var BULLET_SPREAD = "Bullet Spread";
-var ACCELERATION = "Acceleration";
-var BRAKE_POWER = "Brake Power";
-var MAX_HP = "Max Hp";
-var HP_REGEN = "Hp Regen";
-var MAGNET_RANGE = "Magnet Range";
-var MAGNET_POWER = "Magnet Power";
-var BUILD_TURRET = "Build Turret";
-var REPAIR_BASE = "Repair Base";
-var NONE = "none";
+let DAMAGE = "Damage";
+let BULLET_SPEED = "Bullet Speed";
+let FIRE_RATE = "Fire Rate";
+let BULLET_SPREAD = "Bullet Spread";
+let ACCELERATION = "Acceleration";
+let BRAKE_POWER = "Brake Power";
+let MAX_HP = "Max Hp";
+let HP_REGEN = "Hp Regen";
+let MAGNET_RANGE = "Magnet Range";
+let MAGNET_POWER = "Magnet Power";
+let BUILD_TURRET = "Build Turret";
+let REPAIR_BASE = "Repair Base";
+let NONE = "none";
 
-var UPGRADES_NAMES = [
+let UPGRADES_NAMES = [
 	DAMAGE, NONE, FIRE_RATE,
 	BULLET_SPREAD, ACCELERATION, BRAKE_POWER,
 	MAX_HP, HP_REGEN, MAGNET_RANGE,
@@ -29,8 +29,8 @@ function getUpgradePrice(upgradeName) {
 		return 500;
 	}
 
-	var index = UPGRADES_NAMES.indexOf(upgradeName);
-	var upgradeLevel = game.upgrades[index];
+	let index = UPGRADES_NAMES.indexOf(upgradeName);
+	let upgradeLevel = game.upgrades[index];
 	return upgradeLevel * 300;
 }
 
@@ -50,7 +50,7 @@ function getUpgradeValue(type) {
 	if (type == ACCELERATION) return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
 
 	if (type == BRAKE_POWER) {
-		var value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
+		let value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
 		if (value == 1) return 0.98;
 		if (value == 2) return 0.97;
 		if (value == 3) return 0.96;

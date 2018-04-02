@@ -1,17 +1,17 @@
-var MenuScene = {
+let MenuScene = {
 	key: "menu",
 	create: menuCreate,
 	update: menuUpdate
 };
 
-var GameScene = {
+let GameScene = {
 	key: "game",
 	preload: preload,
 	create: create,
 	update: update
 };
 
-var config = {
+let config = {
 	type: Phaser.AUTO,
 	width: 800,
 	height: 600,
@@ -27,20 +27,20 @@ var config = {
 	scene: [ GameScene, MenuScene ]
 };
 
-var abs = Math.abs;
-var log = console.log;
-var phaser = new Phaser.Game(config);
+let abs = Math.abs;
+let log = console.log;
+let phaser = new Phaser.Game(config);
 
-var ENEMY_BASIC_SHIP = "basicShip";
-var ENEMY_VESSEL = "vessel";
-var ENEMY_VESSEL_LING = "vesselLing";
-var ENEMY_SCANNER = "scanner";
+let ENEMY_BASIC_SHIP = "basicShip";
+let ENEMY_VESSEL = "vessel";
+let ENEMY_VESSEL_LING = "vesselLing";
+let ENEMY_SCANNER = "scanner";
 
-var WARNING_TIME = 2;
-var PLAYER_INVINCIBILITY_TIME = 1;
-var MONEY_LIFETIME = 10;
+let WARNING_TIME = 2;
+let PLAYER_INVINCIBILITY_TIME = 1;
+let MONEY_LIFETIME = 10;
 
-var game = {
+let game = {
 	width: 0,
 	height: 0,
 	time: 0,
@@ -108,7 +108,7 @@ var game = {
 	speedUpTimer: false,
 };
 
-var scene = null;
+let scene = null;
 
 function preload() {
 	scene = this;
@@ -124,7 +124,7 @@ function preload() {
 function create() {
 	{ /// Add remove to array
 		Array.prototype.remove = function(val, all) {
-			var i, removedItems = [];
+			let i, removedItems = [];
 			if (all) {
 				for (i = this.length; i--;) {
 					if (this[i] === val) removedItems.push(this.splice(i, 1));
@@ -202,7 +202,7 @@ function create() {
 	}
 
 	{ /// Setup minimap
-		var mapScale = 0.04;
+		let mapScale = 0.04;
 		game.minimap = scene.cameras.add(0, 0, game.map.widthInPixels * mapScale, game.map.heightInPixels * mapScale);
 		game.minimap.y = game.height - game.minimap.height;
 		game.minimap.setBounds(0, 0, game.map.widthInPixels, game.map.heightInPixels);
@@ -216,7 +216,7 @@ function create() {
 
 	{ /// Setup bases
 		for (baseData of game.map.getObjectLayer("bases").objects) {
-			var spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "sprites", "sprites/bases/base1");
+			let spr = game.baseGroup.create(baseData.x + game.map.tileWidth/2, baseData.y + game.map.tileHeight/2, "sprites", "sprites/bases/base1");
 
 			spr.userdata = {
 				type: "base",
@@ -230,13 +230,13 @@ function create() {
 			};
 
 			addMinimapSprite(spr, "minimap/base1");
-			var bar = addHpBar(spr);
+			let bar = addHpBar(spr);
 			bar.userdata.alwaysShow = true;
 		}
 	}
 
 	{ /// Setup player
-		var spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
+		let spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
 		spr.x = game.map.widthInPixels/2;
 		spr.y = game.map.heightInPixels/2;
@@ -276,7 +276,7 @@ function create() {
 
 	{ /// Setup shop
 		{ /// Prompt
-			var spr = scene.add.text(0, 0, "Press E to shop", {font: "32px Arial"});
+			let spr = scene.add.text(0, 0, "Press E to shop", {font: "32px Arial"});
 			spr.setScrollFactor(0, 0);
 			game.minimap.ignore(spr);
 
@@ -284,18 +284,18 @@ function create() {
 		}
 
 		{ /// Buttons
-			var cols = 3;
-			var rows = 4;
-			var pad = 10;
+			let cols = 3;
+			let rows = 4;
+			let pad = 10;
 
-			for (var y = 0; y < rows; y++) {
-				for (var x = 0; x < cols; x++) {
-					var index = (x % cols) + (y * cols);
-					var spr = scene.add.image(0, 0, "ui", "ui/shopButton");
+			for (let y = 0; y < rows; y++) {
+				for (let x = 0; x < cols; x++) {
+					let index = (x % cols) + (y * cols);
+					let spr = scene.add.image(0, 0, "ui", "ui/shopButton");
 					scaleSpriteToSize(spr, 128, 64);
 
-					var totalW = (spr.displayWidth + pad) * cols;
-					var totalH = (spr.displayHeight + pad) * rows;
+					let totalW = (spr.displayWidth + pad) * cols;
+					let totalH = (spr.displayHeight + pad) * rows;
 
 					spr.x = x * (spr.displayWidth + pad) + (game.width/2 - totalW/2) + spr.displayWidth/2;
 					spr.y = y * (spr.displayHeight + pad) + (game.height/2 - totalH/2) + spr.displayHeight/2;
@@ -307,8 +307,8 @@ function create() {
 					spr.setName(UPGRADES_NAMES[index]);
 					game.shopButtons.push(spr);
 
-					var textPoint = spr.getTopLeft();
-					var tf = scene.add.text(textPoint.x, textPoint.y, "none", {font: "16px Arial", wordWrap: {width: spr.width}});
+					let textPoint = spr.getTopLeft();
+					let tf = scene.add.text(textPoint.x, textPoint.y, "none", {font: "16px Arial", wordWrap: {width: spr.width}});
 					tf.setScrollFactor(0, 0);
 
 					spr.userdata.tf = tf;
@@ -318,12 +318,12 @@ function create() {
 	}
 
 	{ /// Setup upgrades
-		for (var i = 0; i < UPGRADES_NAMES.length; i++) game.upgrades.push(1);
+		for (let i = 0; i < UPGRADES_NAMES.length; i++) game.upgrades.push(1);
 	}
 
 	{ /// Setup hud
 		{ /// Money text
-			var tf = scene.add.text(0, 0, "Money: ????", {font: "32px Arial"});
+			let tf = scene.add.text(0, 0, "Money: ????", {font: "32px Arial"});
 			tf.setScrollFactor(0, 0);
 			game.minimap.ignore(tf);
 
@@ -331,7 +331,7 @@ function create() {
 		}
 
 		{ /// Wave text
-			var tf = scene.add.text(0, 0, "Wave: ????\n00:00 till next wave\n(Click here to speed up)", {font: "32px Arial"});
+			let tf = scene.add.text(0, 0, "Wave: ????\n00:00 till next wave\n(Click here to speed up)", {font: "32px Arial"});
 			tf.y = game.height - game.minimap.height - tf.height;
 			tf.setScrollFactor(0, 0);
 			// tf.setInteractive();
@@ -393,13 +393,13 @@ function update(delta) {
 	game.time = phaser.loop.time;
 	game.elapsed = phaser.loop.delta / 1000;
 
-	var left = false;
-	var right = false;
-	var up = false;
-	var down = false;
-	var shoot = false;
-	var shop = false;
-	var speedUpWave = false;
+	let left = false;
+	let right = false;
+	let up = false;
+	let down = false;
+	let shoot = false;
+	let shop = false;
+	let speedUpWave = false;
 
 	{ /// Update inputs
 		if (game.keyW.isDown || game.keyUp.isDown) up = true;
@@ -420,10 +420,10 @@ function update(delta) {
 	{ /// Update player
 		if (game.player.active) {
 			game.player.setAcceleration(0, 0);
-			var speed = getUpgradeValue(ACCELERATION);
-			var brakePerc = getUpgradeValue(BRAKE_POWER);
+			let speed = getUpgradeValue(ACCELERATION);
+			let brakePerc = getUpgradeValue(BRAKE_POWER);
 
-			var turnSpeed = 5;
+			let turnSpeed = 5;
 			if (up) game.player.setAcceleration(Math.cos(game.player.angle * Math.PI/180) * speed, Math.sin(game.player.angle * Math.PI/180) * speed);
 			if (left) game.player.angle -= turnSpeed;
 			if (right) game.player.angle += turnSpeed;
@@ -434,8 +434,8 @@ function update(delta) {
 				game.timeTillNextShot = getUpgradeValue(FIRE_RATE);
 				game.totalShots++;
 
-				var spread = getUpgradeValue(BULLET_SPREAD);
-				var bulletSpeed = getUpgradeValue(BULLET_SPEED);
+				let spread = getUpgradeValue(BULLET_SPREAD);
+				let bulletSpeed = getUpgradeValue(BULLET_SPEED);
 				if (game.totalShots % 2) {
 					if (spread == 1) {
 						shootBullet(game.player, game.player.angle, bulletSpeed, true);
@@ -491,19 +491,19 @@ function update(delta) {
 	}
 
 	{ /// Update sceen edges
-		var edgeSprites = []
+		let edgeSprites = []
 		edgeSprites.push(...game.enemyGroup.getChildren());
 		if (game.player.active) edgeSprites.push(game.player);
 
-		var minX = 0;
-		var minY = 0;
-		var edgeX = game.map.widthInPixels;
-		var edgeY = game.map.heightInPixels;
+		let minX = 0;
+		let minY = 0;
+		let edgeX = game.map.widthInPixels;
+		let edgeY = game.map.heightInPixels;
 
 		scene.cameras.main.setBounds(minX, minY, edgeX, edgeY);
 
 		for (spr of edgeSprites) {
-			var hit = false;
+			let hit = false;
 
 			if (spr.x < minX) {
 				hit = true;
@@ -537,16 +537,16 @@ function update(delta) {
 	}
 
 	{ /// Update enemies
+		let targets = [];
+		targets.push(game.player);
+		targets.push(...game.baseGroup.getChildren());
+
 		for (spr of game.enemyGroup.getChildren()) {
 			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
-
-				var targets = [];
-				targets.push(game.player);
-				targets.push(...game.baseGroup.getChildren());
 				spr.userdata.target = getClosestTarget(spr, targets);
 
 				if (spr.userdata.target) {
-					var target = spr.userdata.target;
+					let target = spr.userdata.target;
 
 					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y);
 					spr.userdata.timeTillNextShot -= game.elapsed;
@@ -559,7 +559,7 @@ function update(delta) {
 
 						if (spr.userdata.timeTillNextShot <= 0) {
 							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-							var bullet = shootBullet(spr, spr.angle, 200, false);
+							let bullet = shootBullet(spr, spr.angle, 200, false);
 							bullet.userdata.damage = spr.userdata.bulletDamage;
 						}
 					}
@@ -575,19 +575,18 @@ function update(delta) {
 			}
 
 			if (spr.userdata.type == ENEMY_SCANNER) {
-
 				if (spr.userdata.scanPerc >= 100) {
 					spr.userdata.scanningText.visible = true;
 					spr.userdata.scanningText.setText("Calling for backup");
-					var retreatAngle = Math.atan2(game.map.heightInPixels/2 - spr.y, game.map.widthInPixels/2 - spr.x);
+					let retreatAngle = Math.atan2(game.map.heightInPixels/2 - spr.y, game.map.widthInPixels/2 - spr.x);
 					spr.setAcceleration(-Math.cos(retreatAngle) * spr.userdata.speed, -Math.sin(retreatAngle) * spr.userdata.speed);
 				} else {
-					var newTarget = getClosestTarget(spr, game.baseGroup.getChildren(targets));
+					let newTarget = getClosestTarget(spr, game.baseGroup.getChildren(targets));
 					if (spr.userdata.target != newTarget) spr.userdata.scanPerc = 0;
 					spr.userdata.target = newTarget;
 
 					if (spr.userdata.target) {
-						var target = spr.userdata.target;
+						let target = spr.userdata.target;
 
 						if (getDistanceBetween(spr, target) > 200) {
 							scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
@@ -669,11 +668,11 @@ function update(delta) {
 
 		if (game.inShop) {
 			for (btn of game.shopButtons) {
-				var index = UPGRADES_NAMES.indexOf(btn.name);
-				var price = getUpgradePrice(btn.name);
-				var tf = btn.userdata.tf;
-				var upgradeName = UPGRADES_NAMES[index];
-				var enabled = true;
+				let index = UPGRADES_NAMES.indexOf(btn.name);
+				let price = getUpgradePrice(btn.name);
+				let tf = btn.userdata.tf;
+				let upgradeName = UPGRADES_NAMES[index];
+				let enabled = true;
 
 				if (upgradeName == REPAIR_BASE) {
 					tf.setText(upgradeName + "\nPrice: " + price);
@@ -698,8 +697,8 @@ function update(delta) {
 					if (upgradeName == REPAIR_BASE) {
 						game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
 					} else if (upgradeName == BUILD_TURRET) {
-						var base = game.baseOver;
-						var spr = scene.add.image(0, 0, "sprites", "sprites/bases/turret");
+						let base = game.baseOver;
+						let spr = scene.add.image(0, 0, "sprites", "sprites/bases/turret");
 						scaleSpriteToSize(spr, 32, 32);
 						spr.tint = 0x333333;
 						spr.x = base.x;
@@ -726,7 +725,7 @@ function update(delta) {
 		}
 
 		for (bar of game.hpGroup.getChildren()) {
-			var spr = bar.userdata.parentSprite;
+			let spr = bar.userdata.parentSprite;
 			if (!spr.active) {
 				bar.destroy();
 				game.hpGroup.remove(bar);
@@ -739,10 +738,10 @@ function update(delta) {
 			if (bar.userdata.alwaysShow) {
 				bar.alpha = 1;
 			} else {
-				var timeSinceHit = game.time - bar.userdata.lastHitTime;
-				var barFadeTime = 3000;
-				var barMinFade = 0.1;
-				var perc = 1 - timeSinceHit/barFadeTime;
+				let timeSinceHit = game.time - bar.userdata.lastHitTime;
+				let barFadeTime = 3000;
+				let barMinFade = 0.1;
+				let perc = 1 - timeSinceHit/barFadeTime;
 				if (perc < barMinFade) perc = barMinFade;
 				bar.alpha = perc;
 			}
@@ -777,9 +776,9 @@ function update(delta) {
 		for (base of game.baseGroup.getChildren()) {
 			if (!base.active) continue;
 
-			var turret = base.userdata.turretSprite;
+			let turret = base.userdata.turretSprite;
 			if (turret) {
-				var target = getClosestTarget(turret, game.enemyGroup.getChildren());
+				let target = getClosestTarget(turret, game.enemyGroup.getChildren());
 				if (target) {
 					turret.angle = getAngleBetween(turret.x, turret.y, target.x, target.y);
 
@@ -807,7 +806,7 @@ function update(delta) {
 }
 
 function msg(str) {
-	var text = scene.add.text(0, 0, str, {font: "64px Arial"});
+	let text = scene.add.text(0, 0, str, {font: "64px Arial"});
 	text.x = game.width/2 - text.width/2;
 	text.y = -text.height;
 	text.setScrollFactor(0, 0);
@@ -824,9 +823,9 @@ function msg(str) {
 }
 
 function shootBullet(sourceSprite, angle, speed, isFriendly) {
-	var spr = null;
+	let spr = null;
 
-	// var line = scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa } });
+	// let line = scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa } });
 	// line.strokeLineShape(new Phaser.Geom.Line(0, 0, 500, 0));
 	// line.x = sourceSprite.x;
 	// line.y = sourceSprite.y;
@@ -854,8 +853,8 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	spr.x = sourceSprite.x + Math.cos(angle) * (sourceSprite.width/2);
 	spr.y = sourceSprite.y + Math.sin(angle) * (sourceSprite.height/2);
 
-	var extraX = 0;
-	var extraY = 0;
+	let extraX = 0;
+	let extraY = 0;
 	if (sourceSprite.body) {
 		extraX = sourceSprite.body.velocity.x;
 		extraY = sourceSprite.body.velocity.y;
@@ -868,15 +867,15 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 }
 
 function bulletVEnemy(s1, s2) {
-	var bullet = game.bulletGroup.contains(s1) ? s1 : s2;
-	var enemy = bullet == s1 ? s2 : s1;
+	let bullet = game.bulletGroup.contains(s1) ? s1 : s2;
+	let enemy = bullet == s1 ? s2 : s1;
 
 	enemy.userdata.hp -= bullet.userdata.damage;
 
 	if (!enemy.userdata.penetrable) bullet.alpha = 0;
 
 	if (enemy.userdata.type == ENEMY_VESSEL) {
-		for (var i = 0; i < bullet.userdata.damage; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
+		for (let i = 0; i < bullet.userdata.damage; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
 	}
 
 	if (enemy.userdata.hp <= 0) destroyEnemy(enemy);
@@ -885,14 +884,14 @@ function bulletVEnemy(s1, s2) {
 }
 
 function destroyEnemy(enemy) {
-	var xpos = enemy.x;
-	var ypos = enemy.y;
+	let xpos = enemy.x;
+	let ypos = enemy.y;
 
 	enemy.destroy();
 	game.enemyGroup.remove(enemy);
 
 	if (enemy.userdata.type == ENEMY_VESSEL) {
-		for (var i = 0; i < 5; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
+		for (let i = 0; i < 5; i++) createEnemy(ENEMY_VESSEL_LING, enemy.x, enemy.y);
 	}
 
 	if (enemy.userdata.type == ENEMY_SCANNER) {
@@ -904,21 +903,21 @@ function destroyEnemy(enemy) {
 
 
 function bulletVPlayer(s1, s2) {
-	var player = s1 == game.player ? s1 : s2;
-	var bullet = player == s1 ? s2 : s1;
+	let player = s1 == game.player ? s1 : s2;
+	let bullet = player == s1 ? s2 : s1;
 	bullet.alpha = 0;
 
 	hitPlayer(bullet.userdata.damage);
 }
 
 function enemyVPlayer(s1, s2) {
-	var player = s1 == game.player ? s1 : s2;
-	var enemy = player == s1 ? s2 : s1;
+	let player = s1 == game.player ? s1 : s2;
+	let enemy = player == s1 ? s2 : s1;
 
 	/// This pushes players away, but we can just use phaser collision for now
-	// var playerAngle = getAngleBetween(player.x, player.y, enemy.x, enemy.y);
+	// let playerAngle = getAngleBetween(player.x, player.y, enemy.x, enemy.y);
 
-	// var force = 10;
+	// let force = 10;
 	// enemy.body.velocity.x += Math.cos(playerAngle) * force;
 	// enemy.body.velocity.y += Math.sin(playerAngle) * force;
 
@@ -927,14 +926,14 @@ function enemyVPlayer(s1, s2) {
 }
 
 function bulletVBase(s1, s2) {
-	var bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
-	var base = bullet == s1 ? s2 : s1;
+	let bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
+	let base = bullet == s1 ? s2 : s1;
 
 	if (base.userdata.hp <= 0) return;
 
 	base.userdata.hp -= bullet.userdata.damage;
 	if (base.userdata.hp <= 0) {
-		var basesAlive = 0;
+		let basesAlive = 0;
 		for (base of game.baseGroup.getChildren())
 			if (base.userdata.hp > 0)
 				basesAlive++;
@@ -945,22 +944,22 @@ function bulletVBase(s1, s2) {
 }
 
 function playerVBase(s1, s2) {
-	var player = s1 == game.player ? s1 : s2;
-	var base = player == s1 ? s2 : s1;
+	let player = s1 == game.player ? s1 : s2;
+	let base = player == s1 ? s2 : s1;
 	game.baseOver = base;
 	game.isOverBase = true;
 }
 
 function playerVEnemy(s1, s2) {
-	var player = s1 == game.player ? s1 : s2;
-	var enemy = player == s1 ? s2 : s1;
+	let player = s1 == game.player ? s1 : s2;
+	let enemy = player == s1 ? s2 : s1;
 
 	hitPlayer(0.5);
 }
 
 function playerVMoney(s1, s2) {
-	var player = s1 == game.player ? s1 : s2;
-	var money = player == s1 ? s2 : s1;
+	let player = s1 == game.player ? s1 : s2;
+	let money = player == s1 ? s2 : s1;
 
 	if (money.alpha <= 0) return;
 	money.alpha = 0;
@@ -968,11 +967,11 @@ function playerVMoney(s1, s2) {
 }
 
 function warnEnemy(timeTill, type, x, y) {
-	var spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
+	let spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
 	spr.x = x;
 	spr.y = y;
 
-	var loops = 5;
+	let loops = 5;
 
 	scene.tweens.add({
 		targets: spr,
@@ -986,9 +985,9 @@ function warnEnemy(timeTill, type, x, y) {
 }
 
 function createEnemy(type, x, y) {
-	var spr;
+	let spr;
 
-	var userdata = {
+	let userdata = {
 		type: type,
 		worth: 100,
 		maxHp: 5,
@@ -1057,7 +1056,7 @@ function createEnemy(type, x, y) {
 }
 
 function timedCreateEnemy(time, type, x, y) {
-	var warningTime = time - WARNING_TIME;
+	let warningTime = time - WARNING_TIME;
 	if (warningTime < 0) warningTime = 0;
 
 	scene.time.delayedCall(warningTime * 1000, warnEnemy.bind(null, time - warningTime, type, x, y));
@@ -1069,7 +1068,7 @@ function timedMsg(time, str) {
 }
 
 function addMinimapSprite(parentSprite, minimapImage) {
-	var minimapSpr = game.minimapGroup.create(0, 0, "minimap", minimapImage);
+	let minimapSpr = game.minimapGroup.create(0, 0, "minimap", minimapImage);
 
 	minimapSpr.userdata = {
 		parentSprite: parentSprite
@@ -1092,7 +1091,7 @@ function gameObjectOut(pointer, gameObject) {
 }
 
 function addHpBar(parentSprite) {
-	var bar = game.hpGroup.create(0, 0, "sprites", "sprites/hpBar");
+	let bar = game.hpGroup.create(0, 0, "sprites", "sprites/hpBar");
 	bar.userdata = {
 		parentSprite: parentSprite,
 		alwaysShow: false,
@@ -1106,7 +1105,7 @@ function addHpBar(parentSprite) {
 }
 
 function showHpBar(sprite) {
-	var bar = sprite.userdata.hpBar;
+	let bar = sprite.userdata.hpBar;
 	if (!bar) return;
 
 	bar.userdata.lastHitTime = game.time;
@@ -1129,8 +1128,8 @@ function hitPlayer(amount) {
 }
 
 function emitMoney(amount, x, y) {
-	for (var i = 0; i < amount; i++) {
-		var spr = game.moneyGroup.create(x, y, "particles", "particles/money");
+	for (let i = 0; i < amount; i++) {
+		let spr = game.moneyGroup.create(x, y, "particles", "particles/money");
 		spr.scaleX = spr.scaleY = rnd(0.1, 0.5);
 		spr.blendMode = "ADD";
 
@@ -1144,14 +1143,14 @@ function emitMoney(amount, x, y) {
 }
 
 function getClosestTarget(spr, others) {
-	var closest = null;
-	var closestDist = 9999999;
+	let closest = null;
+	let closestDist = 9999999;
 
 	for (other of others) {
 		if (!other.active) continue;
 		if (other.userdata.hp <= 0) continue;
 		if (other.userdata.type == "base" && !other.userdata.enabled) continue;
-		var otherDist = getDistanceBetween(spr, other);
+		let otherDist = getDistanceBetween(spr, other);
 		if (otherDist < closestDist) {
 			closest = other;
 			closestDist = otherDist;
