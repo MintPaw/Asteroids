@@ -224,7 +224,9 @@ function create() {
 				num: parseInt(baseData.type),
 				enabled: false,
 				maxHp: 30,
-				hp: 30
+				hp: 30,
+				hasTurret: false,
+				turretSprite: null
 			};
 
 			addMinimapSprite(spr, "minimap/base1");
@@ -299,7 +301,6 @@ function create() {
 					spr.setScrollFactor(0, 0);
 					spr.setInteractive();
 					spr.userdata = {
-						enabled: true,
 						tf: null
 					};
 					spr.setName(UPGRADES_NAMES[index]);
@@ -670,25 +671,35 @@ function update(delta) {
 		if (game.inShop) {
 			for (btn of game.shopButtons) {
 				var index = UPGRADES_NAMES.indexOf(btn.name);
+				var price = getUpgradePrice(btn.name);
 				var tf = btn.userdata.tf;
+				var upgradeName = UPGRADES_NAMES[index];
+				var enabled = true;
 
-				if (UPGRADES_NAMES[index] == REPAIR_BASE) {
-					tf.setText(UPGRADES_NAMES[index] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[index]));
-					game.shopButtons[index].userdata.enabled = game.baseOver.userdata.hp != game.baseOver.userdata.maxHp;
+				if (upgradeName == REPAIR_BASE) {
+					tf.setText(upgradeName + "\nPrice: " + price);
+					if (game.baseOver.userdata.hp >= game.baseOver.userdata.maxHp) enabled = false;
+				} else if (upgradeName == BUILD_TURRET) {
+					tf.setText(upgradeName + "\nPrice: " + price);
+					if (game.baseOver.userdata.hasTurret) enabled = false;
 				} else {
-					tf.setText(UPGRADES_NAMES[index] + "\nLevel: " + game.upgrades[index] + "\nPrice: " + getUpgradePrice(UPGRADES_NAMES[index]));
+					tf.setText(upgradeName + "\nLevel: " + game.upgrades[index] + "\nPrice: " + price);
+				}
+				if (game.money < price) enabled = false;
+
+				if (enabled) {
+					btn.alpha = btn.isJustDown ? 0.5 : 1;
+				} else {
+					btn.alpha = 0.5;
 				}
 
-				btn.alpha = btn.isJustDown ? 0.5 : 1;
-				if (btn.isJustDown) {
-					if (!btn.userdata.enabled) continue;
-					var price = getUpgradePrice(btn.name);
-
-					if (game.money < price) continue;
+				if (enabled && btn.isJustDown) {
 					game.money -= price;
 
-					if (name == "Repair Base") {
+					if (upgradeName == REPAIR_BASE) {
 						game.baseOver.userdata.hp = game.baseOver.userdata.maxHp;
+					} else if (upgradeName == BUILD_TURRET) {
+						game.baseOver.userdata.hasTurret = true;
 					} else {
 						game.upgrades[index]++;
 					}
