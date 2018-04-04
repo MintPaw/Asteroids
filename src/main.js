@@ -355,27 +355,23 @@ function startWave() {
 
 	if (game.wave == 1) {
 		enableBase(0);
-		timedMsg(1, "Scanners incoming");
+		timedMsg(1, "Scanners and hiders incoming");
 		timedCreateEnemy(2, ENEMY_HIDER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		// timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		// timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
-		// timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
-		// timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 58 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
 
 		game.waveTime = 60;
 	}
 
 	if (game.wave == 2) {
-		timedMsg(1, "A bunch of stuff!");
+		timedMsg(1, "Ships and vessles!");
 		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
 
 		game.waveTime = 120;
 	}
 
 	if (game.wave == 3) {
-		timedMsg(1, "A copy of the previous wave!");
+		timedMsg(1, "A bunch of stuff!");
 		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
