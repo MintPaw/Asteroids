@@ -35,6 +35,7 @@ let ENEMY_BASIC_SHIP = "basicShip";
 let ENEMY_VESSEL = "vessel";
 let ENEMY_VESSEL_LING = "vesselLing";
 let ENEMY_SCANNER = "scanner";
+let ENEMY_HIDER = "hider";
 
 let WARNING_TIME = 2;
 let PLAYER_INVINCIBILITY_TIME = 1;
@@ -355,10 +356,11 @@ function startWave() {
 	if (game.wave == 1) {
 		enableBase(0);
 		timedMsg(1, "Scanners incoming");
-		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 58 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_HIDER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
+		// timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
+		// timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
+		// timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+		// timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 58 * game.map.tileHeight);
 
 		game.waveTime = 60;
 	}
@@ -541,69 +543,140 @@ function update(delta) {
 		targets.push(game.player);
 		targets.push(...game.baseGroup.getChildren());
 
-		for (spr of game.enemyGroup.getChildren()) {
-			if (spr.userdata.type == ENEMY_BASIC_SHIP) {
-				spr.userdata.target = getClosestTarget(spr, targets);
+		for (enemySprite of game.enemyGroup.getChildren()) {
+			if (enemySprite.userdata.type == ENEMY_BASIC_SHIP) {
+				enemySprite.userdata.target = getClosestTarget(enemySprite, targets);
 
-				if (spr.userdata.target) {
-					let target = spr.userdata.target;
+				if (enemySprite.userdata.target) {
+					let target = enemySprite.userdata.target;
 
-					spr.angle = getAngleBetween(spr.x, spr.y, target.x, target.y);
-					spr.userdata.timeTillNextShot -= game.elapsed;
-					spr.setAcceleration();
+					enemySprite.angle = getAngleBetween(enemySprite.x, enemySprite.y, target.x, target.y);
+					enemySprite.userdata.timeTillNextShot -= game.elapsed;
+					enemySprite.setAcceleration();
 
-					if (getDistanceBetween(spr, target) > 200) {
-						scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
+					if (getDistanceBetween(enemySprite, target) > 200) {
+						scene.physics.accelerateToObject(enemySprite, target, enemySprite.userdata.speed);
 					} else {
-						spr.setVelocity(spr.body.velocity.x * spr.userdata.brakePerc, spr.body.velocity.y * spr.userdata.brakePerc);
+						enemySprite.setVelocity(enemySprite.body.velocity.x * enemySprite.userdata.brakePerc, enemySprite.body.velocity.y * enemySprite.userdata.brakePerc);
 
-						if (spr.userdata.timeTillNextShot <= 0) {
-							spr.userdata.timeTillNextShot = spr.userdata.timePerShot;
-							let bullet = shootBullet(spr, spr.angle, 200, false);
-							bullet.userdata.damage = spr.userdata.bulletDamage;
+						if (enemySprite.userdata.timeTillNextShot <= 0) {
+							enemySprite.userdata.timeTillNextShot = enemySprite.userdata.timePerShot;
+							let bullet = shootBullet(enemySprite, enemySprite.angle, 200, false);
+							bullet.userdata.damage = enemySprite.userdata.bulletDamage;
 						}
 					}
 				}
 			}
 
-			if (spr.userdata.type == ENEMY_VESSEL) {
-				scene.physics.accelerateToObject(spr, game.player, spr.userdata.speed);
+			if (enemySprite.userdata.type == ENEMY_VESSEL) {
+				scene.physics.accelerateToObject(enemySprite, game.player, enemySprite.userdata.speed);
 			}
 
-			if (spr.userdata.type == ENEMY_VESSEL_LING) {
-				scene.physics.accelerateToObject(spr, game.player, spr.userdata.speed);
+			if (enemySprite.userdata.type == ENEMY_VESSEL_LING) {
+				scene.physics.accelerateToObject(enemySprite, game.player, enemySprite.userdata.speed);
 			}
 
-			if (spr.userdata.type == ENEMY_SCANNER) {
-				if (spr.userdata.scanPerc >= 100) {
-					spr.userdata.scanningText.visible = true;
-					spr.userdata.scanningText.setText("Calling for backup");
-					let retreatAngle = Math.atan2(game.map.heightInPixels/2 - spr.y, game.map.widthInPixels/2 - spr.x);
-					spr.setAcceleration(-Math.cos(retreatAngle) * spr.userdata.speed, -Math.sin(retreatAngle) * spr.userdata.speed);
+			if (enemySprite.userdata.type == ENEMY_SCANNER) {
+				if (enemySprite.userdata.scanPerc >= 100) {
+					enemySprite.userdata.scanningText.visible = true;
+					enemySprite.userdata.scanningText.setText("Calling for backup");
+					let retreatAngle = Math.atan2(game.map.heightInPixels/2 - enemySprite.y, game.map.widthInPixels/2 - enemySprite.x);
+					enemySprite.setAcceleration(-Math.cos(retreatAngle) * enemySprite.userdata.speed, -Math.sin(retreatAngle) * enemySprite.userdata.speed);
 				} else {
-					let newTarget = getClosestTarget(spr, game.baseGroup.getChildren(targets));
-					if (spr.userdata.target != newTarget) spr.userdata.scanPerc = 0;
-					spr.userdata.target = newTarget;
+					let newTarget = getClosestTarget(enemySprite, game.baseGroup.getChildren(targets));
+					if (enemySprite.userdata.target != newTarget) enemySprite.userdata.scanPerc = 0;
+					enemySprite.userdata.target = newTarget;
 
-					if (spr.userdata.target) {
-						let target = spr.userdata.target;
+					if (enemySprite.userdata.target) {
+						let target = enemySprite.userdata.target;
 
-						if (getDistanceBetween(spr, target) > 200) {
-							scene.physics.accelerateToObject(spr, target, spr.userdata.speed);
-							spr.userdata.scanningText.visible = false;
+						if (getDistanceBetween(enemySprite, target) > 200) {
+							scene.physics.accelerateToObject(enemySprite, target, enemySprite.userdata.speed);
+							enemySprite.userdata.scanningText.visible = false;
 						} else {
-							spr.userdata.scanningText.visible = true;
-							spr.userdata.scanningText.setText("Scanning "+Math.round(spr.userdata.scanPerc*10)/10+"%");
-							spr.userdata.scanPerc += 0.1;
-							spr.rotation += 0.1;
-							spr.setVelocity(spr.body.velocity.x * spr.userdata.brakePerc, spr.body.velocity.y * spr.userdata.brakePerc);
+							enemySprite.userdata.scanningText.visible = true;
+							enemySprite.userdata.scanningText.setText("Scanning "+Math.round(enemySprite.userdata.scanPerc*10)/10+"%");
+							enemySprite.userdata.scanPerc += 0.1;
+							enemySprite.rotation += 0.1;
+							enemySprite.setVelocity(enemySprite.body.velocity.x * enemySprite.userdata.brakePerc, enemySprite.body.velocity.y * enemySprite.userdata.brakePerc);
 						}
 					}
 				}
 
-				if (spr.userdata.scanningText.visible) {
-					spr.userdata.scanningText.x = spr.x - 100 / 2;
-					spr.userdata.scanningText.y = spr.y + spr.height;
+				if (enemySprite.userdata.scanningText.visible) {
+					enemySprite.userdata.scanningText.x = enemySprite.x - 100 / 2;
+					enemySprite.userdata.scanningText.y = enemySprite.y + enemySprite.height;
+				}
+			}
+
+			if (enemySprite.userdata.type == ENEMY_HIDER) {
+				enemySprite.userdata.target = getClosestTarget(enemySprite, targets);
+
+				if (enemySprite.userdata.target) {
+					let target = enemySprite.userdata.target;
+
+					enemySprite.angle = getAngleBetween(enemySprite.x, enemySprite.y, target.x, target.y);
+					enemySprite.userdata.timeTillNextShot -= game.elapsed;
+					enemySprite.setAcceleration();
+
+					if (enemySprite.userdata.hidingPerc > 0) {
+						if (enemySprite.userdata.hidingPerc < 100) {
+							enemySprite.userdata.hidingText.visible = true;
+							enemySprite.userdata.hidingText.x = enemySprite.x - 100 / 2;
+							enemySprite.userdata.hidingText.y = enemySprite.y + enemySprite.height;
+							enemySprite.userdata.hidingText.setText("Hiding "+Math.round(enemySprite.userdata.hidingPerc)+"%");
+							enemySprite.userdata.hidingPerc += 0.5;
+							if (enemySprite.userdata.hidingPerc >= 100) {
+								enemySprite.userdata.hidingText.visible = false;
+								enemySprite.userdata.hidingTargetSprite.alpha = 1;
+								enemySprite.alpha = 0.5;
+
+								let targetSprite = enemySprite.userdata.hidingTargetSprite;
+								targetSprite.x = enemySprite.x;
+								targetSprite.y = enemySprite.y;
+
+								function doneHiding() {
+									scene.tweens.add({
+										targets: enemySprite,
+										x: { value: targetSprite.x, duration: 2000, ease: "Power1" },
+										y: { value: targetSprite.y, duration: 2000, ease: "Power1" },
+										onComplete: function() {
+											enemySprite.userdata.hidingPerc = 0;
+											enemySprite.alpha = 1;
+										}
+									});
+
+									scene.tweens.add({
+										targets: enemySprite.userdata.hidingTargetSprite,
+										alpha: { value: 0, duration: 2000, ease: "Power1" }
+									});
+								}
+
+								let newX = targetSprite.x + rnd(-300, 300);
+								let newY = targetSprite.y + rnd(-300, 300);
+								scene.tweens.add({
+									targets: targetSprite,
+									x: { value: newX, duration: 2000, ease: "Power1" },
+									y: { value: newY, duration: 2000, ease: "Power1" },
+									onComplete: doneHiding
+								});
+							}
+						}
+					}
+
+					if (enemySprite.userdata.hidingPerc < 100) {
+						if (getDistanceBetween(enemySprite, target) > 200) {
+							scene.physics.accelerateToObject(enemySprite, target, enemySprite.userdata.speed);
+						} else {
+							enemySprite.setVelocity(enemySprite.body.velocity.x * enemySprite.userdata.brakePerc, enemySprite.body.velocity.y * enemySprite.userdata.brakePerc);
+
+							if (enemySprite.userdata.timeTillNextShot <= 0) {
+								enemySprite.userdata.timeTillNextShot = enemySprite.userdata.timePerShot;
+								let bullet = shootBullet(enemySprite, enemySprite.angle, 200, false);
+								bullet.userdata.damage = enemySprite.userdata.bulletDamage;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -870,6 +943,11 @@ function bulletVEnemy(s1, s2) {
 	let bullet = game.bulletGroup.contains(s1) ? s1 : s2;
 	let enemy = bullet == s1 ? s2 : s1;
 
+	if (enemy.userdata.type == ENEMY_HIDER) {
+		if (enemy.userdata.hidingPerc == 0) enemy.userdata.hidingPerc = 0.01;
+		if (enemy.userdata.hidingPerc >= 100) return;
+	}
+
 	enemy.userdata.hp -= bullet.userdata.damage;
 
 	if (!enemy.userdata.penetrable) bullet.alpha = 0;
@@ -896,6 +974,11 @@ function destroyEnemy(enemy) {
 
 	if (enemy.userdata.type == ENEMY_SCANNER) {
 		enemy.userdata.scanningText.destroy();
+	}
+
+	if (enemy.userdata.type == ENEMY_HIDER) {
+		enemy.userdata.hidingText.destroy();
+		enemy.userdata.hidingTargetSprite.destroy();
 	}
 
 	emitMoney(enemy.userdata.worth, xpos, ypos);
@@ -953,6 +1036,11 @@ function playerVBase(s1, s2) {
 function playerVEnemy(s1, s2) {
 	let player = s1 == game.player ? s1 : s2;
 	let enemy = player == s1 ? s2 : s1;
+
+	if (enemy.userdata.type == ENEMY_HIDER) {
+		if (enemy.userdata.hidingPerc == 0) enemy.userdata.hidingPerc = 0.01;
+		if (enemy.userdata.hidingPerc >= 100) return;
+	}
 
 	hitPlayer(0.5);
 }
@@ -1040,6 +1128,17 @@ function createEnemy(type, x, y) {
 		userdata.scanPerc = 0;
 		userdata.scanningText = scene.add.text(0, 0, "Scanning...", {font: "16px Arial"});
 		game.minimap.ignore(userdata.scanningText);
+	}
+
+	if (type == ENEMY_HIDER) {
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/hider");
+		scaleSpriteToSize(spr, 64, 64);
+
+		userdata.speed = 40;
+		userdata.hidingPerc = 0;
+		userdata.hidingText = scene.add.text(0, 0, "Hiding...", {font: "16px Arial"});
+		userdata.hidingTargetSprite = scene.add.image(0, 0, "sprites", "sprites/enemies/hidingTarget");
+		userdata.hidingTargetSprite.alpha = 0;
 	}
 
 	userdata.timeTillNextShot = userdata.timePerShot;
