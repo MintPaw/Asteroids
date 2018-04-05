@@ -73,6 +73,11 @@ let game = {
 	key3: null,
 	key4: null,
 	key5: null,
+	key6: null,
+	key7: null,
+	key8: null,
+	key9: null,
+	key0: null,
 	keyE: null,
 	keyF: null,
 
@@ -172,6 +177,11 @@ function create() {
 		game.key3 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
 		game.key4 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
 		game.key5 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
+		game.key6 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SIX);
+		game.key7 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEVEN);
+		game.key8 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.EIGHT);
+		game.key9 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NINE);
+		game.key0 = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO);
 		game.keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 		game.keyF = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
@@ -405,14 +415,46 @@ function update(delta) {
 		if (game.keyA.isDown || game.keyLeft.isDown) left = true;
 		if (game.keyD.isDown || game.keyRight.isDown) right = true;
 		if (game.keySpace.isDown) shoot = true;
-		if (game.key5.isDown) {
-			emitMoney(10, game.player.x, game.player.y);
-		}
-		if (game.key4.isDown) {
-			emitMoney(10, game.player.x, game.player.y - 200);
-		}
 		if (game.keyE.isDown) shop = true;
 		if (game.keyF.isDown) speedUpWave = true;
+
+		if (game.key1.isDown) {
+			emitMoney(10, game.player.x, game.player.y);
+		}
+
+		if (game.key0.timeUp) {
+			game.key0.timeUp = 0;
+			msg("Clearing wave");
+
+			var enemies = [];
+			for (enemy of game.enemyGroup.getChildren()) enemies.push(enemy);
+			for (enemy of enemies) destroyEnemy(enemy);
+			game.waveTime = 999999;
+		}
+
+		if (game.key9.timeUp) {
+			game.key9.timeUp = 0;
+			msg("Spawning basic ship");
+			createEnemy(ENEMY_BASIC_SHIP, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+		}
+
+		if (game.key8.timeUp) {
+			game.key8.timeUp = 0;
+			msg("Spawning vessel");
+			createEnemy(ENEMY_VESSEL, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+		}
+
+		if (game.key7.timeUp) {
+			game.key7.timeUp = 0;
+			msg("Spawning scanner");
+			createEnemy(ENEMY_SCANNER, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+		}
+
+		if (game.key6.timeUp) {
+			game.key6.timeUp = 0;
+			msg("Spawning hider");
+			createEnemy(ENEMY_HIDER, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+		}
 	}
 
 	{ /// Update player
