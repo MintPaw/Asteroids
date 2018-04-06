@@ -1,6 +1,5 @@
 /*
 TODO:
-Prevent buying from disabled shops
 */
 
 let MenuScene = {
