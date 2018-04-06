@@ -1,3 +1,9 @@
+/*
+TODO:
+Prevent collision with hidden sprites
+Prevent buying from disabled shops
+*/
+
 let MenuScene = {
 	key: "menu",
 	create: menuCreate,
@@ -588,7 +594,7 @@ function update(delta) {
 				if (enemySprite.userdata.target) {
 					let target = enemySprite.userdata.target;
 
-					enemySprite.angle = getAngleBetween(enemySprite.x, enemySprite.y, target.x, target.y);
+					enemySprite.angle = getAngleBetweenCoords(enemySprite.x, enemySprite.y, target.x, target.y);
 					enemySprite.userdata.timeTillNextShot -= game.elapsed;
 					enemySprite.setAcceleration();
 
@@ -649,11 +655,12 @@ function update(delta) {
 
 			if (enemySprite.userdata.type == ENEMY_HIDER) {
 				enemySprite.userdata.target = getClosestTarget(enemySprite, targets);
+				let targetSprite = enemySprite.userdata.hidingTargetSprite;
 
 				if (enemySprite.userdata.target) {
 					let target = enemySprite.userdata.target;
 
-					enemySprite.angle = getAngleBetween(enemySprite.x, enemySprite.y, target.x, target.y);
+					enemySprite.angle = getAngleBetweenCoords(enemySprite.x, enemySprite.y, target.x, target.y);
 					enemySprite.userdata.timeTillNextShot -= game.elapsed;
 					enemySprite.setAcceleration();
 
@@ -669,36 +676,22 @@ function update(delta) {
 								enemySprite.userdata.hidingTargetSprite.alpha = 1;
 								enemySprite.alpha = 0.5;
 
-								let targetSprite = enemySprite.userdata.hidingTargetSprite;
-								targetSprite.x = enemySprite.x;
-								targetSprite.y = enemySprite.y;
-
-								function doneHiding() {
-									scene.tweens.add({
-										targets: enemySprite,
-										x: { value: targetSprite.x, duration: 2000, ease: "Power1" },
-										y: { value: targetSprite.y, duration: 2000, ease: "Power1" },
-										onComplete: function() {
-											enemySprite.userdata.hidingPerc = 0;
-											enemySprite.alpha = 1;
-										}
-									});
-
-									scene.tweens.add({
-										targets: enemySprite.userdata.hidingTargetSprite,
-										alpha: { value: 0, duration: 2000, ease: "Power1" }
-									});
-								}
-
-								let newX = targetSprite.x + rnd(-300, 300);
-								let newY = targetSprite.y + rnd(-300, 300);
-								scene.tweens.add({
-									targets: targetSprite,
-									x: { value: newX, duration: 2000, ease: "Power1" },
-									y: { value: newY, duration: 2000, ease: "Power1" },
-									onComplete: doneHiding
-								});
+								targetSprite.x = enemySprite.x + (rnd(200, 300) * (rndBool() ? -1 : 1));
+								targetSprite.y = enemySprite.y + (rnd(200, 300) * (rndBool() ? -1 : 1));
 							}
+						}
+					}
+
+					if (enemySprite.userdata.hidingPerc >= 100) {
+						var angle = degToRad(getAngleBetweenCoords(enemySprite.x, enemySprite.y, targetSprite.x, targetSprite.y));
+						enemySprite.setAcceleration(0, 0);
+						enemySprite.setVelocity(Math.cos(angle) * 100, Math.sin(angle) * 100);
+
+						if (getDistanceBetween(enemySprite, targetSprite) < 5) {
+							enemySprite.setVelocity(0, 0);
+							enemySprite.userdata.hidingPerc = 0;
+							enemySprite.alpha = 1;
+							targetSprite.alpha = 0;
 						}
 					}
 
@@ -900,7 +893,7 @@ function update(delta) {
 			if (turret) {
 				let target = getClosestTarget(turret, game.enemyGroup.getChildren());
 				if (target) {
-					turret.angle = getAngleBetween(turret.x, turret.y, target.x, target.y);
+					turret.angle = getAngleBetweenCoords(turret.x, turret.y, target.x, target.y);
 
 					base.userdata.timeTillNextShot -= game.elapsed;
 					if (getDistanceBetween(turret, target) < 1000 && base.userdata.timeTillNextShot <= 0) {
@@ -1045,7 +1038,7 @@ function enemyVPlayer(s1, s2) {
 	let enemy = player == s1 ? s2 : s1;
 
 	/// This pushes players away, but we can just use phaser collision for now
-	// let playerAngle = getAngleBetween(player.x, player.y, enemy.x, enemy.y);
+	// let playerAngle = getAngleBetweenCoords(player.x, player.y, enemy.x, enemy.y);
 
 	// let force = 10;
 	// enemy.body.velocity.x += Math.cos(playerAngle) * force;
