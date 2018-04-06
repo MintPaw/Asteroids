@@ -1,6 +1,5 @@
 /*
 TODO:
-Prevent collision with hidden sprites
 Prevent buying from disabled shops
 */
 
@@ -288,7 +287,7 @@ function create() {
 		scene.physics.world.addOverlap(game.player, game.baseGroup, playerVBase);
 		scene.physics.world.addOverlap(game.player, game.enemyGroup, playerVEnemy);
 		scene.physics.world.addOverlap(game.player, game.moneyGroup, playerVMoney);
-		scene.physics.world.addCollider(game.enemyGroup, game.player);
+		scene.physics.world.addCollider(game.enemyGroup, game.player, null, playerVEnemyProcess);
 	}
 
 	{ /// Setup shop
@@ -881,9 +880,12 @@ function update(delta) {
 	{ /// Update bases
 		for (base of game.baseGroup.getChildren()) {
 
-			if (!base.userdata.enabled || base.userdata.hp <= 0) {
+			if (!base.userdata.enabled) {
 				base.alpha = 0.1;
 				base.userdata.minimapSprite.alpha = 0;
+			} else if (base.userdata.hp <= 0) {
+				base.alpha = 0.5;
+				base.userdata.minimapSprite.alpha = 0.5;
 			} else {
 				base.alpha = 1;
 				base.userdata.minimapSprite.alpha = 1;
@@ -1071,6 +1073,9 @@ function bulletVBase(s1, s2) {
 function playerVBase(s1, s2) {
 	let player = s1 == game.player ? s1 : s2;
 	let base = player == s1 ? s2 : s1;
+
+	if (!base.userdata.enabled) return;
+
 	game.baseOver = base;
 	game.isOverBase = true;
 }
@@ -1085,6 +1090,17 @@ function playerVEnemy(s1, s2) {
 	}
 
 	hitPlayer(0.5);
+}
+
+function playerVEnemyProcess(s1, s2) {
+	let player = s1 == game.player ? s1 : s2;
+	let enemy = player == s1 ? s2 : s1;
+
+	if (enemy.userdata.type == ENEMY_HIDER) {
+		if (enemy.userdata.hidingPerc >= 100) return false;
+	}
+
+	return true;
 }
 
 function playerVMoney(s1, s2) {
