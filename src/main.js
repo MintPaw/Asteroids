@@ -848,6 +848,8 @@ function update(delta) {
 
 			if (bar.userdata.alwaysShow) {
 				bar.alpha = 1;
+
+				if (bar.userdata.parentSprite.userdata.type == "base" && !bar.userdata.parentSprite.userdata.enabled) bar.alpha = 0;
 			} else {
 				let timeSinceHit = game.time - bar.userdata.lastHitTime;
 				let barFadeTime = 3000;
@@ -885,7 +887,14 @@ function update(delta) {
 
 	{ /// Update bases
 		for (base of game.baseGroup.getChildren()) {
-			if (!base.active) continue;
+
+			if (!base.userdata.enabled || base.userdata.hp <= 0) {
+				base.alpha = 0.1;
+				base.userdata.minimapSprite.alpha = 0;
+			} else {
+				base.alpha = 1;
+				base.userdata.minimapSprite.alpha = 1;
+			}
 
 			let turret = base.userdata.turretSprite;
 			if (turret) {
@@ -1050,14 +1059,16 @@ function bulletVBase(s1, s2) {
 	let bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
 	let base = bullet == s1 ? s2 : s1;
 
-	if (base.userdata.hp <= 0) return;
+	if (base.userdata.hp <= 0 || !base.userdata.enabled) return;
 
 	base.userdata.hp -= bullet.userdata.damage;
 	if (base.userdata.hp <= 0) {
 		let basesAlive = 0;
+
 		for (base of game.baseGroup.getChildren())
 			if (base.userdata.hp > 0)
 				basesAlive++;
+
 		msg("Base destroyed, "+basesAlive+" left");
 	}
 
@@ -1210,6 +1221,9 @@ function addMinimapSprite(parentSprite, minimapImage) {
 	minimapSpr.userdata = {
 		parentSprite: parentSprite
 	};
+
+	if (!parentSprite.userdata) parentSprite.userdata = {};
+	parentSprite.userdata.minimapSprite = minimapSpr;
 
 	game.minimapSprites.push(minimapSpr);
 }
