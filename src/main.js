@@ -1092,7 +1092,7 @@ function bulletVBase(s1, s2) {
 		let basesAlive = 0;
 
 		for (base of game.baseGroup.getChildren())
-			if (base.userdata.hp > 0)
+			if (base.userdata.enabled && base.userdata.hp > 0)
 				basesAlive++;
 
 		msg("Base destroyed, "+basesAlive+" left");
