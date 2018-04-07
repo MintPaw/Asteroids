@@ -712,18 +712,28 @@ function update(delta) {
 	}
 
 	{ /// Update bullets
-		for (spr of game.bulletGroup.getChildren()) {
+		let allBullets = [];
+		allBullets.push(...game.bulletGroup.getChildren());
+		allBullets.push(...game.enemyBulletsGroup.getChildren());
+
+		for (spr of allBullets) {
 			spr.alpha -= 0.005;
+			spr.userdata.graphic.x = spr.x;
+			spr.userdata.graphic.y = spr.y;
+		}
+
+		for (spr of game.bulletGroup.getChildren()) {
 			if (spr.alpha <= 0) {
 				spr.destroy();
+				spr.userdata.graphic.destroy();
 				game.bulletGroup.remove(spr);
 			}
 		}
 
 		for (spr of game.enemyBulletsGroup.getChildren()) {
-			spr.alpha -= 0.005;
 			if (spr.alpha <= 0) {
 				spr.destroy();
+				spr.userdata.graphic.destroy();
 				game.enemyBulletsGroup.remove(spr);
 			}
 		}
@@ -955,9 +965,14 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 
 	if (isFriendly) spr = game.bulletGroup.create(0, 0, "sprites", "sprites/bullets/bullet1");
 	else spr = game.enemyBulletsGroup.create(0, 0, "sprites", "sprites/bullets/bullet1");
+	spr.visible = false;
+
+	let graphic = scene.add.image(0, 0, "sprites", "sprites/bullets/bulletGraphic");
+	graphic.blendMode = "ADD";
 
 	spr.userdata = {
-		damage: 1
+		damage: 1,
+		graphic: graphic
 	};
 
 	if (isFriendly) spr.userdata.damage = getUpgradeValue(DAMAGE);
@@ -1288,9 +1303,8 @@ function hitPlayer(amount) {
 
 function emitMoney(amount, x, y) {
 	for (let i = 0; i < amount; i++) {
-		let spr = game.moneyGroup.create(x, y, "particles", "particles/money");
+		let spr = game.moneyGroup.create(x, y, "sprites", "sprites/money");
 		spr.scaleX = spr.scaleY = rnd(0.1, 0.5);
-		spr.blendMode = "ADD";
 
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
 		spr.setDrag(5, 5);
