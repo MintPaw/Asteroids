@@ -1144,16 +1144,16 @@ function playerVMoney(s1, s2) {
 }
 
 function warnEnemy(timeTill, type, x, y) {
-	let spr = scene.add.image(0, 0, "sprites", "sprites/exclam");
-	spr.x = x;
-	spr.y = y;
+	let spr = scene.add.image(x, y, "sprites", "sprites/minimapWarning");
+	scene.cameras.main.ignore(spr);
 
 	let loops = 5;
 
 	scene.tweens.add({
 		targets: spr,
 		loop: loops,
-		y: { value: spr.y - 5, duration: timeTill/loops*1000, ease: "Power1" },
+		scaleX: { value: 10, duration: timeTill/loops*1000, ease: "Power1" },
+		scaleY: { value: 10, duration: timeTill/loops*1000, ease: "Power1" },
 		alpha: { value: 0, duration: timeTill/loops*1000, ease: "Power1" },
 		onComplete: function() {
 			spr.destroy();
