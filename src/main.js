@@ -227,6 +227,23 @@ function create() {
 		game.minimap.setBackgroundColor(0x002244);
 		game.minimap.ignore(game.mapLayers[0]);
 		game.minimap.roundPixels = true;
+
+		let horiLines = 4;
+		let vertLines = 4;
+
+		for (let i = 1; i < horiLines; i++) {
+			let line = scene.add.graphics({ lineStyle: { width: 4, color: 0xFFFFFF } });
+			line.strokeLineShape(new Phaser.Geom.Line(0, 0, game.map.widthInPixels, 0));
+			line.y = game.map.heightInPixels/horiLines * i;
+			scene.cameras.main.ignore(line);
+		}
+
+		for (let i = 1; i < vertLines; i++) {
+			let line = scene.add.graphics({ lineStyle: { width: 4, color: 0xFFFFFF } });
+			line.strokeLineShape(new Phaser.Geom.Line(0, 0, 0, game.map.heightInPixels));
+			line.x = game.map.widthInPixels/vertLines * i;
+			scene.cameras.main.ignore(line);
+		}
 	}
 
 	{ /// Setup bases
