@@ -1226,6 +1226,7 @@ function createEnemy(type, x, y) {
 		userdata.speed = 40;
 		userdata.hidingPerc = 0;
 		userdata.hidingText = scene.add.text(0, 0, "Hiding...", {font: "16px Arial"});
+		userdata.hidingText.visible = false;
 		userdata.hidingTargetSprite = scene.add.image(0, 0, "sprites", "sprites/enemies/hidingTarget");
 		userdata.hidingTargetSprite.alpha = 0;
 	}
