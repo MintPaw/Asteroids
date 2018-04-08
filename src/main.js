@@ -40,6 +40,7 @@ let ENEMY_VESSEL = "vessel";
 let ENEMY_VESSEL_LING = "vesselLing";
 let ENEMY_SCANNER = "scanner";
 let ENEMY_HIDER = "hider";
+let ENEMY_FIRE_SPINNER = "fireSpinner";
 
 let WARNING_TIME = 2;
 let PLAYER_INVINCIBILITY_TIME = 1;
@@ -456,25 +457,31 @@ function update(delta) {
 		if (game.key9.timeUp) {
 			game.key9.timeUp = 0;
 			msg("Spawning basic ship");
-			createEnemy(ENEMY_BASIC_SHIP, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+			createEnemy(ENEMY_BASIC_SHIP, 48 * game.map.tileWidth, 40 * game.map.tileHeight);
 		}
 
 		if (game.key8.timeUp) {
 			game.key8.timeUp = 0;
 			msg("Spawning vessel");
-			createEnemy(ENEMY_VESSEL, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+			createEnemy(ENEMY_VESSEL, 48 * game.map.tileWidth, 40 * game.map.tileHeight);
 		}
 
 		if (game.key7.timeUp) {
 			game.key7.timeUp = 0;
 			msg("Spawning scanner");
-			createEnemy(ENEMY_SCANNER, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+			createEnemy(ENEMY_SCANNER, 48 * game.map.tileWidth, 40 * game.map.tileHeight);
 		}
 
 		if (game.key6.timeUp) {
 			game.key6.timeUp = 0;
 			msg("Spawning hider");
-			createEnemy(ENEMY_HIDER, 48 * game.map.tileWidth, 2 * game.map.tileHeight);
+			createEnemy(ENEMY_HIDER, 48 * game.map.tileWidth, 40 * game.map.tileHeight);
+		}
+
+		if (game.key5.timeUp) {
+			game.key5.timeUp = 0;
+			msg("Spawning fireSpinner");
+			createEnemy(ENEMY_FIRE_SPINNER, 48 * game.map.tileWidth, 40 * game.map.tileHeight);
 		}
 	}
 
@@ -722,6 +729,29 @@ function update(delta) {
 								bullet.userdata.damage = enemySprite.userdata.bulletDamage;
 							}
 						}
+					}
+				}
+			}
+
+			if (enemySprite.userdata.type == ENEMY_FIRE_SPINNER) {
+				enemySprite.userdata.target = getClosestTarget(enemySprite, game.baseGroup.getChildren(targets));
+
+				for (let i = 0; i < enemySprite.userdata.spinners.length; i++) {
+					let proj = enemySprite.userdata.spinners[i];
+					let rotSep = 2*Math.PI / enemySprite.userdata.spinners.length;
+					proj.x = enemySprite.x + Math.cos((game.time*.001) + rotSep*i)*50;
+					proj.y = enemySprite.y + Math.sin((game.time*.001) + rotSep*i)*50;
+				}
+
+				if (enemySprite.userdata.target) {
+					let target = enemySprite.userdata.target;
+
+					enemySprite.setAcceleration();
+
+					if (getDistanceBetween(enemySprite, target) > 200) {
+						scene.physics.accelerateToObject(enemySprite, target, enemySprite.userdata.speed);
+					} else {
+						enemySprite.setVelocity(enemySprite.body.velocity.x * enemySprite.userdata.brakePerc, enemySprite.body.velocity.y * enemySprite.userdata.brakePerc);
 					}
 				}
 			}
@@ -1229,6 +1259,16 @@ function createEnemy(type, x, y) {
 		userdata.hidingText.visible = false;
 		userdata.hidingTargetSprite = scene.add.image(0, 0, "sprites", "sprites/enemies/hidingTarget");
 		userdata.hidingTargetSprite.alpha = 0;
+	}
+
+	if (type == ENEMY_FIRE_SPINNER) {
+		spr = game.enemyGroup.create(0, 0, "sprites", "sprites/enemies/firespinner_base");
+		scaleSpriteToSize(spr, 32, 32);
+
+		userdata.spinners = [];
+		for (let i = 0; i < 2; i++) userdata.spinners.push(scene.add.image(0, 0, "sprites", "sprites/enemies/firespinner_fireprojectile"));
+
+		userdata.speed = 40;
 	}
 
 	userdata.timeTillNextShot = userdata.timePerShot;
