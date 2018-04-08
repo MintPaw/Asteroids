@@ -397,7 +397,7 @@ function startWave() {
 		timedCreateEnemy(2, ENEMY_SCANNER, 12 * game.map.tileWidth, 4 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 9 * game.map.tileWidth, 7 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 50;
 	}
 
 	if (game.wave == 2) {
@@ -406,7 +406,7 @@ function startWave() {
 		timedCreateEnemy(2, ENEMY_SCANNER, 7 * game.map.tileWidth, 53 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 9 * game.map.tileWidth, 53 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 75;
 	}
 
 	if (game.wave == 3) {
@@ -420,7 +420,7 @@ function startWave() {
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 53 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 56 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 150;
+		game.waveTime = 110;
 	}
 
 	if (game.wave == 4) {
@@ -1241,7 +1241,7 @@ function createEnemy(type, x, y) {
 	let userdata = {
 		type: type,
 		worth: 100,
-		maxHp: 3,
+		maxHp: 5,
 		hp: 0,
 		speed: 50,
 		brakePerc: 0.99,
