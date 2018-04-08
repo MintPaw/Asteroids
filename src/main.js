@@ -1232,7 +1232,7 @@ function createEnemy(type, x, y) {
 	let userdata = {
 		type: type,
 		worth: 100,
-		maxHp: 5,
+		maxHp: 3,
 		hp: 0,
 		speed: 50,
 		brakePerc: 0.99,
@@ -1303,7 +1303,7 @@ function createEnemy(type, x, y) {
 		userdata.spinners = [];
 		for (let i = 0; i < 2; i++) {
 			let proj = game.enemyBulletsGroup.create(0, 0, "sprites", "sprites/enemies/firespinner_fireprojectile");
-			proj.scaleY = -1;
+			scaleSpriteToSize(proj, 32, -32);
 			proj.userdata = {
 				type: BULLET_FIRE_SPINNER,
 				damage: 1,
