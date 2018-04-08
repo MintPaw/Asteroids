@@ -26,3 +26,7 @@ function getDistanceBetween(spr1, spr2) {
 function degToRad(deg) {
 	return deg * 0.0174533;
 }
+
+function radToDeg(rad) {
+	return rad * 57.2958;
+}
