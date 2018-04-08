@@ -277,7 +277,7 @@ function create() {
 		spr.x = game.map.widthInPixels/2;
 		spr.y = game.map.heightInPixels/2;
 		spr.angle -= 90;
-		spr.setDrag(5, 5);
+		spr.setDrag(200, 200);
 		spr.setMaxVelocity(500, 500);
 
 		addMinimapSprite(spr, "minimap/player");
