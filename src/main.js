@@ -308,6 +308,7 @@ function create() {
 		scene.physics.world.addOverlap(game.player, game.enemyGroup, playerVEnemy);
 		scene.physics.world.addOverlap(game.player, game.moneyGroup, playerVMoney);
 		scene.physics.world.addCollider(game.enemyGroup, game.player, null, playerVEnemyProcess);
+		scene.physics.world.addCollider(game.enemyGroup, game.enemyGroup);
 	}
 
 	{ /// Setup shop
@@ -390,32 +391,40 @@ function startWave() {
 
 	if (game.wave == 1) {
 		enableBase(0);
-		timedMsg(1, "Scanners and hiders incoming");
-		timedCreateEnemy(2, ENEMY_HIDER, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_SCANNER, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedMsg(1, "Scanners incoming");
+		timedCreateEnemy(2, ENEMY_SCANNER, 6 * game.map.tileWidth, 4 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 9 * game.map.tileWidth, 4 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 12 * game.map.tileWidth, 4 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 9 * game.map.tileWidth, 7 * game.map.tileHeight);
 
-		game.waveTime = 60;
+		game.waveTime = 100;
 	}
 
 	if (game.wave == 2) {
-		timedMsg(1, "Ships and vessles!");
-		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedMsg(1, "Vessles and more scanners");
+		timedCreateEnemy(2, ENEMY_VESSEL, 87 * game.map.tileWidth, 53 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 7 * game.map.tileWidth, 53 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_SCANNER, 9 * game.map.tileWidth, 53 * game.map.tileHeight);
 
-		game.waveTime = 120;
+		game.waveTime = 100;
 	}
 
 	if (game.wave == 3) {
-		timedMsg(1, "A bunch of stuff!");
-		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 52 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 58 * game.map.tileHeight);
-		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 92 * game.map.tileWidth, 52 * game.map.tileHeight);
+		timedMsg(1, "Vessels and ships");
+		timedCreateEnemy(2, ENEMY_VESSEL, 51 * game.map.tileWidth, 3 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 47 * game.map.tileWidth, 3 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 55 * game.map.tileWidth, 3 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 50 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 47 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 44 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 53 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 56 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 120;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 4) {
-		timedMsg(1, "No more waves");
+		timedMsg(1, "No more waves yet");
 		game.waveTime = 999999;
 	}
 }

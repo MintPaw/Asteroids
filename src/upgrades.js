@@ -47,15 +47,15 @@ function getUpgradeValue(type) {
 	if (type == BULLET_SPEED) return 1000;
 	if (type == BULLET_SPREAD) return game.upgrades[UPGRADES_NAMES.indexOf(BULLET_SPREAD)];
 	if (type == FIRE_RATE) return 1/game.upgrades[UPGRADES_NAMES.indexOf(FIRE_RATE)];
-	if (type == ACCELERATION) return game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] * 300;
+	if (type == ACCELERATION) return (game.upgrades[UPGRADES_NAMES.indexOf(ACCELERATION)] + 2) * 300;
 
 	if (type == BRAKE_POWER) {
 		let value = game.upgrades[UPGRADES_NAMES.indexOf(BRAKE_POWER)];
-		if (value == 1) return 0.98;
-		if (value == 2) return 0.97;
-		if (value == 3) return 0.96;
-		if (value == 4) return 0.95;
-		if (value == 5) return 0.94;
-		if (value > 5) return 0.93;
+		if (value == 1) return 0.97;
+		if (value == 2) return 0.96;
+		if (value == 3) return 0.95;
+		if (value == 4) return 0.94;
+		if (value == 5) return 0.93;
+		if (value > 5) return 0.92;
 	}
 }
