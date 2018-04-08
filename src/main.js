@@ -42,6 +42,9 @@ let ENEMY_SCANNER = "scanner";
 let ENEMY_HIDER = "hider";
 let ENEMY_FIRE_SPINNER = "fireSpinner";
 
+let BULLET_DEFAULT = "default";
+let BULLET_FIRE_SPINNER = "fireSpinnerBullet";
+
 let WARNING_TIME = 2;
 let PLAYER_INVINCIBILITY_TIME = 1;
 let MONEY_LIFETIME = 10;
@@ -735,12 +738,30 @@ function update(delta) {
 
 			if (enemySprite.userdata.type == ENEMY_FIRE_SPINNER) {
 				enemySprite.userdata.target = getClosestTarget(enemySprite, game.baseGroup.getChildren(targets));
+				enemySprite.userdata.detachingText.x = enemySprite.x - 100 / 2;
+				enemySprite.userdata.detachingText.y = enemySprite.y + enemySprite.height;
 
 				for (let i = 0; i < enemySprite.userdata.spinners.length; i++) {
 					let proj = enemySprite.userdata.spinners[i];
 					let rotSep = 2*Math.PI / enemySprite.userdata.spinners.length;
-					proj.x = enemySprite.x + Math.cos((game.time*.001) + rotSep*i)*50;
-					proj.y = enemySprite.y + Math.sin((game.time*.001) + rotSep*i)*50;
+
+					proj.x = enemySprite.x + Math.cos((game.time*.001) + rotSep*i) * enemySprite.userdata.spinnerDistance;
+					proj.y = enemySprite.y + Math.sin((game.time*.001) + rotSep*i) * enemySprite.userdata.spinnerDistance;
+				}
+
+				if (enemySprite.userdata.detachingPerc == 0)
+					if (getDistanceBetween(enemySprite, game.player) < 200)
+						enemySprite.userdata.detachingPerc = 0.01;
+
+				if (enemySprite.userdata.detachingPerc > 0) {
+					if (enemySprite.userdata.detachingPerc < 100) {
+						enemySprite.userdata.detachingText.visible = true;
+						enemySprite.userdata.detachingText.setText("Detaching "+Math.round(enemySprite.userdata.detachingPerc)+"%");
+						enemySprite.userdata.detachingPerc += 0.5;
+					} else {
+						enemySprite.userdata.detachingText.visible = false;
+						if (enemySprite.userdata.spinnerDistance < enemySprite.userdata.maxSpinnerDistance) enemySprite.userdata.spinnerDistance += 1;
+					}
 				}
 
 				if (enemySprite.userdata.target) {
@@ -764,23 +785,27 @@ function update(delta) {
 		allBullets.push(...game.enemyBulletsGroup.getChildren());
 
 		for (spr of allBullets) {
-			spr.alpha -= 0.005;
-			spr.userdata.graphic.x = spr.x;
-			spr.userdata.graphic.y = spr.y;
+			if (spr.userdata.type == BULLET_DEFAULT) spr.alpha -= 0.005;
+
+			if (spr.userdata.graphic) {
+				spr.userdata.graphic.x = spr.x;
+				spr.userdata.graphic.y = spr.y;
+			}
+
+			if (spr.alpha <= 0) {
+				spr.destroy();
+				if (spr.userdata.graphic) spr.userdata.graphic.destroy();
+			}
 		}
 
 		for (spr of game.bulletGroup.getChildren()) {
-			if (spr.alpha <= 0) {
-				spr.destroy();
-				spr.userdata.graphic.destroy();
+			if (!spr.active) {
 				game.bulletGroup.remove(spr);
 			}
 		}
 
 		for (spr of game.enemyBulletsGroup.getChildren()) {
-			if (spr.alpha <= 0) {
-				spr.destroy();
-				spr.userdata.graphic.destroy();
+			if (!spr.active) {
 				game.enemyBulletsGroup.remove(spr);
 			}
 		}
@@ -1018,6 +1043,7 @@ function shootBullet(sourceSprite, angle, speed, isFriendly) {
 	graphic.blendMode = "ADD";
 
 	spr.userdata = {
+		type: "default",
 		damage: 1,
 		graphic: graphic
 	};
@@ -1084,6 +1110,11 @@ function destroyEnemy(enemy) {
 		enemy.userdata.hidingTargetSprite.destroy();
 	}
 
+	if (enemy.userdata.type == ENEMY_FIRE_SPINNER) {
+		for (proj of enemy.userdata.spinners) proj.alpha = 0;
+		enemy.userdata.detachingText.destroy();
+	}
+
 	emitMoney(enemy.userdata.worth, xpos, ypos);
 }
 
@@ -1091,7 +1122,8 @@ function destroyEnemy(enemy) {
 function bulletVPlayer(s1, s2) {
 	let player = s1 == game.player ? s1 : s2;
 	let bullet = player == s1 ? s2 : s1;
-	bullet.alpha = 0;
+
+	if (bullet.userdata.type == BULLET_DEFAULT) bullet.alpha = 0;
 
 	hitPlayer(bullet.userdata.damage);
 }
@@ -1114,6 +1146,8 @@ function enemyVPlayer(s1, s2) {
 function bulletVBase(s1, s2) {
 	let bullet = game.enemyBulletsGroup.contains(s1) ? s1 : s2;
 	let base = bullet == s1 ? s2 : s1;
+
+	if (bullet.userdata.type == BULLET_FIRE_SPINNER) return;
 
 	if (base.userdata.hp <= 0 || !base.userdata.enabled) return;
 
@@ -1266,7 +1300,20 @@ function createEnemy(type, x, y) {
 		scaleSpriteToSize(spr, 32, 32);
 
 		userdata.spinners = [];
-		for (let i = 0; i < 2; i++) userdata.spinners.push(scene.add.image(0, 0, "sprites", "sprites/enemies/firespinner_fireprojectile"));
+		for (let i = 0; i < 2; i++) {
+			let proj = game.enemyBulletsGroup.create(0, 0, "sprites", "sprites/enemies/firespinner_fireprojectile");
+			proj.userdata = {
+				type: BULLET_FIRE_SPINNER,
+				damage: 1,
+			};
+
+			userdata.spinners.push(proj);
+			userdata.detachingPerc = 0;
+			userdata.detachingText = scene.add.text(0, 0, "Detaching...", {font: "16px Arial"});
+			userdata.detachingText.visible = false;
+			userdata.spinnerDistance = 50;
+			userdata.maxSpinnerDistance = 200;
+		}
 
 		userdata.speed = 40;
 	}
