@@ -275,6 +275,7 @@ function create() {
 	{ /// Setup player
 		let spr = scene.physics.add.image(0, 0, "sprites", "sprites/player/player");
 		scaleSpriteToSize(spr, 64, 64);
+		spr.setOrigin(0.3, 0.5);
 		spr.x = game.map.widthInPixels/2;
 		spr.y = game.map.heightInPixels/2;
 		spr.angle -= 90;
