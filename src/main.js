@@ -54,6 +54,7 @@ let game = {
 	height: 0,
 	time: 0,
 	player: null,
+	playerTurnVelo: 0,
 
 	bulletGroup: null,
 	enemyBulletsGroup: null,
@@ -504,10 +505,16 @@ function update(delta) {
 			let brakePerc = getUpgradeValue(BRAKE_POWER);
 
 			let turnSpeed = 5;
+
+			let turnAccel = 0;
 			if (up) game.player.setAcceleration(Math.cos(game.player.angle * Math.PI/180) * speed, Math.sin(game.player.angle * Math.PI/180) * speed);
-			if (left) game.player.angle -= turnSpeed;
-			if (right) game.player.angle += turnSpeed;
+			if (left) turnAccel = -1;
+			if (right) turnAccel = 1;
 			if (down) game.player.setVelocity(game.player.body.velocity.x * brakePerc, game.player.body.velocity.y * brakePerc);
+
+			game.playerTurnVelo += turnAccel;
+			game.playerTurnVelo *= 0.75;
+			game.player.angle += game.playerTurnVelo;
 
 			game.timeTillNextShot -= game.elapsed;
 			if (shoot && game.timeTillNextShot <= 0) {
