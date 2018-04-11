@@ -232,6 +232,7 @@ function create() {
 		game.minimap.zoom = mapScale;
 		game.minimap.setBackgroundColor(0x002244);
 		game.minimap.ignore(game.mapLayers[0]);
+		game.minimap.ignore(game.mapLayers[1]);
 		game.minimap.roundPixels = true;
 
 		let horiLines = 4;

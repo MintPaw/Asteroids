@@ -1,8 +1,19 @@
 let Vector2 = Phaser.Math.Vector2;
 
-function scaleSpriteToSize(spr, newWidth, newHeight) {
-	spr.scaleX = newWidth/spr.width;
-	spr.scaleY = newHeight/spr.height;
+function scaleSpriteToSize(spr, newWidth, newHeight, keepRatio) {
+	if (keepRatio === undefined) keepRatio = true;
+
+	if (keepRatio) {
+		let rx = newWidth / spr.width;
+		let ry = newHeight / spr.height;
+		let scale = Math.min(rx, ry);
+		spr.scaleX = scale;
+		spr.scaleY = scale;
+
+	} else {
+		spr.scaleX = newWidth/spr.width;
+		spr.scaleY = newHeight/spr.height;
+	}
 }
 
 function rnd(min, max) {
