@@ -219,6 +219,7 @@ function create() {
 		game.mapTiles = game.map.addTilesetImage("tilesheet", "tilesheet");
 
 		game.mapLayers[0] = game.map.createStaticLayer(0, game.mapTiles, 0, 0);
+		game.mapLayers[1] = game.map.createStaticLayer(1, game.mapTiles, 0, 0);
 	}
 
 	{ /// Setup minimap
