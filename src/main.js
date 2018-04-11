@@ -478,7 +478,7 @@ function startWave() {
 		game.waveTime = 100;
 	}
 
-	if (game.wave == 4) {
+	if (game.wave == 7) {
 		timedMsg(5, "No more waves yet");
 		game.waveTime = 999999;
 	}
