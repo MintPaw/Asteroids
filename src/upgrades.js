@@ -20,17 +20,22 @@ let UPGRADES_NAMES = [
 ];
 
 function getUpgradePrice(upgradeName) {
-	if (upgradeName == "Repair Base") {
+	let index = UPGRADES_NAMES.indexOf(upgradeName);
+	let upgradeLevel = game.upgrades[index];
+
+	if (upgradeName == REPAIR_BASE) {
 		if (game.baseOver.userdata.hp <= 0) return 500;
 		else return 200;
 	}
 
-	if (upgradeName == "Build Turret") {
+	if (upgradeName == BUILD_TURRET) {
 		return 500;
 	}
 
-	let index = UPGRADES_NAMES.indexOf(upgradeName);
-	let upgradeLevel = game.upgrades[index];
+	if (upgradeName == DAMAGE) {
+		return upgradeLevel * 500;
+	}
+
 	return upgradeLevel * 300;
 }
 
