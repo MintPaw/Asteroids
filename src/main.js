@@ -1366,6 +1366,7 @@ function timedMsg(time, str) {
 
 function addMinimapSprite(parentSprite, minimapImage) {
 	let minimapSpr = game.minimapGroup.create(0, 0, "minimap", minimapImage);
+	scaleSpriteToSize(minimapSpr, 128, 128);
 
 	minimapSpr.userdata = {
 		parentSprite: parentSprite
@@ -1430,6 +1431,7 @@ function hitPlayer(amount) {
 function emitMoney(amount, x, y) {
 	for (let i = 0; i < amount; i++) {
 		let spr = game.moneyGroup.create(x, y, "sprites", "sprites/money");
+		game.minimap.ignore(spr);
 		spr.scaleX = spr.scaleY = rnd(0.1, 0.5);
 
 		spr.setVelocity(rnd(-50, 50), rnd(-50, 50));
