@@ -414,6 +414,7 @@ function startWave() {
 	if (game.wave == 2) {
 		// timedMsg(1, "Vessles and more scanners");
 		timedCreateEnemy(2, ENEMY_VESSEL, 87 * game.map.tileWidth, 53 * game.map.tileHeight);
+
 		timedCreateEnemy(6, ENEMY_SCANNER, 7 * game.map.tileWidth, 53 * game.map.tileHeight);
 		timedCreateEnemy(6, ENEMY_SCANNER, 9 * game.map.tileWidth, 53 * game.map.tileHeight);
 		timedCreateEnemy(6, ENEMY_SCANNER, 11 * game.map.tileWidth, 53 * game.map.tileHeight);
@@ -427,6 +428,7 @@ function startWave() {
 		timedCreateEnemy(2, ENEMY_VESSEL, 51 * game.map.tileWidth, 3 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_VESSEL, 47 * game.map.tileWidth, 3 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_VESSEL, 55 * game.map.tileWidth, 3 * game.map.tileHeight);
+
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 50 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 47 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_BASIC_SHIP, 44 * game.map.tileWidth, 95 * game.map.tileHeight);
@@ -465,6 +467,20 @@ function startWave() {
 	}
 
 	if (game.wave == 6) {
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		timedCreateEnemy(8, ENEMY_HIDER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_HIDER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_HIDER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_HIDER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		game.waveTime = 100;
+	}
+
+	if (game.wave == 7) {
 		timedCreateEnemy(2, ENEMY_SCANNER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
 		timedCreateEnemy(2, ENEMY_SCANNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
@@ -478,7 +494,65 @@ function startWave() {
 		game.waveTime = 100;
 	}
 
-	if (game.wave == 7) {
+	if (game.wave == 8) {
+		timedCreateEnemy(2, ENEMY_HIDER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_HIDER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_HIDER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_HIDER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		game.waveTime = 100;
+	}
+
+	if (game.wave == 9) {
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		timedCreateEnemy(8, ENEMY_HIDER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_HIDER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_HIDER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_HIDER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		timedCreateEnemy(14, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(14, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(14, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(14, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		game.waveTime = 100;
+	}
+
+	if (game.wave == 10) {
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(2, ENEMY_VESSEL, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		timedCreateEnemy(8, ENEMY_SCANNER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_SCANNER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_SCANNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(8, ENEMY_SCANNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+
+		timedCreateEnemy(14, ENEMY_HIDER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(14, ENEMY_HIDER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(14, ENEMY_HIDER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(14, ENEMY_HIDER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		timedCreateEnemy(20, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(20, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 5 * game.map.tileHeight);
+		timedCreateEnemy(20, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
+		timedCreateEnemy(20, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
+
+		game.waveTime = 100;
+	}
+
+	if (game.wave == 11) {
 		timedMsg(5, "No more waves yet");
 		game.waveTime = 999999;
 	}
