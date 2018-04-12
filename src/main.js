@@ -463,7 +463,7 @@ function startWave() {
 		timedCreateEnemy(8, ENEMY_HIDER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(8, ENEMY_HIDER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 6) {
@@ -477,7 +477,7 @@ function startWave() {
 		timedCreateEnemy(8, ENEMY_HIDER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(8, ENEMY_HIDER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 7) {
@@ -491,7 +491,7 @@ function startWave() {
 		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 8) {
@@ -505,7 +505,7 @@ function startWave() {
 		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(8, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 9) {
@@ -524,7 +524,7 @@ function startWave() {
 		timedCreateEnemy(14, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(14, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 10) {
@@ -549,7 +549,7 @@ function startWave() {
 		timedCreateEnemy(20, ENEMY_FIRE_SPINNER, 95 * game.map.tileWidth, 95 * game.map.tileHeight);
 		timedCreateEnemy(20, ENEMY_FIRE_SPINNER, 5 * game.map.tileWidth, 95 * game.map.tileHeight);
 
-		game.waveTime = 100;
+		game.waveTime = 150;
 	}
 
 	if (game.wave == 11) {
