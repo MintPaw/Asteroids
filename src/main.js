@@ -790,6 +790,8 @@ function update(delta) {
 			}
 
 			if (enemySprite.userdata.type == ENEMY_SCANNER) {
+				enemySprite.setAcceleration();
+
 				if (enemySprite.userdata.scanPerc >= 100) {
 					enemySprite.userdata.scanningText.visible = true;
 					enemySprite.userdata.scanningText.setText("Calling for backup");
