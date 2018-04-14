@@ -891,9 +891,9 @@ function update(delta) {
 					let proj = enemySprite.userdata.spinners[i];
 					let rotSep = 2*Math.PI / enemySprite.userdata.spinners.length;
 
-					proj.x = enemySprite.x + Math.cos((game.time*.001) + rotSep*i) * enemySprite.userdata.spinnerDistance;
-					proj.y = enemySprite.y + Math.sin((game.time*.001) + rotSep*i) * enemySprite.userdata.spinnerDistance;
-					proj.angle = getAngleBetweenCoords(enemySprite.x, enemySprite.y, proj.x, proj.y) + 30;
+					proj.x = enemySprite.x + Math.cos((-game.time*.001) + rotSep*i) * enemySprite.userdata.spinnerDistance;
+					proj.y = enemySprite.y + Math.sin((-game.time*.001) + rotSep*i) * enemySprite.userdata.spinnerDistance;
+					proj.angle = getAngleBetweenCoords(enemySprite.x, enemySprite.y, proj.x, proj.y) - 30;
 				}
 
 				if (enemySprite.userdata.detachingPerc == 0)
@@ -1449,7 +1449,7 @@ function createEnemy(type, x, y) {
 		userdata.spinners = [];
 		for (let i = 0; i < 2; i++) {
 			let proj = game.enemyBulletsGroup.create(0, 0, "sprites", "sprites/enemies/firespinner_fireprojectile");
-			scaleSpriteToSize(proj, 32, -32);
+			scaleSpriteToSize(proj, 32, 32);
 			proj.userdata = {
 				type: BULLET_FIRE_SPINNER,
 				damage: 1,
