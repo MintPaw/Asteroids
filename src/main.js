@@ -1331,7 +1331,7 @@ function playerVEnemy(s1, s2) {
 		if (enemy.userdata.hidingPerc >= 100) return;
 	}
 
-	hitPlayer(0.5);
+	hitPlayer(2);
 }
 
 function playerVEnemyProcess(s1, s2) {
