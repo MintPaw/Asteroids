@@ -902,8 +902,11 @@ function update(delta) {
 
 				if (enemySprite.userdata.detachingPerc > 0) {
 					if (enemySprite.userdata.detachingPerc < 100) {
-						enemySprite.userdata.detachingText.visible = true;
-						enemySprite.userdata.detachingText.setText("Detaching "+Math.round(enemySprite.userdata.detachingPerc)+"%");
+						var tintPerc = 1 - enemySprite.userdata.detachingPerc/100;
+						var tint = 0xFF0000 | (0x00FF00 * tintPerc) | (0x0000FF * tintPerc);
+						enemySprite.tint = tint;
+						// enemySprite.userdata.detachingText.visible = true;
+						// enemySprite.userdata.detachingText.setText("Detaching "+Math.round(enemySprite.userdata.detachingPerc)+"%");
 						enemySprite.userdata.detachingPerc += 0.5;
 					} else {
 						enemySprite.userdata.detachingText.visible = false;
